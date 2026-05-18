@@ -60,39 +60,39 @@ export default function AudioPlayer({ text = '', lang = 'en', compact = false, a
 
   if (compact) {
     return (
-      <div className="flex items-center gap-3 bg-[#F5F3FF] rounded-2xl px-4 py-3 border border-[#EDE9FE]">
-        <button onClick={pause} className={`w-9 h-9 rounded-full flex items-center justify-center text-white transition-all ${playing ? 'bg-[#7C3AED]' : 'bg-[#8B5CF6] hover:bg-[#7C3AED]'}`}>
+      <div className="flex items-center gap-3 bg-brand-50 rounded-2xl px-4 py-3 border border-brand-100">
+        <button onClick={pause} className={`w-9 h-9 rounded-full flex items-center justify-center text-white transition-all ${playing ? 'bg-brand-600' : 'bg-brand-500 hover:bg-brand-600'}`}>
           {playing ? <FiPause size={14} /> : <FiPlay size={14} />}
         </button>
-        <div className="flex-1 h-1.5 bg-[#DDD6FE] rounded-full overflow-hidden cursor-pointer">
-          <div className="h-full bg-[#7C3AED] rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+        <div className="flex-1 h-1.5 bg-brand-200 rounded-full overflow-hidden cursor-pointer">
+          <div className="h-full bg-brand-600 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
         </div>
-        <button onClick={stop} className="text-[#9CA3AF] hover:text-[#7C3AED] transition-colors">
+        <button onClick={stop} className="text-gray-400 hover:text-brand-600 transition-colors">
           <FiSquare size={13} />
         </button>
-        <span className="text-xs text-[#6B7280] font-medium">{speed}x</span>
+        <span className="text-xs text-gray-500 font-medium">{speed}x</span>
       </div>
     );
   }
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-3xl border border-[#EDE9FE] shadow-card p-5">
+      className="bg-white rounded-3xl border border-brand-100 shadow-card p-5">
       <div className="flex items-center justify-between mb-4">
-        <h4 className="text-sm font-semibold text-[#2E1065]">🎧 Audio Reading</h4>
+        <h4 className="text-sm font-semibold text-brand-950">🎧 Audio Reading</h4>
         <div className="flex items-center gap-2">
-          <button onClick={() => setMuted(v => !v)} className="text-[#8B5CF6] hover:text-[#7C3AED] transition-colors p-1">
+          <button onClick={() => setMuted(v => !v)} className="text-brand-500 hover:text-brand-600 transition-colors p-1">
             {muted ? <FiVolumeX size={15} /> : <FiVolume2 size={15} />}
           </button>
           <div className="relative">
-            <button onClick={() => setShowSpeed(v => !v)} className="flex items-center gap-1 text-xs text-[#6B7280] hover:text-[#7C3AED] transition-colors p-1">
+            <button onClick={() => setShowSpeed(v => !v)} className="flex items-center gap-1 text-xs text-gray-500 hover:text-brand-600 transition-colors p-1">
               <MdSpeed size={15} />{speed}x
             </button>
             {showSpeed && (
-              <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-card border border-[#EDE9FE] py-1 z-10 min-w-[64px]">
+              <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-card border border-brand-100 py-1 z-10 min-w-[64px]">
                 {SPEEDS.map(s => (
                   <button key={s} onClick={() => { setSpeed(s); setShowSpeed(false); }}
-                    className={`w-full px-3 py-1.5 text-xs text-left hover:bg-[#F5F3FF] transition-colors ${speed === s ? 'text-[#7C3AED] font-semibold' : 'text-[#5B21B6]'}`}>
+                    className={`w-full px-3 py-1.5 text-xs text-left hover:bg-brand-50 transition-colors ${speed === s ? 'text-brand-600 font-semibold' : 'text-brand-800'}`}>
                     {s}x
                   </button>
                 ))}
@@ -104,33 +104,33 @@ export default function AudioPlayer({ text = '', lang = 'en', compact = false, a
 
       {/* Progress */}
       <div className="mb-5">
-        <div className="h-2 bg-[#EDE9FE] rounded-full overflow-hidden cursor-pointer">
-          <motion.div className="h-full bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-full"
+        <div className="h-2 bg-brand-100 rounded-full overflow-hidden cursor-pointer">
+          <motion.div className="h-full bg-gradient-to-r from-brand-500 to-brand-600 rounded-full"
             style={{ width: `${progress}%` }} transition={{ duration: 0.2 }} />
         </div>
         <div className="flex justify-between mt-1.5">
-          <span className="text-xs text-[#9CA3AF]">Word {wordIndex} / {totalWords}</span>
-          <span className="text-xs text-[#9CA3AF]">{Math.round(progress)}%</span>
+          <span className="text-xs text-gray-400">Word {wordIndex} / {totalWords}</span>
+          <span className="text-xs text-gray-400">{Math.round(progress)}%</span>
         </div>
       </div>
 
       {/* Controls */}
       <div className="flex items-center justify-center gap-4">
         <button onClick={() => setSpeed(s => SPEEDS[Math.max(0, SPEEDS.indexOf(s) - 1)])}
-          className="w-9 h-9 rounded-full bg-[#F5F3FF] flex items-center justify-center text-[#8B5CF6] hover:bg-[#EDE9FE] transition-colors">
+          className="w-9 h-9 rounded-full bg-brand-50 flex items-center justify-center text-brand-500 hover:bg-brand-100 transition-colors">
           <FiSkipBack size={14} />
         </button>
         <button onClick={pause}
           className={`w-14 h-14 rounded-full flex items-center justify-center text-white shadow-glow transition-all duration-200 active:scale-95
-            ${playing ? 'bg-[#7C3AED] hover:bg-[#5B21B6]' : 'bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] hover:shadow-[0_0_24px_rgba(124,58,237,0.4)]'}`}>
+            ${playing ? 'bg-brand-600 hover:bg-brand-800' : 'bg-gradient-to-br from-brand-500 to-brand-600 hover:shadow-[0_0_24px_rgba(124,58,237,0.4)]'}`}>
           {playing ? <FiPause size={22} /> : <FiPlay size={22} className="ml-1" />}
         </button>
         <button onClick={stop}
-          className="w-9 h-9 rounded-full bg-[#F5F3FF] flex items-center justify-center text-[#8B5CF6] hover:bg-[#EDE9FE] transition-colors">
+          className="w-9 h-9 rounded-full bg-brand-50 flex items-center justify-center text-brand-500 hover:bg-brand-100 transition-colors">
           <FiSquare size={14} />
         </button>
         <button onClick={() => setSpeed(s => SPEEDS[Math.min(SPEEDS.length - 1, SPEEDS.indexOf(s) + 1)])}
-          className="w-9 h-9 rounded-full bg-[#F5F3FF] flex items-center justify-center text-[#8B5CF6] hover:bg-[#EDE9FE] transition-colors">
+          className="w-9 h-9 rounded-full bg-brand-50 flex items-center justify-center text-brand-500 hover:bg-brand-100 transition-colors">
           <FiSkipForward size={14} />
         </button>
       </div>

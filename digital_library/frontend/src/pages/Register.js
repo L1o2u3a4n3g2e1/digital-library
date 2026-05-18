@@ -43,64 +43,64 @@ export default function Register() {
 
         {/* Language selector */}
         <div>
-          <label className="block text-sm font-medium text-[#5B21B6] mb-2">Preferred Language</label>
+          <label className="block text-sm font-medium text-brand-800 mb-2">Preferred Language</label>
           <div className="grid grid-cols-4 gap-2">
             {LANGUAGES.map(l => (
               <button key={l.code} type="button" onClick={() => setLanguage(l.code)}
                 className={`flex flex-col items-center gap-1 py-2.5 rounded-xl border transition-all text-xs
-                  ${language === l.code ? 'border-[#7C3AED] bg-[#F5F3FF] text-[#7C3AED] font-semibold' : 'border-[#DDD6FE] text-[#6B7280] hover:border-[#8B5CF6]'}`}>
+                  ${language === l.code ? 'border-brand-600 bg-brand-50 text-brand-600 font-semibold' : 'border-brand-200 text-gray-500 hover:border-brand-500'}`}>
                 <span className="text-lg">{l.flag}</span>
                 <span>{l.label.split(' ')[0]}</span>
-                {language === l.code && <FiCheck size={10} className="text-[#7C3AED]" />}
+                {language === l.code && <FiCheck size={10} className="text-brand-600" />}
               </button>
             ))}
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#5B21B6] mb-1.5">{t('name')}</label>
+          <label className="block text-sm font-medium text-brand-800 mb-1.5">{t('name')}</label>
           <div className="relative">
-            <FiUser className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B5CF6]" size={16} />
+            <FiUser className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-500" size={16} />
             <input type="text" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
               placeholder="Your full name" className="input-field pl-10" required />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#5B21B6] mb-1.5">{t('email')}</label>
+          <label className="block text-sm font-medium text-brand-800 mb-1.5">{t('email')}</label>
           <div className="relative">
-            <FiMail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B5CF6]" size={16} />
+            <FiMail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-500" size={16} />
             <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
               placeholder="you@example.com" className="input-field pl-10" required />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#5B21B6] mb-1.5">{t('password')}</label>
+          <label className="block text-sm font-medium text-brand-800 mb-1.5">{t('password')}</label>
           <div className="relative">
-            <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B5CF6]" size={16} />
+            <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-500" size={16} />
             <input type={showPw ? 'text' : 'password'} value={form.password}
               onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
               placeholder="Min. 8 characters" className="input-field pl-10 pr-10" required />
             <button type="button" onClick={() => setShowPw(v => !v)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#7C3AED]">
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-600">
               {showPw ? <FiEyeOff size={15} /> : <FiEye size={15} />}
             </button>
           </div>
           {pwStrength && (
             <div className="mt-2">
-              <div className="h-1 bg-[#EDE9FE] rounded-full overflow-hidden">
+              <div className="h-1 bg-brand-100 rounded-full overflow-hidden">
                 <div className={`h-full rounded-full transition-all duration-300 ${strengthColors[pwStrength]}`} style={{ width: strengthWidths[pwStrength] }} />
               </div>
-              <p className="text-xs text-[#6B7280] mt-1 capitalize">{pwStrength} password</p>
+              <p className="text-xs text-gray-500 mt-1 capitalize">{pwStrength} password</p>
             </div>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#5B21B6] mb-1.5">{t('confirmPassword')}</label>
+          <label className="block text-sm font-medium text-brand-800 mb-1.5">{t('confirmPassword')}</label>
           <div className="relative">
-            <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B5CF6]" size={16} />
+            <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-500" size={16} />
             <input type="password" value={form.confirm} onChange={e => setForm(p => ({ ...p, confirm: e.target.value }))}
               placeholder="Repeat password" className="input-field pl-10" required />
             {form.confirm && form.password === form.confirm && (
@@ -116,9 +116,9 @@ export default function Register() {
             : <span className="flex items-center gap-2">{t('register')} <FiArrowRight /></span>}
         </motion.button>
 
-        <p className="text-center text-sm text-[#6B7280]">
+        <p className="text-center text-sm text-gray-500">
           Already have an account?{' '}
-          <Link to="/login" className="text-[#7C3AED] font-semibold hover:text-[#5B21B6] transition-colors">{t('login')}</Link>
+          <Link to="/login" className="text-brand-600 font-semibold hover:text-brand-800 transition-colors">{t('login')}</Link>
         </p>
       </form>
     </AuthLayout>

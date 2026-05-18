@@ -1,23 +1,23 @@
 /** @type {import('tailwindcss').Config} */
+const twColors = require('tailwindcss/colors');
+
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        // Vibrant violet brand system
+        // Semantic design tokens — maps exactly to the brand palette
+        brand: twColors.violet,   // brand-600=#7C3AED, brand-500=#8B5CF6, brand-800=#5B21B6, brand-950=#2E1065
+        audio: twColors.cyan,     // audio-600=#0891B2, audio-100=#E0F2FE
+        lang:  twColors.emerald,  // lang-600=#059669,  lang-100=#D1FAE5
+        // Legacy aliases kept for backward compat
         cream:  { DEFAULT: '#F5F3FF', 50: '#FAFAFF', 100: '#F5F3FF', 200: '#EDE9FE', 300: '#DDD6FE' },
         nude:   { DEFAULT: '#DDD6FE', 100: '#EDE9FE', 200: '#DDD6FE', 300: '#C4B5FD', 400: '#A78BFA' },
         brown:  { DEFAULT: '#7C3AED', light: '#8B5CF6', dark: '#5B21B6', darker: '#2E1065' },
         coffee: { DEFAULT: '#8B5CF6', light: '#A78BFA', dark: '#6D28D9' },
         warm:   { white: '#FAFAFF', gray: '#6B7280', muted: '#9CA3AF' },
-        // Accent palette
-        accent: {
-          cyan:    '#0891B2',
-          emerald: '#059669',
-          amber:   '#D97706',
-          rose:    '#E11D48',
-        },
+        accent: { cyan: '#0891B2', emerald: '#059669', amber: '#D97706', rose: '#E11D48' },
       },
       fontFamily: {
         sans:    ['Inter', 'system-ui', '-apple-system', 'sans-serif'],

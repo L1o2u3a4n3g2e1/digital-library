@@ -7,6 +7,7 @@ import {
 } from 'react-icons/fi';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../utils/translations';
+import Logo from '../ui/Logo';
 
 const NAV_ITEMS = [
   { icon: FiGrid, key: 'dashboard', to: '/dashboard', emoji: '🏠' },
@@ -34,17 +35,10 @@ export default function Sidebar() {
   };
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-white border-r border-[#E5E7EB]">
+    <div className="flex flex-col h-full bg-white border-r border-gray-200">
       {/* Logo area */}
-      <div className="flex items-center justify-between px-5 py-5 border-b border-[#EDE9FE]">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] flex items-center justify-center shadow-sm">
-            <span className="text-white text-sm font-bold">ML</span>
-          </div>
-          <span className="font-['Playfair_Display'] font-semibold text-[#2E1065] text-base">
-            {t('appName')}
-          </span>
-        </div>
+      <div className="flex items-center justify-between px-5 py-5 border-b border-brand-100">
+        <Logo to="/dashboard" iconSize={32} textSize="text-base" />
         <button onClick={() => setSidebarOpen(false)} className="btn-ghost p-1.5 rounded-lg lg:hidden">
           <FiX size={18} />
         </button>
@@ -52,14 +46,14 @@ export default function Sidebar() {
 
       {/* User mini card */}
       {user && (
-        <div className="mx-4 my-4 p-3 rounded-2xl bg-gradient-to-r from-[#F5F3FF] to-[#EDE9FE] border border-[#EDE9FE]">
+        <div className="mx-4 my-4 p-3 rounded-2xl bg-gradient-to-r from-brand-50 to-brand-100 border border-brand-100">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#DDD6FE] to-[#8B5CF6] flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-200 to-brand-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
               {user?.name?.charAt(0)?.toUpperCase() || 'U'}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-[#2E1065] truncate">{user?.name}</p>
-              <p className="text-xs text-[#8B5CF6]">Avid Reader</p>
+              <p className="text-sm font-semibold text-brand-950 truncate">{user?.name}</p>
+              <p className="text-xs text-brand-500">Avid Reader</p>
             </div>
           </div>
         </div>
@@ -67,9 +61,9 @@ export default function Sidebar() {
 
       {/* Low Literacy voice banner */}
       {lowLiteracy && (
-        <div className="mx-3 mb-2 px-3 py-2 rounded-xl bg-[#7C3AED]/10 border border-[#DDD6FE] flex items-center gap-2">
+        <div className="mx-3 mb-2 px-3 py-2 rounded-xl bg-brand-600/10 border border-brand-200 flex items-center gap-2">
           <span className="text-lg">🔊</span>
-          <p className="text-xs text-[#5B21B6] font-medium">Hover a menu item to hear it</p>
+          <p className="text-xs text-brand-800 font-medium">Hover a menu item to hear it</p>
         </div>
       )}
 
@@ -83,15 +77,15 @@ export default function Sidebar() {
               `flex items-center gap-3.5 px-4 rounded-2xl font-medium transition-all duration-200 group
               ${lowLiteracy ? 'py-4 text-base' : 'py-3 text-sm'}
               ${isActive
-                ? 'bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] text-white shadow-[0_4px_14px_-2px_rgba(124,58,237,0.35)]'
-                : 'text-[#5B21B6] hover:bg-[#F5F3FF] hover:text-[#7C3AED]'
+                ? 'bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-[0_4px_14px_-2px_rgba(124,58,237,0.35)]'
+                : 'text-brand-800 hover:bg-brand-50 hover:text-brand-600'
               }`
             }>
             {({ isActive }) => (
               <>
                 {lowLiteracy
                   ? <span className="text-xl">{emoji}</span>
-                  : <Icon size={18} className={isActive ? 'text-white' : 'text-[#8B5CF6] group-hover:text-[#7C3AED]'} />
+                  : <Icon size={18} className={isActive ? 'text-white' : 'text-brand-500 group-hover:text-brand-600'} />
                 }
                 <span>{t(key)}</span>
               </>
@@ -101,15 +95,15 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom items */}
-      <div className="px-3 pb-4 space-y-1 border-t border-[#EDE9FE] pt-3">
+      <div className="px-3 pb-4 space-y-1 border-t border-brand-100 pt-3">
         {BOTTOM_ITEMS.map(({ icon: Icon, key, to }) => (
           <NavLink key={to} to={to}
             onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
               `flex items-center gap-3.5 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all duration-200
-              ${isActive ? 'bg-[#F5F3FF] text-[#7C3AED]' : 'text-[#6B7280] hover:bg-[#F5F3FF] hover:text-[#7C3AED]'}`
+              ${isActive ? 'bg-brand-50 text-brand-600' : 'text-gray-500 hover:bg-brand-50 hover:text-brand-600'}`
             }>
-            <Icon size={17} className="text-[#9CA3AF]" />
+            <Icon size={17} className="text-gray-400" />
             <span>{t(key)}</span>
           </NavLink>
         ))}

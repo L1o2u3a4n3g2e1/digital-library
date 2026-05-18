@@ -1,21 +1,19 @@
 export const LANGUAGES = [
-  { code: 'en', label: 'English', flag: '🇬🇧', dir: 'ltr' },
-  { code: 'fr', label: 'Français', flag: '🇫🇷', dir: 'ltr' },
-  { code: 'sw', label: 'Kiswahili', flag: '🇰🇪', dir: 'ltr' },
+  { code: 'en', label: 'English',     flag: '🇬🇧', dir: 'ltr' },
   { code: 'rw', label: 'Kinyarwanda', flag: '🇷🇼', dir: 'ltr' },
 ];
 
 export const CATEGORIES = [
-  { id: 'fiction', label: 'Fiction', icon: '📖', color: '#D4A574' },
-  { id: 'science', label: 'Science', icon: '🔬', color: '#7FB3D3' },
-  { id: 'history', label: 'History', icon: '🏛️', color: '#A8C5A0' },
-  { id: 'health', label: 'Health', icon: '❤️', color: '#F4A7A7' },
-  { id: 'agriculture', label: 'Agriculture', icon: '🌾', color: '#B5CC8E' },
-  { id: 'business', label: 'Business', icon: '💼', color: '#B8A9C9' },
-  { id: 'education', label: 'Education', icon: '🎓', color: '#F7C59F' },
-  { id: 'technology', label: 'Technology', icon: '💻', color: '#89C4CF' },
-  { id: 'family', label: 'Family', icon: '👨‍👩‍👧', color: '#F9D5A7' },
-  { id: 'religion', label: 'Religion', icon: '✝️', color: '#C5A3C5' },
+  { id: 'fiction',     label: 'Fiction',     icon: '📖', color: 'var(--brand-200)'  },
+  { id: 'science',     label: 'Science',     icon: '🔬', color: 'var(--audio-100)'  },
+  { id: 'history',     label: 'History',     icon: '🏛️', color: 'var(--brand-100)'  },
+  { id: 'health',      label: 'Health',      icon: '❤️', color: '#FEE2E2'           },
+  { id: 'agriculture', label: 'Agriculture', icon: '🌾', color: 'var(--lang-100)'   },
+  { id: 'business',    label: 'Business',    icon: '💼', color: 'var(--brand-100)'  },
+  { id: 'education',   label: 'Education',   icon: '🎓', color: '#FEF3C7'           },
+  { id: 'technology',  label: 'Technology',  icon: '💻', color: 'var(--audio-100)'  },
+  { id: 'family',      label: 'Family',      icon: '👨‍👩‍👧', color: '#FEF3C7'           },
+  { id: 'religion',    label: 'Religion',    icon: '✝️', color: 'var(--brand-100)'  },
 ];
 
 export const READING_SPEEDS = [

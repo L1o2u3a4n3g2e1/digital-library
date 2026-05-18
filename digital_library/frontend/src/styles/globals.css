@@ -5,16 +5,28 @@
 
 @layer base {
   :root {
-    --violet:       #7C3AED;
-    --violet-light: #8B5CF6;
-    --violet-dark:  #5B21B6;
-    --violet-deep:  #2E1065;
-    --surface:      #EDE9FE;
-    --border:       #DDD6FE;
-    --bg:           #F5F3FF;
+    --brand-50:  #F5F3FF;
+    --brand-100: #EDE9FE;
+    --brand-200: #DDD6FE;
+    --brand-300: #C4B5FD;
+    --brand-500: #8B5CF6;
+    --brand-600: #7C3AED;
+    --brand-800: #5B21B6;
+    --brand-950: #2E1065;
+    --audio-600: #0891B2;
+    --audio-100: #E0F2FE;
+    --lang-600:  #059669;
+    --lang-100:  #D1FAE5;
+    --gray-400:  #9CA3AF;
+    --gray-500:  #6B7280;
+    /* reader dark mode */
+    --reader-dark-bg:      #1E1B4B;
+    --reader-dark-text:    #E8E3FF;
+    --reader-dark-surface: #2D2172;
+    --reader-light-text:   #1E1B4B;
     /* legacy aliases */
-    --cream: #F5F3FF; --nude: #DDD6FE; --brown: #7C3AED;
-    --coffee: #8B5CF6; --brown-dark: #5B21B6; --brown-darker: #2E1065;
+    --violet: #7C3AED; --violet-light: #8B5CF6; --violet-dark: #5B21B6; --violet-deep: #2E1065;
+    --surface: #EDE9FE; --border: #DDD6FE; --bg: #F5F3FF;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -48,42 +60,49 @@
   }
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2
-    bg-[#7C3AED] text-white px-6 py-3 rounded-2xl font-semibold
-    hover:bg-[#5B21B6] active:scale-[0.97] transition-all duration-200
+    bg-brand-600 text-white px-6 py-3 rounded-2xl font-semibold
+    hover:bg-brand-800 active:scale-[0.97] transition-all duration-200
     shadow-[0_4px_20px_-4px_rgba(124,58,237,0.40)]
     hover:shadow-[0_8px_30px_-6px_rgba(124,58,237,0.55)]
-    focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] focus:ring-offset-2
+    focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2
     disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
   }
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2
-    bg-white text-[#7C3AED] px-6 py-3 rounded-2xl font-semibold
-    border border-[#DDD6FE] hover:bg-[#F5F3FF] hover:border-[#8B5CF6]
+    bg-white text-brand-600 px-6 py-3 rounded-2xl font-semibold
+    border border-brand-200 hover:bg-brand-50 hover:border-brand-500
     active:scale-[0.97] transition-all duration-200
-    focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] focus:ring-offset-2;
+    focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
   }
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2
-    text-[#7C3AED] px-4 py-2 rounded-xl font-medium
-    hover:bg-[#EDE9FE]/70 active:scale-[0.97] transition-all duration-200
-    focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] focus:ring-offset-1;
+    text-brand-600 px-4 py-2 rounded-xl font-medium
+    hover:bg-brand-100/70 active:scale-[0.97] transition-all duration-200
+    focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2
+    bg-red-600 text-white px-6 py-3 rounded-2xl font-semibold
+    hover:bg-red-700 active:scale-[0.97] transition-all duration-200
+    focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
+    disabled:opacity-50 disabled:cursor-not-allowed;
   }
   .card {
     @apply bg-white rounded-3xl overflow-hidden transition-all duration-300
-    border border-[#E5E7EB]
+    border border-gray-200
     shadow-[0_4px_20px_-4px_rgba(124,58,237,0.08),_0_2px_8px_-2px_rgba(124,58,237,0.04)]
     hover:shadow-[0_12px_40px_-8px_rgba(124,58,237,0.18),_0_4px_12px_-4px_rgba(124,58,237,0.08)]
     hover:-translate-y-0.5;
   }
   .input-field {
-    @apply w-full bg-white border border-[#DDD6FE] rounded-2xl px-4 py-3
-    text-[#2E1065] placeholder-[#9CA3AF]
-    focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:border-transparent
+    @apply w-full bg-white border border-brand-200 rounded-2xl px-4 py-3
+    text-brand-950 placeholder-gray-400
+    focus:outline-none focus:ring-2 focus:ring-brand-600 focus:border-transparent
     transition-all duration-200
     shadow-[inset_0_2px_6px_rgba(124,58,237,0.04)];
   }
   .section-title {
-    @apply font-['Playfair_Display'] font-semibold text-[#2E1065] text-xl md:text-2xl;
+    @apply font-['Playfair_Display'] font-semibold text-brand-950 text-xl md:text-2xl;
   }
   .badge {
     @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium;
