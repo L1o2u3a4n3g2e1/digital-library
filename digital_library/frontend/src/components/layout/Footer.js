@@ -43,8 +43,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t border-gray-200 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="text-xs text-gray-400">© 2025 Digital Library. Built for accessibility & inclusion.</p>
-          <p className="text-xs text-gray-400">Powered by AI · FastAPI · React</p>
+          <p className="text-xs text-gray-400">© 2026 Digital Library. Built for accessibility & inclusion.</p>
         </div>
       </div>
     </footer>
