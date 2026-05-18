@@ -26,13 +26,13 @@
   gap: 0.75rem;
   text-decoration: none;
   font-weight: 700;
-  color: var(--dark-brown);
+  color: var(--primary);
   transition: color var(--transition-fast);
   font-size: 1.25rem;
 }
 
 .brand-link:hover {
-  color: var(--soft-brown);
+  color: var(--accent-blue);
 }
 
 .brand-icon {
@@ -63,7 +63,7 @@
 }
 
 .nav-link {
-  color: var(--text-primary);
+  color: var(--text-dark);
   text-decoration: none;
   font-weight: 600;
   font-size: 0.875rem;
@@ -71,7 +71,7 @@
 }
 
 .nav-link:hover {
-  color: var(--soft-brown);
+  color: var(--primary);
 }
 
 .navbar-actions {
@@ -91,13 +91,13 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: var(--text-primary);
+  color: var(--text-dark);
   border-radius: var(--radius-md);
   transition: background var(--transition-fast);
 }
 
 .nav-menu-toggle:hover {
-  background: var(--light-gray);
+  background: var(--primary-50);
 }
 
 @media (min-width: 768px) {

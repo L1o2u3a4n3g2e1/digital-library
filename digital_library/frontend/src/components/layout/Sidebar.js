@@ -1,0 +1,137 @@
+import React from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  FiGrid, FiSearch, FiUpload, FiBookmark, FiClock, FiHeadphones,
+  FiSettings, FiLogOut, FiX, FiShield
+} from 'react-icons/fi';
+import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../utils/translations';
+
+const NAV_ITEMS = [
+  { icon: FiGrid, key: 'dashboard', to: '/dashboard' },
+  { icon: FiSearch, key: 'books', to: '/search' },
+  { icon: FiUpload, key: 'upload', to: '/upload' },
+  { icon: FiBookmark, key: 'bookmarks', to: '/bookmarks' },
+  { icon: FiClock, key: 'history', to: '/history' },
+  { icon: FiHeadphones, key: 'audio', to: '/audio' },
+];
+
+const BOTTOM_ITEMS = [
+  { icon: FiShield, key: 'admin', to: '/admin' },
+  { icon: FiSettings, key: 'settings', to: '/settings' },
+];
+
+export default function Sidebar() {
+  const { language, logout, sidebarOpen, setSidebarOpen, user } = useApp();
+  const { t } = useTranslation(language);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+    setSidebarOpen(false);
+  };
+
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full bg-white border-r border-[#EFE5D8]">
+      {/* Logo area */}
+      <div className="flex items-center justify-between px-5 py-5 border-b border-[#F0E8E0]">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#B08968] to-[#8B6F5A] flex items-center justify-center shadow-sm">
+            <span className="text-white text-sm font-bold">ML</span>
+          </div>
+          <span className="font-['Playfair_Display'] font-semibold text-[#4A3628] text-base">
+            {t('appName')}
+          </span>
+        </div>
+        <button onClick={() => setSidebarOpen(false)} className="btn-ghost p-1.5 rounded-lg lg:hidden">
+          <FiX size={18} />
+        </button>
+      </div>
+
+      {/* User mini card */}
+      {user && (
+        <div className="mx-4 my-4 p-3 rounded-2xl bg-gradient-to-r from-[#F8F4EE] to-[#F0E8DE] border border-[#EDD9CB]">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#D8BFAA] to-[#B08968] flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-[#4A3628] truncate">{user?.name}</p>
+              <p className="text-xs text-[#B08968]">Avid Reader</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Nav items */}
+      <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
+        {NAV_ITEMS.map(({ icon: Icon, key, to }) => (
+          <NavLink key={to} to={to}
+            onClick={() => setSidebarOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-200 group
+              ${isActive
+                ? 'bg-gradient-to-r from-[#8B6F5A] to-[#B08968] text-white shadow-[0_4px_14px_-2px_rgba(139,111,90,0.35)]'
+                : 'text-[#6B5044] hover:bg-[#F8F4EE] hover:text-[#8B6F5A]'
+              }`
+            }>
+            {({ isActive }) => (
+              <>
+                <Icon size={18} className={isActive ? 'text-white' : 'text-[#B08968] group-hover:text-[#8B6F5A]'} />
+                <span>{t(key)}</span>
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
+
+      {/* Bottom items */}
+      <div className="px-3 pb-4 space-y-1 border-t border-[#F0E8E0] pt-3">
+        {BOTTOM_ITEMS.map(({ icon: Icon, key, to }) => (
+          <NavLink key={to} to={to}
+            onClick={() => setSidebarOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-3.5 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all duration-200
+              ${isActive ? 'bg-[#F8F4EE] text-[#8B6F5A]' : 'text-[#9E8E80] hover:bg-[#F8F4EE] hover:text-[#8B6F5A]'}`
+            }>
+            <Icon size={17} className="text-[#C4B0A0]" />
+            <span>{t(key)}</span>
+          </NavLink>
+        ))}
+        <button onClick={handleLogout}
+          className="w-full flex items-center gap-3.5 px-4 py-2.5 rounded-2xl text-sm font-medium text-red-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200">
+          <FiLogOut size={17} />
+          <span>{t('logout')}</span>
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex flex-col w-64 h-screen sticky top-0 flex-shrink-0">
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile overlay */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setSidebarOpen(false)}
+              className="fixed inset-0 bg-black/30 z-40 lg:hidden backdrop-blur-sm" />
+            <motion.aside
+              initial={{ x: -280 }} animate={{ x: 0 }} exit={{ x: -280 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              className="fixed left-0 top-0 h-full w-64 z-50 lg:hidden shadow-2xl">
+              <SidebarContent />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}

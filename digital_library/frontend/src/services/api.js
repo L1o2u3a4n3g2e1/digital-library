@@ -1,146 +1,57 @@
-const API_URL = 'http://localhost:5000/api';
+import axios from 'axios';
 
-const api = {
-  // Auth endpoints
-  async register(username, email, password, phoneNumber) {
-    const response = await fetch(`${API_URL}/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email, password, phoneNumber })
-    });
-    return response.json();
-  },
+const BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-  async login(identifier, password) {
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ identifier, password })
-    });
-    return response.json();
-  },
+const http = axios.create({ baseURL: `${BASE}/api`, timeout: 15000 });
 
-  async getCurrentUser(token) {
-    const response = await fetch(`${API_URL}/auth/me`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    return response.json();
-  },
+http.interceptors.request.use(cfg => {
+  const t = localStorage.getItem('ml_token');
+  if (t) cfg.headers.Authorization = `Bearer ${t}`;
+  return cfg;
+});
 
-  // Books endpoints
-  async getBooks(params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    const response = await fetch(`${API_URL}/books?${queryString}`);
-    return response.json();
-  },
+http.interceptors.response.use(r => r.data, err => {
+  const msg = err.response?.data?.message || err.message || 'Network error';
+  return Promise.reject(new Error(msg));
+});
 
-  async getBook(id) {
-    const response = await fetch(`${API_URL}/books/${id}`);
-    return response.json();
-  },
-
-  async createBook(data, token) {
-    const response = await fetch(`${API_URL}/books`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(data)
-    });
-    return response.json();
-  },
-
-  async updateBook(id, data, token) {
-    const response = await fetch(`${API_URL}/books/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(data)
-    });
-    return response.json();
-  },
-
-  async deleteBook(id, token) {
-    const response = await fetch(`${API_URL}/books/${id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    return response.json();
-  },
-
-  // Categories endpoints
-  async getCategories() {
-    const response = await fetch(`${API_URL}/categories`);
-    return response.json();
-  },
-
-  async createCategory(name, name_kin, token) {
-    const response = await fetch(`${API_URL}/categories`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ name, name_kin })
-    });
-    return response.json();
-  },
-
-  async deleteCategory(id, token) {
-    const response = await fetch(`${API_URL}/categories/${id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    return response.json();
-  },
-
-  // User endpoints
-  async getUsers(token) {
-    const response = await fetch(`${API_URL}/users`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    return response.json();
-  },
-
-  async deleteUser(id, token) {
-    const response = await fetch(`${API_URL}/users/${id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    return response.json();
-  },
-
-  // Stats endpoints
-  async getStats(token) {
-    const response = await fetch(`${API_URL}/stats`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    return response.json();
-  },
-
-  // Search endpoint
-  async search(query, language = 'en') {
-    const response = await fetch(
-      `${API_URL}/search?search=${query}&language=${language}`
-    );
-    return response.json();
-  },
-
-  // Activity endpoints
-  async logActivity(activity, token) {
-    const response = await fetch(`${API_URL}/activity`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(activity)
-    });
-    return response.json();
-  }
+export const authService = {
+  login: (email, password) => http.post('/auth/login', { email, password }),
+  register: (name, email, password) => http.post('/auth/register', { name, email, password }),
+  me: () => http.get('/auth/me'),
 };
 
-export default api;
+export const bookService = {
+  list: (params) => http.get('/books', { params }),
+  get: (id) => http.get(`/books/${id}`),
+  create: (data) => http.post('/books', data),
+  update: (id, data) => http.put(`/books/${id}`, data),
+  delete: (id) => http.delete(`/books/${id}`),
+  search: (q, params) => http.get('/books/search', { params: { q, ...params } }),
+  recommend: () => http.get('/books/recommended'),
+};
+
+export const uploadService = {
+  book: (formData, onProgress) => http.post('/upload/book', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    onUploadProgress: e => onProgress && onProgress(Math.round((e.loaded * 100) / e.total)),
+  }),
+  cover: (formData) => http.post('/upload/cover', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+};
+
+export const translationService = {
+  translate: (text, from, to) => http.post('/translate', { text, from, to }),
+  languages: () => http.get('/translate/languages'),
+};
+
+export const audioService = {
+  generate: (bookId, lang) => http.post('/audio/generate', { bookId, lang }),
+  get: (bookId) => http.get(`/audio/${bookId}`),
+};
+
+export const statsService = {
+  get: () => http.get('/stats'),
+  logRead: (bookId, minutes) => http.post('/stats/read', { bookId, minutes }),
+};
+
+export default http;

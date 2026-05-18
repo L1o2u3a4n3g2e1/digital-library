@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: linear-gradient(135deg, var(--primary-beige) 0%, var(--light-gray) 100%);
+  background: linear-gradient(135deg, var(--primary-50) 0%, #F0F9FF 100%);
   position: relative;
   overflow: hidden;
 }
@@ -23,14 +23,14 @@
 .welcome-title {
   font-size: 3.5rem;
   font-weight: 700;
-  color: var(--dark-brown);
+  color: var(--primary);
   margin-bottom: 1rem;
   line-height: 1.1;
 }
 
 .welcome-subtitle {
   font-size: 1.25rem;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   font-weight: 500;
 }
 
@@ -40,11 +40,12 @@
   background: var(--white);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-sm);
+  border: 1px solid var(--primary-50);
 }
 
 .language-label {
   font-size: 0.875rem;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   margin-bottom: 1rem;
   display: block;
   font-weight: 600;
@@ -89,7 +90,7 @@
 .illustration-circle {
   position: absolute;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--soft-brown), var(--dark-brown));
+  background: linear-gradient(135deg, var(--primary), var(--accent-blue));
 }
 
 .circle-1 {

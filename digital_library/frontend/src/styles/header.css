@@ -26,13 +26,13 @@
   gap: 0.75rem;
   text-decoration: none;
   font-weight: 700;
-  color: var(--dark-brown);
+  color: var(--primary);
   font-size: 1.25rem;
   transition: color var(--transition-fast);
 }
 
 .header-logo:hover {
-  color: var(--soft-brown);
+  color: var(--accent-blue);
 }
 
 .header-nav {
@@ -48,7 +48,7 @@
 }
 
 .nav-item {
-  color: var(--text-primary);
+  color: var(--text-dark);
   text-decoration: none;
   font-weight: 600;
   font-size: 0.875rem;
@@ -56,7 +56,7 @@
 }
 
 .nav-item:hover {
-  color: var(--soft-brown);
+  color: var(--primary);
 }
 
 .header-actions {
@@ -72,18 +72,21 @@
 
 .user-button {
   padding: 0.5rem 1rem;
-  background: var(--light-gray);
+  background: var(--primary-50);
   border: none;
   border-radius: var(--radius-lg);
   cursor: pointer;
   font-weight: 600;
   font-size: 0.875rem;
   transition: background var(--transition-fast);
-  color: var(--text-primary);
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .user-button:hover {
-  background: var(--soft-brown);
+  background: var(--primary);
   color: var(--white);
 }
 

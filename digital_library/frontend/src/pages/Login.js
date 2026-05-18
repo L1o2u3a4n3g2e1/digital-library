@@ -1,110 +1,92 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight } from 'react-icons/fi';
+import AuthLayout from '../layouts/AuthLayout';
 import { useApp } from '../context/AppContext';
-import { translations } from '../utils/translations';
-import api from '../services/api';
-import Header from '../components/Header';
-import '../styles/auth.css';
+import { useTranslation } from '../utils/translations';
+import { MOCK_USER } from '../data/mockData';
 
-const Login = () => {
+export default function Login() {
+  const { login, language } = useApp();
+  const { t } = useTranslation(language);
   const navigate = useNavigate();
-  const { language, login, setLoading, loading } = useApp();
-  const t = translations[language];
-
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [showPw, setShowPw] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
-
+    setError(''); setLoading(true);
     try {
-      const response = await api.login(phoneNumber, password);
-      if (response.token && response.user) {
-        login(response.user, response.token);
-        navigate('/dashboard');
-      } else {
-        setError(response.message || 'Login failed');
-      }
-    } catch (err) {
-      setError(t.error);
-    } finally {
-      setLoading(false);
-    }
+      await new Promise(r => setTimeout(r, 900));
+      login({ ...MOCK_USER, email: form.email || MOCK_USER.email, name: 'Anne Louange' }, 'mock-token-123');
+      navigate('/dashboard');
+    } catch {
+      setError('Invalid credentials. Please try again.');
+    } finally { setLoading(false); }
   };
 
   return (
-    <>
-      <Header />
-      <div className="auth-container">
-        <div className="auth-card">
-          <div className="form-row">
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => navigate('/')}>← {t.back}</button>
+    <AuthLayout title={t('login')} subtitle="Welcome back to your library">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {error && (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+            className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-2xl px-4 py-3">
+            {error}
+          </motion.div>
+        )}
+
+        <div>
+          <label className="block text-sm font-medium text-[#6B5044] mb-1.5">{t('email')}</label>
+          <div className="relative">
+            <FiMail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B08968]" size={16} />
+            <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+              placeholder="you@example.com" className="input-field pl-10" required />
           </div>
-          <div className="auth-header">
-            <h1>{t.signIn}</h1>
-            <p>{t.alreadyHaveAccount}</p>
-          </div>
-
-        <form onSubmit={handleSubmit} className="auth-form">
-          {error && <div className="error-message">{error}</div>}
-
-          <div className="form-group">
-            <label htmlFor="phoneNumber">{t.phoneNumber}</label>
-            <input
-              id="phoneNumber"
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder={t.phoneNumber}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">{t.password}</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={t.password}
-              required
-            />
-          </div>
-
-          <div className="form-checkbox">
-            <input
-              id="remember"
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-            />
-            <label htmlFor="remember">{t.rememberMe}</label>
-          </div>
-
-          <button
-            type="submit"
-            className="btn btn-primary btn-full btn-lg"
-            disabled={loading}
-          >
-            {loading ? t.loading : t.signIn}
-          </button>
-        </form>
-
-        <div className="auth-divider"></div>
-
-        <div className="auth-link">
-          <p>{t.dontHaveAccount}</p>
-          <Link to="/register" className="link-primary">{t.signUp}</Link>
         </div>
-      </div>
-    </div>
-    </>
-  );
-};
 
-export default Login;
+        <div>
+          <div className="flex justify-between items-center mb-1.5">
+            <label className="text-sm font-medium text-[#6B5044]">{t('password')}</label>
+            <Link to="/forgot-password" className="text-xs text-[#B08968] hover:text-[#8B6F5A] transition-colors">{t('forgotPassword')}</Link>
+          </div>
+          <div className="relative">
+            <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B08968]" size={16} />
+            <input type={showPw ? 'text' : 'password'} value={form.password}
+              onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
+              placeholder="••••••••" className="input-field pl-10 pr-10" required />
+            <button type="button" onClick={() => setShowPw(v => !v)}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#C4B0A0] hover:text-[#8B6F5A] transition-colors">
+              {showPw ? <FiEyeOff size={15} /> : <FiEye size={15} />}
+            </button>
+          </div>
+        </div>
+
+        <motion.button type="submit" disabled={loading}
+          whileHover={{ scale: loading ? 1 : 1.02 }} whileTap={{ scale: loading ? 1 : 0.98 }}
+          className="btn-primary w-full py-3.5 text-base mt-2">
+          {loading ? (
+            <span className="flex items-center gap-2">
+              <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              Signing in…
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">{t('login')} <FiArrowRight /></span>
+          )}
+        </motion.button>
+
+        {/* Demo hint */}
+        <div className="bg-[#F8F4EE] rounded-2xl px-4 py-3 text-center">
+          <p className="text-xs text-[#9E8E80]">Demo: use any email & password to continue</p>
+        </div>
+
+        <p className="text-center text-sm text-[#9E8E80]">
+          Don't have an account?{' '}
+          <Link to="/register" className="text-[#8B6F5A] font-semibold hover:text-[#6B5044] transition-colors">{t('register')}</Link>
+        </p>
+      </form>
+    </AuthLayout>
+  );
+}

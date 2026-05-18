@@ -1,142 +1,126 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { FiUser, FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight, FiCheck } from 'react-icons/fi';
+import AuthLayout from '../layouts/AuthLayout';
 import { useApp } from '../context/AppContext';
-import { translations } from '../utils/translations';
-import api from '../services/api';
-import Header from '../components/Header';
-import '../styles/auth.css';
+import { useTranslation } from '../utils/translations';
+import { LANGUAGES } from '../utils/constants';
+import { MOCK_USER } from '../data/mockData';
 
-const Register = () => {
+export default function Register() {
+  const { login, language, setLanguage } = useApp();
+  const { t } = useTranslation(language);
   const navigate = useNavigate();
-  const { language, login, setLoading, loading } = useApp();
-  const t = translations[language];
-
-  const [username, setUsername] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
+  const [showPw, setShowPw] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const pwStrength = form.password.length >= 8 ? (form.password.match(/[A-Z]/) && form.password.match(/[0-9]/) ? 'strong' : 'medium') : form.password.length > 0 ? 'weak' : '';
+  const strengthColors = { weak: 'bg-red-400', medium: 'bg-yellow-400', strong: 'bg-green-400' };
+  const strengthWidths = { weak: '33%', medium: '66%', strong: '100%' };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    setLoading(true);
+    if (form.password !== form.confirm) { setError('Passwords do not match.'); return; }
+    setError(''); setLoading(true);
     try {
-      const response = await api.register(username, email, password, phoneNumber);
-      if (response.token && response.user) {
-        login(response.user, response.token);
-        navigate('/dashboard');
-      } else {
-        setError(response.message || 'Registration failed');
-      }
-    } catch (err) {
-      setError(t.error);
-    } finally {
-      setLoading(false);
-    }
+      await new Promise(r => setTimeout(r, 1100));
+      login({ ...MOCK_USER, name: form.name || 'New Reader', email: form.email }, 'mock-token-456');
+      navigate('/dashboard');
+    } catch { setError('Registration failed. Please try again.'); }
+    finally { setLoading(false); }
   };
 
   return (
-    <>
-      <Header />
-      <div className="auth-container">
-        <div className="auth-card">
-        <div className="auth-header">
-          <h1>{t.signUp}</h1>
-          <p>{t.dontHaveAccount}</p>
+    <AuthLayout title="Create Account" subtitle="Join thousands of readers worldwide">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {error && (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+            className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-2xl px-4 py-3">{error}</motion.div>
+        )}
+
+        {/* Language selector */}
+        <div>
+          <label className="block text-sm font-medium text-[#6B5044] mb-2">Preferred Language</label>
+          <div className="grid grid-cols-4 gap-2">
+            {LANGUAGES.map(l => (
+              <button key={l.code} type="button" onClick={() => setLanguage(l.code)}
+                className={`flex flex-col items-center gap-1 py-2.5 rounded-xl border transition-all text-xs
+                  ${language === l.code ? 'border-[#8B6F5A] bg-[#F8F4EE] text-[#8B6F5A] font-semibold' : 'border-[#D8BFAA] text-[#9E8E80] hover:border-[#B08968]'}`}>
+                <span className="text-lg">{l.flag}</span>
+                <span>{l.label.split(' ')[0]}</span>
+                {language === l.code && <FiCheck size={10} className="text-[#8B6F5A]" />}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          {error && <div className="error-message">{error}</div>}
-
-          <div className="form-row">
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => navigate('/')}>← {t.back}</button>
+        <div>
+          <label className="block text-sm font-medium text-[#6B5044] mb-1.5">{t('name')}</label>
+          <div className="relative">
+            <FiUser className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B08968]" size={16} />
+            <input type="text" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+              placeholder="Your full name" className="input-field pl-10" required />
           </div>
-
-          <div className="form-group">
-            <label htmlFor="username">{t.username}</label>
-            <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder={t.username}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="phoneNumber">{t.phoneNumber}</label>
-            <input
-              id="phoneNumber"
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder={t.phoneNumber}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="email">{t.email}</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t.email}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">{t.password}</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={t.password}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="confirm">{t.confirmPassword}</label>
-            <input
-              id="confirm"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder={t.confirmPassword}
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="btn btn-primary btn-full btn-lg"
-            disabled={loading}
-          >
-            {loading ? t.loading : t.signUp}
-          </button>
-        </form>
-
-        <div className="auth-divider"></div>
-
-        <div className="auth-link">
-          <p>{t.alreadyHaveAccount}</p>
-          <Link to="/login" className="link-primary">{t.signIn}</Link>
         </div>
-      </div>
-    </div>
-    </>
+
+        <div>
+          <label className="block text-sm font-medium text-[#6B5044] mb-1.5">{t('email')}</label>
+          <div className="relative">
+            <FiMail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B08968]" size={16} />
+            <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+              placeholder="you@example.com" className="input-field pl-10" required />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-[#6B5044] mb-1.5">{t('password')}</label>
+          <div className="relative">
+            <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B08968]" size={16} />
+            <input type={showPw ? 'text' : 'password'} value={form.password}
+              onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
+              placeholder="Min. 8 characters" className="input-field pl-10 pr-10" required />
+            <button type="button" onClick={() => setShowPw(v => !v)}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#C4B0A0] hover:text-[#8B6F5A]">
+              {showPw ? <FiEyeOff size={15} /> : <FiEye size={15} />}
+            </button>
+          </div>
+          {pwStrength && (
+            <div className="mt-2">
+              <div className="h-1 bg-[#EDD9CB] rounded-full overflow-hidden">
+                <div className={`h-full rounded-full transition-all duration-300 ${strengthColors[pwStrength]}`} style={{ width: strengthWidths[pwStrength] }} />
+              </div>
+              <p className="text-xs text-[#9E8E80] mt-1 capitalize">{pwStrength} password</p>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-[#6B5044] mb-1.5">{t('confirmPassword')}</label>
+          <div className="relative">
+            <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B08968]" size={16} />
+            <input type="password" value={form.confirm} onChange={e => setForm(p => ({ ...p, confirm: e.target.value }))}
+              placeholder="Repeat password" className="input-field pl-10" required />
+            {form.confirm && form.password === form.confirm && (
+              <FiCheck className="absolute right-3.5 top-1/2 -translate-y-1/2 text-green-500" size={16} />
+            )}
+          </div>
+        </div>
+
+        <motion.button type="submit" disabled={loading}
+          whileHover={{ scale: loading ? 1 : 1.02 }} whileTap={{ scale: loading ? 1 : 0.98 }}
+          className="btn-primary w-full py-3.5 text-base mt-1">
+          {loading ? <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Creating account…</span>
+            : <span className="flex items-center gap-2">{t('register')} <FiArrowRight /></span>}
+        </motion.button>
+
+        <p className="text-center text-sm text-[#9E8E80]">
+          Already have an account?{' '}
+          <Link to="/login" className="text-[#8B6F5A] font-semibold hover:text-[#6B5044] transition-colors">{t('login')}</Link>
+        </p>
+      </form>
+    </AuthLayout>
   );
-};
-
-export default Register;
+}

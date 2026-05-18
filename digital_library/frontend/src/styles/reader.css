@@ -7,17 +7,17 @@
 .reader-header {
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
-  border-bottom: 2px solid var(--light-gray);
+  border-bottom: 2px solid var(--gray-200);
 }
 
 .reader-header h1 {
-  color: var(--dark-brown);
+  color: var(--primary);
   margin: 1rem 0 0.5rem 0;
   font-size: 2rem;
 }
 
 .reader-author {
-  color: var(--text-secondary);
+  color: var(--text-muted);
   font-style: italic;
 }
 
@@ -26,10 +26,11 @@
   gap: 1rem;
   align-items: center;
   padding: 1.5rem;
-  background: var(--light-gray);
+  background: var(--primary-50);
   border-radius: var(--radius-lg);
   margin-bottom: 2rem;
   flex-wrap: wrap;
+  border: 1px solid var(--primary-100);
 }
 
 .reader-toolbar .btn-icon {
@@ -37,12 +38,13 @@
 }
 
 .reader-toolbar .btn-icon:hover {
-  background: rgba(161, 136, 127, 0.2);
+  background: var(--primary);
+  color: var(--white);
   transform: scale(1.1);
 }
 
 .reader-toolbar .btn-icon.active {
-  background: var(--soft-brown);
+  background: var(--primary);
   color: var(--white);
 }
 

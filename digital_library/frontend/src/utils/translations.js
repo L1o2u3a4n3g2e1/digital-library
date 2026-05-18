@@ -1,263 +1,89 @@
-export const translations = {
+const t = {
   en: {
-    // Navigation
-    home: 'Home',
-    library: 'Library',
-    myBooks: 'My Books',
-    account: 'Account',
-    settings: 'Settings',
-    logout: 'Logout',
-    login: 'Login',
-    register: 'Register',
-    back: 'Back',
-    about: 'About',
-    service: 'Service',
-
-    // Home/Hero
-    appTitle: 'Multilingual Library',
-    appSubtitle: 'Read, Listen, Learn — In Your Language',
-    welcomeBack: 'Welcome Back',
-    selectLanguage: 'Select Your Language',
-    continueAsGuest: 'Continue as Guest',
-
-    // Auth
-    username: 'Username',
-    email: 'Email',
-    phoneNumber: 'Phone Number',
-    password: 'Password',
-    confirmPassword: 'Confirm Password',
-    rememberMe: 'Remember me',
-    forgotPassword: 'Forgot password?',
-    accessibilityMode: 'Enable Accessibility Mode',
-    dontHaveAccount: "Don't have an account?",
-    alreadyHaveAccount: 'Already have an account?',
-    signUp: 'Sign Up',
-    signIn: 'Sign In',
-
-    // Dashboard
-    searchBooks: 'Search books...',
-    voiceSearch: 'Voice Search',
-    uploadBook: 'Upload Book',
-    recommendedBooks: 'Recommended for You',
-    popularBooks: 'Popular Books',
-    recentlyRead: 'Recently Read',
-    categories: 'Categories',
-    allCategories: 'All Categories',
-
-    // Categories
-    academic: 'Academic',
-    agriculture: 'Agriculture',
-    health: 'Health',
-    love: 'Love',
-    social: 'Social',
-
-    // Book Card
-    author: 'Author',
-    pages: 'Pages',
-    language: 'Language',
-    category: 'Category',
-    read: 'Read',
-    listen: 'Listen',
-    download: 'Download',
-    upload: 'Upload',
-    addBookmark: 'Add Bookmark',
-    removeBookmark: 'Remove Bookmark',
-
-    // Reader
-    readingMode: 'Reading Mode',
-    audioMode: 'Audio Mode',
-    translate: 'Translate',
-    bookmark: 'Bookmark',
-    share: 'Share',
-    toc: 'Table of Contents',
-    nextPage: 'Next Page',
-    previousPage: 'Previous Page',
-    fontSize: 'Font Size',
-    lineHeight: 'Line Height',
-
-    // Voice
-    listeningForCommand: 'Listening...',
-    speakNow: 'Speak Now',
-    processing: 'Processing...',
-    understood: 'Got it!',
-
-    // Accessibility
-    highContrast: 'High Contrast',
-    largerText: 'Larger Text',
-    voiceGuidance: 'Voice Guidance',
-    simplifiedInterface: 'Simplified Interface',
-
-    // Upload
-    uploadPDF: 'Upload PDF',
-    uploadTXT: 'Upload TXT',
-    dictateBook: 'Dictate Book',
-    uploadInProgress: 'Uploading...',
-    uploadComplete: 'Upload Complete!',
-
-    // User Profile
-    myProfile: 'My Profile',
-    readingHistory: 'Reading History',
-    bookmarks: 'Bookmarks',
-    downloads: 'Downloads',
-    preferences: 'Preferences',
-    darkMode: 'Dark Mode',
-    lightMode: 'Light Mode',
-
-    // Messages
-    loading: 'Loading...',
-    noBooks: 'No books found',
-    noResults: 'No results for your search',
-    error: 'An error occurred',
-    success: 'Success!',
-    bookAddedSuccess: 'Book added successfully',
-    bookDeletedSuccess: 'Book deleted successfully',
-    bookmarkedSuccess: 'Bookmarked successfully',
-    removedBookmark: 'Bookmark removed',
-
-    // Buttons
-    save: 'Save',
-    cancel: 'Cancel',
-    delete: 'Delete',
-    edit: 'Edit',
-    close: 'Close',
-    next: 'Next',
-    finish: 'Finish',
-    skip: 'Skip',
-
-    // Languages
-    english: 'English',
-    kinyarwanda: 'Kinyarwanda',
+    appName: 'Multilingual Library', tagline: 'Read, Listen & Learn in Your Language',
+    search: 'Search books, authors, topics…', voiceSearch: 'Search with voice',
+    login: 'Sign In', register: 'Get Started', logout: 'Sign Out',
+    dashboard: 'Dashboard', books: 'Books', upload: 'Upload',
+    bookmarks: 'Bookmarks', history: 'History', audio: 'Audio Library',
+    settings: 'Settings', profile: 'Profile', admin: 'Admin',
+    welcome: 'Welcome back', recommended: 'Recommended for You',
+    trending: 'Trending Now', recent: 'Recently Opened',
+    continueReading: 'Continue Reading', audiobooks: 'Audiobooks',
+    readNow: 'Read', listenNow: 'Listen', bookmark: 'Bookmark',
+    translate: 'Translate', share: 'Share',
+    uploadBook: 'Upload a Book', dragDrop: 'Drag & drop your file here',
+    orBrowse: 'or click to browse', language: 'Language',
+    category: 'Category', titleLabel: 'Book Title', author: 'Author',
+    generateAudio: 'Generate Audio', enableSTT: 'Speech-to-Text',
+    lowLiteracy: 'Low Literacy Mode', highContrast: 'High Contrast',
+    notifications: 'Notifications', noNotifications: 'No new notifications',
+    aiAssistant: 'AI Assistant', readAloud: 'Read Aloud', suggest: 'Suggest Books',
+    readingProgress: 'Reading Progress', listeningTime: 'Listening Time',
+    booksRead: 'Books Read', streak: 'Day Streak',
+    filterBy: 'Filter', sortBy: 'Sort', allLanguages: 'All Languages',
+    allCategories: 'All Categories', gridView: 'Grid', listView: 'List',
+    noResults: 'No books found', trySearch: 'Try different keywords',
+    email: 'Email address', password: 'Password', name: 'Full Name',
+    confirmPassword: 'Confirm Password', forgotPassword: 'Forgot password?',
+    heroTitle: 'Your Library,\nYour Language',
+    heroSub: 'Access thousands of books in English, Français, Kiswahili & Kinyarwanda. AI-powered voice search, instant translation, and audio narration.',
+    startReading: 'Start Reading Free', learnMore: 'Learn More',
+    pages: 'pages', readers: 'readers', save: 'Save', cancel: 'Cancel',
+    loading: 'Loading…', error: 'Something went wrong', success: 'Done!',
   },
-
+  fr: {
+    appName: 'Bibliothèque Multilingue', tagline: 'Lisez, Écoutez & Apprenez dans Votre Langue',
+    search: 'Chercher des livres, auteurs…', voiceSearch: 'Recherche vocale',
+    login: 'Connexion', register: 'Commencer', logout: 'Déconnexion',
+    dashboard: 'Tableau de bord', books: 'Livres', upload: 'Téléverser',
+    bookmarks: 'Signets', history: 'Historique', audio: 'Audiothèque',
+    settings: 'Paramètres', profile: 'Profil', admin: 'Admin',
+    welcome: 'Bienvenue', recommended: 'Recommandés pour vous',
+    trending: 'Tendances', recent: 'Récemment ouverts',
+    continueReading: 'Continuer', audiobooks: 'Livres audio',
+    readNow: 'Lire', listenNow: 'Écouter', bookmark: 'Marquer',
+    heroTitle: 'Votre Bibliothèque,\nVotre Langue',
+    heroSub: 'Accédez à des milliers de livres en plusieurs langues avec IA.',
+    startReading: 'Commencer Gratuitement', learnMore: 'En savoir plus',
+    pages: 'pages', readers: 'lecteurs', save: 'Enregistrer', cancel: 'Annuler',
+  },
+  sw: {
+    appName: 'Maktaba ya Lugha Nyingi', tagline: 'Soma, Sikiliza & Jifunze kwa Lugha Yako',
+    search: 'Tafuta vitabu, waandishi…', voiceSearch: 'Tafuta kwa sauti',
+    login: 'Ingia', register: 'Anza', logout: 'Toka',
+    dashboard: 'Dashibodi', books: 'Vitabu', upload: 'Pakia',
+    bookmarks: 'Alamisho', history: 'Historia', audio: 'Maktaba ya Sauti',
+    settings: 'Mipangilio', profile: 'Wasifu', admin: 'Msimamizi',
+    welcome: 'Karibu tena', recommended: 'Iliyopendekezwa kwako',
+    trending: 'Inayoongezeka', recent: 'Iliyofunguliwa Hivi Karibuni',
+    continueReading: 'Endelea', audiobooks: 'Vitabu vya sauti',
+    readNow: 'Soma', listenNow: 'Sikiliza', bookmark: 'Alama',
+    heroTitle: 'Maktaba Yako,\nLugha Yako',
+    heroSub: 'Pata vitabu elfu kwa lugha nyingi na msaada wa AI.',
+    startReading: 'Anza Kusoma Bure', learnMore: 'Jifunze Zaidi',
+    pages: 'kurasa', readers: 'wasomaji', save: 'Hifadhi', cancel: 'Ghairi',
+  },
   rw: {
-    // Navigation
-    home: 'Ahabanza',
-    library: 'Isomero',
-    myBooks: 'Ibitabo Byanjye',
-    account: 'Konti',
-    settings: 'Ibiseti',
-    logout: 'Gusigara',
-    login: 'Injira',
-    register: 'Iyandikishe',
-    back: 'Itzura',
-    about: 'Ibijyanye',
-    service: 'Serivisi',
-
-    // Home/Hero
-    appTitle: 'Isomero rya digitale',
-    appSubtitle: 'Soma. Reba ijwi. Kumenya. Mu rurimi ryawe.',
-    welcomeBack: 'Urakaza Neza',
-    selectLanguage: 'Hitamo Ururimi Ryawe',
-    continueAsGuest: 'Komeza nkumushyitsi',
-
-    // Auth
-    username: 'Izina ry\'umukoresha',
-    email: 'Email',
-    phoneNumber: 'Nomero ya Telefone',
-    password: 'Ijambobanga',
-    confirmPassword: 'Emeza Ijambobanga',
-    rememberMe: 'Nkumbire',
-    forgotPassword: 'Wibwiye Ijambobanga?',
-    accessibilityMode: 'Koneza Ubusanzwe',
-    dontHaveAccount: 'Nta konti?',
-    alreadyHaveAccount: 'Una konti?',
-    signUp: 'Iyandikishe',
-    signIn: 'Injira',
-
-    // Dashboard
-    searchBooks: 'Shakisha ibitabo...',
-    voiceSearch: 'Utafutaji wa Ijwi',
-    uploadBook: 'Pakia Igitabo',
-    recommendedBooks: 'Byakuremezerezwa',
-    popularBooks: 'Ibitabo Bikunze',
-    recentlyRead: 'Somwe Vuba',
-    categories: 'Ibyiciro',
-    allCategories: 'Ibyiciro Byose',
-
-    // Categories
-    academic: 'Ibare',
-    agriculture: 'Ubworozi',
-    health: 'Ubwisanzure',
-    love: 'Urwendo',
-    social: 'Imbere y\'inzira',
-
-    // Book Card
-    author: 'Umwanditsi',
-    pages: 'Amapapuro',
-    language: 'Ururimi',
-    category: 'Icyiciro',
-    read: 'Soma',
-    listen: 'Reba ijwi',
-    download: 'Pakua',
-    upload: 'Pakia',
-    addBookmark: 'Ongeramo Alama',
-    removeBookmark: 'Ubire Alama',
-
-    // Reader
-    readingMode: 'Ubwoko bw\'Isoma',
-    audioMode: 'Ubwoko bw\'Ijwi',
-    translate: 'Sobanura',
-    bookmark: 'Alama',
-    share: 'Sangiza',
-    toc: 'Imboneza Njyana',
-    nextPage: 'Ikurikira',
-    previousPage: 'Iyambere',
-    fontSize: 'Ubugari bw\'Ibaruwa',
-    lineHeight: 'Ubugari bw\'Umurongo',
-
-    // Voice
-    listeningForCommand: 'Nigeye...',
-    speakNow: 'Koze Noneho',
-    processing: 'Guhambagurutse...',
-    understood: 'Byari byabigeneye!',
-
-    // Accessibility
-    highContrast: 'Igabanya Cyane',
-    largerText: 'Ibaruwa Nini',
-    voiceGuidance: 'Iyandikishirwa n\'Ijwi',
-    simplifiedInterface: 'Ubwoko Bworoshye',
-
-    // Upload
-    uploadPDF: 'Pakia PDF',
-    uploadTXT: 'Pakia TXT',
-    dictateBook: 'Seka Igitabo',
-    uploadInProgress: 'Pakya mu kuri...',
-    uploadComplete: 'Pakya Kumakuru!',
-
-    // User Profile
-    myProfile: 'Profili Yanjye',
-    readingHistory: 'Amateka y\'Isoma',
-    bookmarks: 'Alama',
-    downloads: 'Bikawe',
-    preferences: 'Inyandiko',
-    darkMode: 'Ubwoko bw\'Ijoro',
-    lightMode: 'Ubwoko bw\'Imvura',
-
-    // Messages
-    loading: 'Hiramo...',
-    noBooks: 'Nta bitabo',
-    noResults: 'Nta bice by\'ubwiye',
-    error: 'Habaye ikosa',
-    success: 'Neza!',
-    bookAddedSuccess: 'Igitabo Cyongerewe',
-    bookDeletedSuccess: 'Igitabo Cyo Kwuzuye',
-    bookmarkedSuccess: 'Alama Yongerewe',
-    removedBookmark: 'Alama Yoherejwe',
-
-    // Buttons
-    save: 'Kubika',
-    cancel: 'Guhagarika',
-    delete: 'Kwuzuya',
-    edit: 'Guhindura',
-    close: 'Gufunga',
-    next: 'Ikurikira',
-    finish: 'Kumakuru',
-    skip: 'Kurengera',
-
-    // Languages
-    english: 'English',
-    kinyarwanda: 'Kinyarwanda',
-  }
+    appName: 'Ibibliyoteke by\'Indimi', tagline: 'Soma, Wumva & Iga mu Rurimi Rwawe',
+    search: 'Shakisha ibitabo, abanditsi…', voiceSearch: 'Shakisha ukoresheje ijwi',
+    login: 'Injira', register: 'Tangira', logout: 'Sohoka',
+    dashboard: 'Ikibaho', books: 'Ibitabo', upload: 'Tanga',
+    bookmarks: 'Ibimenyetso', history: 'Amateka', audio: 'Ibibliyoteke by\'Amajwi',
+    settings: 'Igenamiterere', profile: 'Umwirondoro', admin: 'Umuyobozi',
+    welcome: 'Murakaza neza', recommended: 'Bigusweko',
+    trending: 'Bikunzwe', recent: 'Byafunguwe Vuba',
+    continueReading: 'Komeza', audiobooks: 'Ibitabo by\'amajwi',
+    readNow: 'Soma', listenNow: 'Wumva', bookmark: 'Imenyetso',
+    heroTitle: 'Ibibliyoteke Yawe,\nUrurimi Rwawe',
+    heroSub: 'Bona ibitabo igihumbi mu ndimi nyingi hamwe n\'ubufasha bwa AI.',
+    startReading: 'Tangira Gusoma Ubuntu', learnMore: 'Menya Ibindi',
+    pages: 'impapuro', readers: 'abasomyi', save: 'Kubika', cancel: 'Guhagarika',
+  },
 };
 
-export default translations;
+export const useTranslation = (lang = 'en') => {
+  const base = t[lang] || t['en'];
+  return { t: (key) => base[key] || t['en'][key] || key };
+};
+
+export default t;

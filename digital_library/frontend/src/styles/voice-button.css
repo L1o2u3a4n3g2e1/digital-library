@@ -3,7 +3,7 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: var(--soft-brown);
+  background: var(--primary);
   color: var(--white);
   border: none;
   font-size: 1.25rem;
@@ -17,13 +17,13 @@
 }
 
 .voice-button:hover {
-  background: var(--dark-brown);
+  background: var(--primary-dark);
   transform: scale(1.1);
   box-shadow: var(--shadow-lg);
 }
 
 .voice-button.listening {
-  background: #f44336;
+  background: var(--accent-red);
   animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
@@ -40,7 +40,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 2px solid rgba(244, 67, 54, 0.5);
+  border: 2px solid rgba(239, 68, 68, 0.5);
   animation: expand 1.5s ease-out infinite;
 }
 
