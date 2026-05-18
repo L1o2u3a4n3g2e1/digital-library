@@ -17,8 +17,8 @@ const StatCard = ({ icon: Icon, value, label, color }) => (
       <Icon size={20} style={{ color }} />
     </div>
     <div>
-      <p className="text-2xl font-bold font-['Playfair_Display'] text-[#4A3628]">{value}</p>
-      <p className="text-xs text-[#9E8E80] mt-0.5">{label}</p>
+      <p className="text-2xl font-bold font-['Playfair_Display'] text-[#2E1065]">{value}</p>
+      <p className="text-xs text-[#6B7280] mt-0.5">{label}</p>
     </div>
   </motion.div>
 );
@@ -26,11 +26,11 @@ const StatCard = ({ icon: Icon, value, label, color }) => (
 const SectionHeader = ({ title, to, icon: Icon }) => (
   <div className="flex items-center justify-between mb-5">
     <div className="flex items-center gap-2">
-      {Icon && <Icon size={18} className="text-[#B08968]" />}
+      {Icon && <Icon size={18} className="text-[#8B5CF6]" />}
       <h2 className="section-title">{title}</h2>
     </div>
     {to && (
-      <Link to={to} className="flex items-center gap-1 text-sm text-[#B08968] hover:text-[#8B6F5A] font-medium transition-colors">
+      <Link to={to} className="flex items-center gap-1 text-sm text-[#8B5CF6] hover:text-[#7C3AED] font-medium transition-colors">
         See all <FiArrowRight size={14} />
       </Link>
     )}
@@ -64,14 +64,14 @@ export default function Dashboard() {
         <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
           className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-['Playfair_Display'] font-bold text-[#4A3628]">
+            <h1 className="text-3xl font-['Playfair_Display'] font-bold text-[#2E1065]">
               {t('welcome')}, {user?.name?.split(' ')[0] || 'Reader'} 👋
             </h1>
-            <p className="text-[#9E8E80] mt-1 text-sm">You've read <strong className="text-[#8B6F5A]">{stats.booksRead} books</strong> — keep going!</p>
+            <p className="text-[#6B7280] mt-1 text-sm">You've read <strong className="text-[#7C3AED]">{stats.booksRead} books</strong> — keep going!</p>
           </div>
           <div className="flex gap-2">
             <button onClick={() => navigate('/search')}
-              className="btn-ghost flex items-center gap-2 text-sm border border-[#D8BFAA]">
+              className="btn-ghost flex items-center gap-2 text-sm border border-[#DDD6FE]">
               <FiMic size={15} /> Voice Search
             </button>
             <Link to="/upload" className="btn-primary text-sm">+ Upload Book</Link>
@@ -80,10 +80,10 @@ export default function Dashboard() {
 
         {/* Stats row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard icon={FiBookOpen} value={stats.booksRead} label={t('booksRead')} color="#8B6F5A" />
-          <StatCard icon={FiHeadphones} value={`${stats.listeningHours}h`} label={t('listeningTime')} color="#B08968" />
+          <StatCard icon={FiBookOpen} value={stats.booksRead} label={t('booksRead')} color="#7C3AED" />
+          <StatCard icon={FiHeadphones} value={`${stats.listeningHours}h`} label={t('listeningTime')} color="#8B5CF6" />
           <StatCard icon={FiZap} value={`${stats.streak} days`} label={t('streak')} color="#D4A574" />
-          <StatCard icon={FiTrendingUp} value="78%" label={t('readingProgress')} color="#C9A882" />
+          <StatCard icon={FiTrendingUp} value="78%" label={t('readingProgress')} color="#A78BFA" />
         </div>
 
         {/* Continue Reading */}
@@ -96,15 +96,15 @@ export default function Dashboard() {
                   whileHover={{ y: -3 }}
                   className="card flex items-center gap-4 p-4 cursor-pointer group"
                   onClick={() => navigate(`/read/${book.id}`)}>
-                  <div className="w-14 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-[#EDD9CB]">
+                  <div className="w-14 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-[#EDE9FE]">
                     {book.cover ? <img src={book.cover} alt={book.title} className="w-full h-full object-cover" onError={e => e.target.style.display='none'} /> : null}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-[#4A3628] text-sm truncate group-hover:text-[#8B6F5A] transition-colors">{book.title}</h3>
-                    <p className="text-xs text-[#9E8E80] mt-0.5">{book.author}</p>
+                    <h3 className="font-semibold text-[#2E1065] text-sm truncate group-hover:text-[#7C3AED] transition-colors">{book.title}</h3>
+                    <p className="text-xs text-[#6B7280] mt-0.5">{book.author}</p>
                     <div className="mt-2.5">
-                      <div className="flex justify-between text-xs text-[#C4B0A0] mb-1"><span>Progress</span><span>{book.progress}%</span></div>
-                      <div className="h-1.5 bg-[#EDD9CB] rounded-full"><div className="h-full bg-gradient-to-r from-[#B08968] to-[#8B6F5A] rounded-full" style={{ width: `${book.progress}%` }} /></div>
+                      <div className="flex justify-between text-xs text-[#9CA3AF] mb-1"><span>Progress</span><span>{book.progress}%</span></div>
+                      <div className="h-1.5 bg-[#EDE9FE] rounded-full"><div className="h-full bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-full" style={{ width: `${book.progress}%` }} /></div>
                     </div>
                   </div>
                 </motion.div>
@@ -126,12 +126,12 @@ export default function Dashboard() {
           <SectionHeader title="Browse by Category" to="/search" />
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             <button onClick={() => setActiveCategory('all')}
-              className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeCategory === 'all' ? 'bg-[#8B6F5A] text-white' : 'bg-white border border-[#D8BFAA] text-[#6B5044] hover:border-[#B08968]'}`}>
+              className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeCategory === 'all' ? 'bg-[#7C3AED] text-white' : 'bg-white border border-[#DDD6FE] text-[#5B21B6] hover:border-[#8B5CF6]'}`}>
               All
             </button>
             {CATEGORIES.slice(0, 8).map(c => (
               <button key={c.id} onClick={() => setActiveCategory(c.id)}
-                className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeCategory === c.id ? 'bg-[#8B6F5A] text-white' : 'bg-white border border-[#D8BFAA] text-[#6B5044] hover:border-[#B08968]'}`}>
+                className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeCategory === c.id ? 'bg-[#7C3AED] text-white' : 'bg-white border border-[#DDD6FE] text-[#5B21B6] hover:border-[#8B5CF6]'}`}>
                 {c.icon} {c.label}
               </button>
             ))}
@@ -171,13 +171,13 @@ export default function Dashboard() {
                   <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
                     <motion.div initial={{ height: 0 }} animate={{ height: `${(mins / maxMins) * 80}px` }}
                       transition={{ delay: i * 0.06, duration: 0.5, ease: 'easeOut' }}
-                      className="w-full rounded-t-lg bg-gradient-to-t from-[#8B6F5A] to-[#D8BFAA] min-h-[4px]" />
-                    <span className="text-[10px] text-[#C4B0A0]">{days[i]}</span>
+                      className="w-full rounded-t-lg bg-gradient-to-t from-[#7C3AED] to-[#DDD6FE] min-h-[4px]" />
+                    <span className="text-[10px] text-[#9CA3AF]">{days[i]}</span>
                   </div>
                 );
               })}
             </div>
-            <p className="text-xs text-[#9E8E80] mt-3 text-center">You read an average of <strong className="text-[#8B6F5A]">41 minutes/day</strong> this week 🎉</p>
+            <p className="text-xs text-[#6B7280] mt-3 text-center">You read an average of <strong className="text-[#7C3AED]">41 minutes/day</strong> this week 🎉</p>
           </div>
         </section>
 

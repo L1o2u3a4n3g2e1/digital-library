@@ -6,7 +6,7 @@ import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../utils/translations';
 
 const LANG_FLAGS = { en: '🇬🇧', fr: '🇫🇷', sw: '🇰🇪', rw: '🇷🇼' };
-const PLACEHOLDER_COLORS = ['#E8D5C4','#D4E8C4','#C4D4E8','#E8C4D4','#D4C4E8','#E8E4C4'];
+const PLACEHOLDER_COLORS = ['#7C3AED','#0891B2','#059669','#DC2626','#D97706','#DB2777'];
 
 export default function BookCard({ book, layout = 'grid', index = 0 }) {
   const { language, toggleBookmark, isBookmarked } = useApp();
@@ -25,18 +25,18 @@ export default function BookCard({ book, layout = 'grid', index = 0 }) {
         </div>
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-[#4A3628] text-sm truncate group-hover:text-[#8B6F5A] transition-colors">{book.title}</h3>
-          <p className="text-xs text-[#9E8E80] mt-0.5">{book.author}</p>
+          <h3 className="font-semibold text-[#2E1065] text-sm truncate group-hover:text-[#7C3AED] transition-colors">{book.title}</h3>
+          <p className="text-xs text-[#6B7280] mt-0.5">{book.author}</p>
           <div className="flex items-center gap-3 mt-2">
-            <span className="text-xs text-[#C4B0A0]">{LANG_FLAGS[book.language]} {book.language?.toUpperCase()}</span>
-            <span className="flex items-center gap-1 text-xs text-[#B08968]"><FiStar size={10} className="fill-current" />{book.rating}</span>
-            {book.hasAudio && <span className="badge bg-[#F0E8E0] text-[#8B6F5A]"><FiHeadphones size={10} />Audio</span>}
+            <span className="text-xs text-[#9CA3AF]">{LANG_FLAGS[book.language]} {book.language?.toUpperCase()}</span>
+            <span className="flex items-center gap-1 text-xs text-[#8B5CF6]"><FiStar size={10} className="fill-current" />{book.rating}</span>
+            {book.hasAudio && <span className="badge bg-[#E0F2FE] text-[#0891B2]"><FiHeadphones size={10} />Audio</span>}
           </div>
         </div>
         {/* Actions */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <button onClick={() => toggleBookmark(book)}
-            className={`p-2 rounded-xl transition-colors ${bookmarked ? 'text-[#8B6F5A] bg-[#EDD9CB]' : 'text-[#C4B0A0] hover:text-[#8B6F5A] hover:bg-[#F8F4EE]'}`}>
+            className={`p-2 rounded-xl transition-colors ${bookmarked ? 'text-[#7C3AED] bg-[#EDE9FE]' : 'text-[#9CA3AF] hover:text-[#7C3AED] hover:bg-[#F5F3FF]'}`}>
             <FiBookmark size={15} className={bookmarked ? 'fill-current' : ''} />
           </button>
           {book.hasAudio && (
@@ -73,38 +73,38 @@ export default function BookCard({ book, layout = 'grid', index = 0 }) {
         </div>
         {/* Badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
-          {book.hasAudio && <span className="badge bg-[#8B6F5A]/90 text-white backdrop-blur-sm"><FiHeadphones size={9} />Audio</span>}
-          {book.hasTranslation && <span className="badge bg-[#B08968]/90 text-white backdrop-blur-sm"><FiGlobe size={9} />Translate</span>}
+          {book.hasAudio && <span className="badge bg-[#0891B2]/90 text-white backdrop-blur-sm"><FiHeadphones size={9} />Audio</span>}
+          {book.hasTranslation && <span className="badge bg-[#059669]/90 text-white backdrop-blur-sm"><FiGlobe size={9} />Translate</span>}
         </div>
         {/* Bookmark */}
         <button onClick={() => toggleBookmark(book)}
           className={`absolute top-2 right-2 w-8 h-8 rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-200
-            ${bookmarked ? 'bg-[#8B6F5A] text-white' : 'bg-white/70 text-[#8B6F5A] hover:bg-white'}`}>
+            ${bookmarked ? 'bg-[#7C3AED] text-white' : 'bg-white/70 text-[#7C3AED] hover:bg-white'}`}>
           <FiBookmark size={13} className={bookmarked ? 'fill-current' : ''} />
         </button>
         {/* Progress bar */}
         {book.progress > 0 && (
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
-            <div className="h-full bg-[#B08968]" style={{ width: `${book.progress}%` }} />
+            <div className="h-full bg-[#8B5CF6]" style={{ width: `${book.progress}%` }} />
           </div>
         )}
       </div>
 
       {/* Info */}
       <div className="p-3.5 flex flex-col gap-1.5">
-        <h3 className="font-semibold text-[#4A3628] text-sm leading-snug line-clamp-2 group-hover:text-[#8B6F5A] transition-colors">
+        <h3 className="font-semibold text-[#2E1065] text-sm leading-snug line-clamp-2 group-hover:text-[#7C3AED] transition-colors">
           {book.title}
         </h3>
-        <p className="text-xs text-[#9E8E80] truncate">{book.author}</p>
+        <p className="text-xs text-[#6B7280] truncate">{book.author}</p>
         <div className="flex items-center justify-between mt-1">
           <div className="flex items-center gap-2">
             <span className="text-xs">{LANG_FLAGS[book.language]}</span>
-            <span className="flex items-center gap-0.5 text-xs text-[#B08968] font-medium">
+            <span className="flex items-center gap-0.5 text-xs text-[#8B5CF6] font-medium">
               <FiStar size={10} className="fill-current" />{book.rating}
             </span>
           </div>
           {book.progress > 0 && book.progress < 100 && (
-            <span className="text-xs text-[#B08968] font-medium">{book.progress}%</span>
+            <span className="text-xs text-[#8B5CF6] font-medium">{book.progress}%</span>
           )}
           {book.progress === 100 && (
             <span className="badge bg-green-100 text-green-700"><FiBook size={9} />Done</span>

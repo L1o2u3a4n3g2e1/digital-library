@@ -77,27 +77,27 @@ export default function SearchBooks() {
           {/* Big search bar */}
           <div className="relative flex items-center gap-3">
             <div className="flex-1 relative">
-              <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#B08968]" size={20} />
+              <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8B5CF6]" size={20} />
               <input value={query} onChange={e => setQuery(e.target.value)}
                 placeholder={t('search')}
                 className="input-field pl-12 pr-12 py-4 text-base shadow-soft" />
               {query && (
-                <button onClick={() => setQuery('')} className="absolute right-12 top-1/2 -translate-y-1/2 text-[#C4B0A0] hover:text-[#8B6F5A] transition-colors">
+                <button onClick={() => setQuery('')} className="absolute right-12 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#7C3AED] transition-colors">
                   <FiX size={16} />
                 </button>
               )}
               <button onClick={startVoice}
                 className={`absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center transition-all
-                  ${listening ? 'bg-[#8B6F5A] text-white animate-mic' : 'text-[#B08968] hover:bg-[#F8F4EE]'}`}>
+                  ${listening ? 'bg-[#7C3AED] text-white animate-mic' : 'text-[#8B5CF6] hover:bg-[#F5F3FF]'}`}>
                 <FiMic size={16} />
               </button>
             </div>
             <button onClick={() => setShowFilters(v => !v)}
               className={`flex items-center gap-2 px-4 py-4 rounded-2xl border font-medium text-sm transition-all
-                ${showFilters || activeFiltersCount > 0 ? 'border-[#8B6F5A] bg-[#8B6F5A] text-white' : 'border-[#D8BFAA] bg-white text-[#6B5044] hover:border-[#B08968]'}`}>
+                ${showFilters || activeFiltersCount > 0 ? 'border-[#7C3AED] bg-[#7C3AED] text-white' : 'border-[#DDD6FE] bg-white text-[#5B21B6] hover:border-[#8B5CF6]'}`}>
               <FiSliders size={16} />
               <span className="hidden sm:inline">Filters</span>
-              {activeFiltersCount > 0 && <span className="w-5 h-5 bg-white text-[#8B6F5A] rounded-full text-xs font-bold flex items-center justify-center">{activeFiltersCount}</span>}
+              {activeFiltersCount > 0 && <span className="w-5 h-5 bg-white text-[#7C3AED] rounded-full text-xs font-bold flex items-center justify-center">{activeFiltersCount}</span>}
             </button>
           </div>
 
@@ -105,15 +105,15 @@ export default function SearchBooks() {
           <AnimatePresence>
             {showFilters && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                <div className="mt-4 p-5 bg-white rounded-2xl border border-[#EDD9CB] shadow-soft">
+                <div className="mt-4 p-5 bg-white rounded-2xl border border-[#EDE9FE] shadow-soft">
                   <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {/* Language */}
                     <div>
-                      <label className="text-xs font-semibold text-[#6B5044] mb-2 block uppercase tracking-wide">Language</label>
+                      <label className="text-xs font-semibold text-[#5B21B6] mb-2 block uppercase tracking-wide">Language</label>
                       <div className="flex flex-wrap gap-1.5">
                         {[{ code: 'all', label: 'All', flag: '🌐' }, ...LANGUAGES].map(l => (
                           <button key={l.code} onClick={() => setFilters(p => ({ ...p, lang: l.code }))}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${filters.lang === l.code ? 'bg-[#8B6F5A] text-white' : 'bg-[#F8F4EE] text-[#6B5044] hover:bg-[#EDD9CB]'}`}>
+                            className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${filters.lang === l.code ? 'bg-[#7C3AED] text-white' : 'bg-[#F5F3FF] text-[#5B21B6] hover:bg-[#EDE9FE]'}`}>
                             {l.flag} {l.label || 'All'}
                           </button>
                         ))}
@@ -121,7 +121,7 @@ export default function SearchBooks() {
                     </div>
                     {/* Category */}
                     <div>
-                      <label className="text-xs font-semibold text-[#6B5044] mb-2 block uppercase tracking-wide">Category</label>
+                      <label className="text-xs font-semibold text-[#5B21B6] mb-2 block uppercase tracking-wide">Category</label>
                       <select value={filters.category} onChange={e => setFilters(p => ({ ...p, category: e.target.value }))}
                         className="input-field py-2 text-sm">
                         <option value="all">All Categories</option>
@@ -130,15 +130,15 @@ export default function SearchBooks() {
                     </div>
                     {/* Audio */}
                     <div>
-                      <label className="text-xs font-semibold text-[#6B5044] mb-2 block uppercase tracking-wide">Type</label>
+                      <label className="text-xs font-semibold text-[#5B21B6] mb-2 block uppercase tracking-wide">Type</label>
                       <button onClick={() => setFilters(p => ({ ...p, hasAudio: !p.hasAudio }))}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all ${filters.hasAudio ? 'border-[#8B6F5A] bg-[#F8F4EE] text-[#8B6F5A]' : 'border-[#D8BFAA] text-[#6B5044]'}`}>
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all ${filters.hasAudio ? 'border-[#7C3AED] bg-[#F5F3FF] text-[#7C3AED]' : 'border-[#DDD6FE] text-[#5B21B6]'}`}>
                         🎧 Audio only
                       </button>
                     </div>
                     {/* Sort */}
                     <div>
-                      <label className="text-xs font-semibold text-[#6B5044] mb-2 block uppercase tracking-wide">Sort by</label>
+                      <label className="text-xs font-semibold text-[#5B21B6] mb-2 block uppercase tracking-wide">Sort by</label>
                       <select value={filters.sort} onChange={e => setFilters(p => ({ ...p, sort: e.target.value }))}
                         className="input-field py-2 text-sm">
                         {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -147,7 +147,7 @@ export default function SearchBooks() {
                   </div>
                   <div className="flex justify-end mt-4">
                     <button onClick={() => setFilters({ lang: 'all', category: 'all', hasAudio: false, sort: 'relevance' })}
-                      className="text-sm text-[#9E8E80] hover:text-[#8B6F5A] transition-colors">Clear all filters</button>
+                      className="text-sm text-[#6B7280] hover:text-[#7C3AED] transition-colors">Clear all filters</button>
                   </div>
                 </div>
               </motion.div>
@@ -157,16 +157,16 @@ export default function SearchBooks() {
 
         {/* Results header */}
         <div className="flex items-center justify-between mb-5">
-          <p className="text-sm text-[#9E8E80]">
+          <p className="text-sm text-[#6B7280]">
             {loading
-              ? <span className="flex items-center gap-1.5"><span className="w-3 h-3 border-2 border-[#B08968]/40 border-t-[#B08968] rounded-full animate-spin inline-block" /> Searching…</span>
-              : <><strong className="text-[#4A3628]">{results.length}</strong> books found{query && <> for <em className="text-[#8B6F5A] not-italic font-medium">"{query}"</em></>}</>
+              ? <span className="flex items-center gap-1.5"><span className="w-3 h-3 border-2 border-[#8B5CF6]/40 border-t-[#8B5CF6] rounded-full animate-spin inline-block" /> Searching…</span>
+              : <><strong className="text-[#2E1065]">{results.length}</strong> books found{query && <> for <em className="text-[#7C3AED] not-italic font-medium">"{query}"</em></>}</>
             }
           </p>
-          <div className="flex gap-1 bg-[#F8F4EE] rounded-xl p-1">
+          <div className="flex gap-1 bg-[#F5F3FF] rounded-xl p-1">
             {[{ icon: FiGrid, v: 'grid' }, { icon: FiList, v: 'list' }].map(({ icon: Icon, v }) => (
               <button key={v} onClick={() => setLayout(v)}
-                className={`p-2 rounded-lg transition-all ${layout === v ? 'bg-white text-[#8B6F5A] shadow-sm' : 'text-[#C4B0A0] hover:text-[#8B6F5A]'}`}>
+                className={`p-2 rounded-lg transition-all ${layout === v ? 'bg-white text-[#7C3AED] shadow-sm' : 'text-[#9CA3AF] hover:text-[#7C3AED]'}`}>
                 <Icon size={15} />
               </button>
             ))}
@@ -177,8 +177,8 @@ export default function SearchBooks() {
         {results.length === 0 ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
             <p className="text-5xl mb-4">📚</p>
-            <p className="text-lg font-semibold text-[#4A3628]">{t('noResults')}</p>
-            <p className="text-sm text-[#9E8E80] mt-2">{t('trySearch')}</p>
+            <p className="text-lg font-semibold text-[#2E1065]">{t('noResults')}</p>
+            <p className="text-sm text-[#6B7280] mt-2">{t('trySearch')}</p>
             <button onClick={() => { setQuery(''); setFilters({ lang: 'all', category: 'all', hasAudio: false, sort: 'relevance' }); }}
               className="btn-secondary mt-5 text-sm">Clear search</button>
           </motion.div>

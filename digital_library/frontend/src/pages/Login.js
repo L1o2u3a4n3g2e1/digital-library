@@ -39,9 +39,9 @@ export default function Login() {
         )}
 
         <div>
-          <label className="block text-sm font-medium text-[#6B5044] mb-1.5">{t('email')}</label>
+          <label className="block text-sm font-medium text-[#5B21B6] mb-1.5">{t('email')}</label>
           <div className="relative">
-            <FiMail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B08968]" size={16} />
+            <FiMail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B5CF6]" size={16} />
             <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
               placeholder="you@example.com" className="input-field pl-10" required />
           </div>
@@ -49,16 +49,16 @@ export default function Login() {
 
         <div>
           <div className="flex justify-between items-center mb-1.5">
-            <label className="text-sm font-medium text-[#6B5044]">{t('password')}</label>
-            <Link to="/forgot-password" className="text-xs text-[#B08968] hover:text-[#8B6F5A] transition-colors">{t('forgotPassword')}</Link>
+            <label className="text-sm font-medium text-[#5B21B6]">{t('password')}</label>
+            <Link to="/forgot-password" className="text-xs text-[#8B5CF6] hover:text-[#7C3AED] transition-colors">{t('forgotPassword')}</Link>
           </div>
           <div className="relative">
-            <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B08968]" size={16} />
+            <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B5CF6]" size={16} />
             <input type={showPw ? 'text' : 'password'} value={form.password}
               onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
               placeholder="••••••••" className="input-field pl-10 pr-10" required />
             <button type="button" onClick={() => setShowPw(v => !v)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#C4B0A0] hover:text-[#8B6F5A] transition-colors">
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#7C3AED] transition-colors">
               {showPw ? <FiEyeOff size={15} /> : <FiEye size={15} />}
             </button>
           </div>
@@ -78,13 +78,13 @@ export default function Login() {
         </motion.button>
 
         {/* Demo hint */}
-        <div className="bg-[#F8F4EE] rounded-2xl px-4 py-3 text-center">
-          <p className="text-xs text-[#9E8E80]">Demo: use any email & password to continue</p>
+        <div className="bg-[#F5F3FF] rounded-2xl px-4 py-3 text-center">
+          <p className="text-xs text-[#6B7280]">Demo: use any email & password to continue</p>
         </div>
 
-        <p className="text-center text-sm text-[#9E8E80]">
+        <p className="text-center text-sm text-[#6B7280]">
           Don't have an account?{' '}
-          <Link to="/register" className="text-[#8B6F5A] font-semibold hover:text-[#6B5044] transition-colors">{t('register')}</Link>
+          <Link to="/register" className="text-[#7C3AED] font-semibold hover:text-[#5B21B6] transition-colors">{t('register')}</Link>
         </p>
       </form>
     </AuthLayout>

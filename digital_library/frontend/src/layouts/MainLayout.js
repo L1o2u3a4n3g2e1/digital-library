@@ -8,7 +8,7 @@ import { useApp } from '../context/AppContext';
 export default function MainLayout({ children, hideSidebar = false }) {
   const { user } = useApp();
   return (
-    <div className="min-h-screen bg-[#F8F4EE] flex flex-col">
+    <div className="min-h-screen bg-[#F5F3FF] flex flex-col">
       <Navbar />
       <div className="flex flex-1 overflow-hidden">
         {user && !hideSidebar && <Sidebar />}

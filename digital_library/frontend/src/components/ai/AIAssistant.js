@@ -37,9 +37,9 @@ export default function AIAssistant({ floating = true }) {
   };
 
   const panel = (
-    <div className={`flex flex-col bg-white rounded-3xl shadow-card-hover border border-[#EDD9CB] overflow-hidden ${floating ? 'w-80 h-96' : 'w-full h-full'}`}>
+    <div className={`flex flex-col bg-white rounded-3xl shadow-card-hover border border-[#EDE9FE] overflow-hidden ${floating ? 'w-80 h-96' : 'w-full h-full'}`}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#8B6F5A] to-[#B08968] text-white">
+      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] text-white">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-sm">🤖</div>
           <div>
@@ -51,12 +51,12 @@ export default function AIAssistant({ floating = true }) {
       </div>
 
       {/* Quick actions */}
-      <div className="grid grid-cols-4 gap-1 p-2 bg-[#FDFCFA] border-b border-[#F0E8E0]">
+      <div className="grid grid-cols-4 gap-1 p-2 bg-[#FAFAFF] border-b border-[#EDE9FE]">
         {SUGGESTIONS.map(({ icon: Icon, label, action }) => (
           <button key={action} onClick={() => send(action)}
-            className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-[#F8F4EE] transition-colors group">
-            <Icon size={14} className="text-[#B08968]" />
-            <span className="text-[9px] text-[#9E8E80] text-center leading-tight">{label}</span>
+            className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-[#F5F3FF] transition-colors group">
+            <Icon size={14} className="text-[#8B5CF6]" />
+            <span className="text-[9px] text-[#6B7280] text-center leading-tight">{label}</span>
           </button>
         ))}
       </div>
@@ -66,7 +66,7 @@ export default function AIAssistant({ floating = true }) {
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] px-3 py-2 rounded-2xl text-xs leading-relaxed whitespace-pre-line
-              ${m.role === 'user' ? 'bg-[#8B6F5A] text-white rounded-br-sm' : 'bg-[#F8F4EE] text-[#4A3628] rounded-bl-sm border border-[#EDD9CB]'}`}>
+              ${m.role === 'user' ? 'bg-[#7C3AED] text-white rounded-br-sm' : 'bg-[#F5F3FF] text-[#2E1065] rounded-bl-sm border border-[#EDE9FE]'}`}>
               {m.text}
             </div>
           </div>
@@ -74,12 +74,12 @@ export default function AIAssistant({ floating = true }) {
       </div>
 
       {/* Input */}
-      <div className="p-3 border-t border-[#F0E8E0]">
+      <div className="p-3 border-t border-[#EDE9FE]">
         <form onSubmit={e => { e.preventDefault(); send(input); }} className="flex gap-2">
           <input value={input} onChange={e => setInput(e.target.value)}
             placeholder="Ask me anything…"
-            className="flex-1 bg-[#F8F4EE] border border-[#EDD9CB] rounded-xl px-3 py-2 text-xs text-[#4A3628] placeholder-[#C4B0A0] focus:outline-none focus:ring-1 focus:ring-[#B08968]" />
-          <button type="submit" className="w-8 h-8 rounded-xl bg-[#8B6F5A] flex items-center justify-center text-white hover:bg-[#6B5044] transition-colors flex-shrink-0">
+            className="flex-1 bg-[#F5F3FF] border border-[#EDE9FE] rounded-xl px-3 py-2 text-xs text-[#2E1065] placeholder-[#9CA3AF] focus:outline-none focus:ring-1 focus:ring-[#8B5CF6]" />
+          <button type="submit" className="w-8 h-8 rounded-xl bg-[#7C3AED] flex items-center justify-center text-white hover:bg-[#5B21B6] transition-colors flex-shrink-0">
             <FiSend size={12} />
           </button>
         </form>
@@ -100,8 +100,8 @@ export default function AIAssistant({ floating = true }) {
         )}
       </AnimatePresence>
       <motion.button onClick={() => setOpen(v => !v)} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }}
-        className={`w-14 h-14 rounded-full shadow-[0_4px_20px_rgba(139,111,90,0.35)] flex items-center justify-center text-white transition-all duration-300
-          ${open ? 'bg-[#8B6F5A]' : 'bg-gradient-to-br from-[#B08968] to-[#8B6F5A]'}`}>
+        className={`w-14 h-14 rounded-full shadow-[0_4px_20px_rgba(124,58,237,0.35)] flex items-center justify-center text-white transition-all duration-300
+          ${open ? 'bg-[#7C3AED]' : 'bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED]'}`}>
         {open ? <FiX size={22} /> : <FiMessageSquare size={22} />}
       </motion.button>
     </div>

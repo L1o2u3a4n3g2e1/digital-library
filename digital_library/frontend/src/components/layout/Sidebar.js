@@ -34,14 +34,14 @@ export default function Sidebar() {
   };
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-white border-r border-[#EFE5D8]">
+    <div className="flex flex-col h-full bg-white border-r border-[#E5E7EB]">
       {/* Logo area */}
-      <div className="flex items-center justify-between px-5 py-5 border-b border-[#F0E8E0]">
+      <div className="flex items-center justify-between px-5 py-5 border-b border-[#EDE9FE]">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#B08968] to-[#8B6F5A] flex items-center justify-center shadow-sm">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] flex items-center justify-center shadow-sm">
             <span className="text-white text-sm font-bold">ML</span>
           </div>
-          <span className="font-['Playfair_Display'] font-semibold text-[#4A3628] text-base">
+          <span className="font-['Playfair_Display'] font-semibold text-[#2E1065] text-base">
             {t('appName')}
           </span>
         </div>
@@ -52,14 +52,14 @@ export default function Sidebar() {
 
       {/* User mini card */}
       {user && (
-        <div className="mx-4 my-4 p-3 rounded-2xl bg-gradient-to-r from-[#F8F4EE] to-[#F0E8DE] border border-[#EDD9CB]">
+        <div className="mx-4 my-4 p-3 rounded-2xl bg-gradient-to-r from-[#F5F3FF] to-[#EDE9FE] border border-[#EDE9FE]">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#D8BFAA] to-[#B08968] flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#DDD6FE] to-[#8B5CF6] flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
               {user?.name?.charAt(0)?.toUpperCase() || 'U'}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-[#4A3628] truncate">{user?.name}</p>
-              <p className="text-xs text-[#B08968]">Avid Reader</p>
+              <p className="text-sm font-semibold text-[#2E1065] truncate">{user?.name}</p>
+              <p className="text-xs text-[#8B5CF6]">Avid Reader</p>
             </div>
           </div>
         </div>
@@ -67,9 +67,9 @@ export default function Sidebar() {
 
       {/* Low Literacy voice banner */}
       {lowLiteracy && (
-        <div className="mx-3 mb-2 px-3 py-2 rounded-xl bg-[#8B6F5A]/10 border border-[#D8BFAA] flex items-center gap-2">
+        <div className="mx-3 mb-2 px-3 py-2 rounded-xl bg-[#7C3AED]/10 border border-[#DDD6FE] flex items-center gap-2">
           <span className="text-lg">🔊</span>
-          <p className="text-xs text-[#6B5044] font-medium">Hover a menu item to hear it</p>
+          <p className="text-xs text-[#5B21B6] font-medium">Hover a menu item to hear it</p>
         </div>
       )}
 
@@ -83,15 +83,15 @@ export default function Sidebar() {
               `flex items-center gap-3.5 px-4 rounded-2xl font-medium transition-all duration-200 group
               ${lowLiteracy ? 'py-4 text-base' : 'py-3 text-sm'}
               ${isActive
-                ? 'bg-gradient-to-r from-[#8B6F5A] to-[#B08968] text-white shadow-[0_4px_14px_-2px_rgba(139,111,90,0.35)]'
-                : 'text-[#6B5044] hover:bg-[#F8F4EE] hover:text-[#8B6F5A]'
+                ? 'bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] text-white shadow-[0_4px_14px_-2px_rgba(124,58,237,0.35)]'
+                : 'text-[#5B21B6] hover:bg-[#F5F3FF] hover:text-[#7C3AED]'
               }`
             }>
             {({ isActive }) => (
               <>
                 {lowLiteracy
                   ? <span className="text-xl">{emoji}</span>
-                  : <Icon size={18} className={isActive ? 'text-white' : 'text-[#B08968] group-hover:text-[#8B6F5A]'} />
+                  : <Icon size={18} className={isActive ? 'text-white' : 'text-[#8B5CF6] group-hover:text-[#7C3AED]'} />
                 }
                 <span>{t(key)}</span>
               </>
@@ -101,15 +101,15 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom items */}
-      <div className="px-3 pb-4 space-y-1 border-t border-[#F0E8E0] pt-3">
+      <div className="px-3 pb-4 space-y-1 border-t border-[#EDE9FE] pt-3">
         {BOTTOM_ITEMS.map(({ icon: Icon, key, to }) => (
           <NavLink key={to} to={to}
             onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
               `flex items-center gap-3.5 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all duration-200
-              ${isActive ? 'bg-[#F8F4EE] text-[#8B6F5A]' : 'text-[#9E8E80] hover:bg-[#F8F4EE] hover:text-[#8B6F5A]'}`
+              ${isActive ? 'bg-[#F5F3FF] text-[#7C3AED]' : 'text-[#6B7280] hover:bg-[#F5F3FF] hover:text-[#7C3AED]'}`
             }>
-            <Icon size={17} className="text-[#C4B0A0]" />
+            <Icon size={17} className="text-[#9CA3AF]" />
             <span>{t(key)}</span>
           </NavLink>
         ))}

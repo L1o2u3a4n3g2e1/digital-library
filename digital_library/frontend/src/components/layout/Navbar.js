@@ -58,7 +58,7 @@ export default function Navbar() {
   const isLanding = location.pathname === '/';
 
   return (
-    <header className={`sticky top-0 z-50 transition-all duration-300 ${isLanding ? 'glass' : 'bg-white/90 backdrop-blur-lg border-b border-[#EFE5D8]'}`}>
+    <header className={`sticky top-0 z-50 transition-all duration-300 ${isLanding ? 'glass' : 'bg-white/90 backdrop-blur-lg border-b border-[#E5E7EB]'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
@@ -70,10 +70,10 @@ export default function Navbar() {
               </button>
             )}
             <Link to={user ? '/dashboard' : '/'} className="flex items-center gap-2 group">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#B08968] to-[#8B6F5A] flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
                 <span className="text-white text-sm font-bold">ML</span>
               </div>
-              <span className="hidden sm:block font-['Playfair_Display'] font-semibold text-[#4A3628] text-lg leading-tight">
+              <span className="hidden sm:block font-['Playfair_Display'] font-semibold text-[#2E1065] text-lg leading-tight">
                 {t('appName')}
               </span>
             </Link>
@@ -82,7 +82,7 @@ export default function Navbar() {
           {/* Center: search */}
           <div className="flex-1 max-w-md mx-4 hidden md:block">
             <form onSubmit={handleSearch} className="relative">
-              <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B08968]" size={16} />
+              <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B5CF6]" size={16} />
               <input
                 ref={searchRef}
                 value={searchQuery}
@@ -91,7 +91,7 @@ export default function Navbar() {
                 className="input-field pl-10 pr-10 py-2.5 text-sm h-10"
               />
               <button type="button" onClick={startVoiceSearch}
-                className={`absolute right-3 top-1/2 -translate-y-1/2 text-[#B08968] hover:text-[#8B6F5A] transition-colors ${listening ? 'animate-mic' : ''}`}>
+                className={`absolute right-3 top-1/2 -translate-y-1/2 text-[#8B5CF6] hover:text-[#7C3AED] transition-colors ${listening ? 'animate-mic' : ''}`}>
                 <FiMic size={15} />
               </button>
             </form>
@@ -113,7 +113,7 @@ export default function Navbar() {
             {/* Low literacy toggle */}
             <button onClick={() => setLowLiteracy(v => !v)}
               title={t('lowLiteracy')}
-              className={`btn-ghost p-2 rounded-xl hidden sm:flex ${lowLiteracy ? 'bg-[#B08968]/15 text-[#8B6F5A]' : ''}`}>
+              className={`btn-ghost p-2 rounded-xl hidden sm:flex ${lowLiteracy ? 'bg-[#8B5CF6]/15 text-[#7C3AED]' : ''}`}>
               <FiEye size={18} />
             </button>
 
@@ -127,10 +127,10 @@ export default function Navbar() {
               <AnimatePresence>
                 {showLang && (
                   <motion.div initial={{ opacity: 0, y: -8, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.95 }} transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-card border border-[#EFE5D8] overflow-hidden z-60">
+                    className="absolute right-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-card border border-[#E5E7EB] overflow-hidden z-60">
                     {LANGUAGES.map(l => (
                       <button key={l.code} onClick={() => { setLanguage(l.code); setShowLang(false); }}
-                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-[#F8F4EE] transition-colors ${language === l.code ? 'text-[#8B6F5A] font-semibold bg-[#F8F4EE]' : 'text-[#4A3628]'}`}>
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-[#F5F3FF] transition-colors ${language === l.code ? 'text-[#7C3AED] font-semibold bg-[#F5F3FF]' : 'text-[#2E1065]'}`}>
                         <span className="text-lg">{l.flag}</span> {l.label}
                       </button>
                     ))}
@@ -146,20 +146,20 @@ export default function Navbar() {
                   <button onClick={() => { setShowNotifs(v => !v); setShowProfile(false); setShowLang(false); }}
                     className="btn-ghost p-2 rounded-xl relative">
                     <FiBell size={18} />
-                    {unread > 0 && <span className="absolute top-1 right-1 w-4 h-4 bg-[#B08968] text-white text-[10px] font-bold rounded-full flex items-center justify-center">{unread}</span>}
+                    {unread > 0 && <span className="absolute top-1 right-1 w-4 h-4 bg-[#8B5CF6] text-white text-[10px] font-bold rounded-full flex items-center justify-center">{unread}</span>}
                   </button>
                   <AnimatePresence>
                     {showNotifs && (
                       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}
-                        className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-card border border-[#EFE5D8] overflow-hidden z-60">
-                        <div className="px-4 py-3 border-b border-[#EFE5D8]">
-                          <h3 className="font-semibold text-[#4A3628] text-sm">{t('notifications')}</h3>
+                        className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-card border border-[#E5E7EB] overflow-hidden z-60">
+                        <div className="px-4 py-3 border-b border-[#E5E7EB]">
+                          <h3 className="font-semibold text-[#2E1065] text-sm">{t('notifications')}</h3>
                         </div>
                         <div className="max-h-72 overflow-y-auto">
                           {NOTIFS.map(n => (
-                            <div key={n.id} className={`px-4 py-3 border-b border-[#F8F4EE] hover:bg-[#FDFCFA] transition-colors ${!n.read ? 'bg-[#FDF9F4]' : ''}`}>
-                              <p className="text-sm text-[#4A3628]">{n.message}</p>
-                              <p className="text-xs text-[#C4B0A0] mt-0.5">{n.time}</p>
+                            <div key={n.id} className={`px-4 py-3 border-b border-[#F5F3FF] hover:bg-[#FAFAFF] transition-colors ${!n.read ? 'bg-[#FDF9F4]' : ''}`}>
+                              <p className="text-sm text-[#2E1065]">{n.message}</p>
+                              <p className="text-xs text-[#9CA3AF] mt-0.5">{n.time}</p>
                             </div>
                           ))}
                         </div>
@@ -172,18 +172,18 @@ export default function Navbar() {
                 <div className="relative">
                   <button onClick={() => { setShowProfile(v => !v); setShowNotifs(false); setShowLang(false); }}
                     className="flex items-center gap-2 btn-ghost rounded-xl px-2 py-1.5">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#D8BFAA] to-[#B08968] flex items-center justify-center text-white text-sm font-bold">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#DDD6FE] to-[#8B5CF6] flex items-center justify-center text-white text-sm font-bold">
                       {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                     </div>
-                    <span className="text-sm font-medium text-[#4A3628] hidden sm:block max-w-[80px] truncate">{user?.name}</span>
+                    <span className="text-sm font-medium text-[#2E1065] hidden sm:block max-w-[80px] truncate">{user?.name}</span>
                   </button>
                   <AnimatePresence>
                     {showProfile && (
                       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}
-                        className="absolute right-0 top-full mt-2 w-52 bg-white rounded-2xl shadow-card border border-[#EFE5D8] overflow-hidden z-60">
-                        <div className="px-4 py-3 border-b border-[#EFE5D8]">
-                          <p className="font-semibold text-[#4A3628] text-sm truncate">{user?.name}</p>
-                          <p className="text-xs text-[#C4B0A0] truncate">{user?.email}</p>
+                        className="absolute right-0 top-full mt-2 w-52 bg-white rounded-2xl shadow-card border border-[#E5E7EB] overflow-hidden z-60">
+                        <div className="px-4 py-3 border-b border-[#E5E7EB]">
+                          <p className="font-semibold text-[#2E1065] text-sm truncate">{user?.name}</p>
+                          <p className="text-xs text-[#9CA3AF] truncate">{user?.email}</p>
                         </div>
                         {[
                           { icon: FiUser, label: t('profile'), to: '/profile' },
@@ -191,11 +191,11 @@ export default function Navbar() {
                           { icon: FiSettings, label: t('settings'), to: '/settings' },
                         ].map(({ icon: Icon, label, to }) => (
                           <Link key={to} to={to} onClick={() => setShowProfile(false)}
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-[#4A3628] hover:bg-[#F8F4EE] transition-colors">
-                            <Icon size={15} className="text-[#B08968]" /> {label}
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-[#2E1065] hover:bg-[#F5F3FF] transition-colors">
+                            <Icon size={15} className="text-[#8B5CF6]" /> {label}
                           </Link>
                         ))}
-                        <div className="border-t border-[#EFE5D8]">
+                        <div className="border-t border-[#E5E7EB]">
                           <button onClick={() => { logout(); navigate('/'); setShowProfile(false); }}
                             className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors">
                             <FiLogOut size={15} /> {t('logout')}
@@ -220,11 +220,11 @@ export default function Navbar() {
           {searchOpen && (
             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden pb-3 md:hidden">
               <form onSubmit={handleSearch} className="relative">
-                <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B08968]" size={16} />
+                <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B5CF6]" size={16} />
                 <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                   placeholder={t('search')} className="input-field pl-10 pr-10 py-2.5 text-sm" autoFocus />
                 <button type="button" onClick={startVoiceSearch}
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 text-[#B08968] ${listening ? 'animate-mic' : ''}`}>
+                  className={`absolute right-3 top-1/2 -translate-y-1/2 text-[#8B5CF6] ${listening ? 'animate-mic' : ''}`}>
                   <FiMic size={15} />
                 </button>
               </form>
