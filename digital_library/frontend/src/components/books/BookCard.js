@@ -39,6 +39,11 @@ export default function BookCard({ book, layout = 'grid', index = 0 }) {
             className={`p-2 rounded-xl transition-colors ${bookmarked ? 'text-[#8B6F5A] bg-[#EDD9CB]' : 'text-[#C4B0A0] hover:text-[#8B6F5A] hover:bg-[#F8F4EE]'}`}>
             <FiBookmark size={15} className={bookmarked ? 'fill-current' : ''} />
           </button>
+          {book.hasAudio && (
+            <Link to={`/read/${book.id}?mode=audio`} className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1">
+              <FiHeadphones size={12} /> {t('listenNow')}
+            </Link>
+          )}
           <Link to={`/read/${book.id}`} className="btn-primary text-xs px-3 py-1.5">{t('readNow')}</Link>
         </div>
       </motion.div>

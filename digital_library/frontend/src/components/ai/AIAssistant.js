@@ -25,7 +25,7 @@ export default function AIAssistant({ floating = true }) {
   ]);
   const [input, setInput] = useState('');
   const { language } = useApp();
-  const { t } = useTranslation(language);
+  useTranslation(language);
 
   const send = (text) => {
     if (!text.trim()) return;

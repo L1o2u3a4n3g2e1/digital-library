@@ -7,7 +7,7 @@ import {
 } from 'react-icons/fi';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../utils/translations';
-import { LANGUAGES, MOCK_NOTIFICATIONS } from '../../utils/constants';
+import { LANGUAGES } from '../../utils/constants';
 import { MOCK_NOTIFICATIONS as NOTIFS } from '../../data/mockData';
 
 export default function Navbar() {

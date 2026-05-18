@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FiArrowLeft, FiBookmark, FiGlobe, FiMinus, FiPlus, FiSun, FiMoon,
@@ -13,42 +13,72 @@ import { useApp } from '../context/AppContext';
 import { useTranslation } from '../utils/translations';
 import { MOCK_BOOKS, SAMPLE_TEXT } from '../data/mockData';
 import { LANGUAGES } from '../utils/constants';
+import { bookService, translationService, statsService } from '../services/api';
 
 const FONT_SIZES = [14, 16, 18, 20, 22, 24];
 
+const MOCK_TRANSLATIONS = {
+  fr: 'Il était une fois, dans une terre où les histoires vivaient dans chaque feuille et pierre…',
+  sw: 'Hapo zamani za kale, katika nchi ambapo hadithi ziliishi katika kila jani na jiwe…',
+  rw: "Mu gihe cy'kera, mu gihugu aho inkuru zatuye mu majani no mu mabuye…",
+};
+
 export default function ReadBook() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const { language, toggleBookmark, isBookmarked } = useApp();
-  const { t } = useTranslation(language);
+  useTranslation(language);
   const book = MOCK_BOOKS.find(b => b.id === Number(id)) || MOCK_BOOKS[0];
   const bookmarked = isBookmarked(book.id);
 
+  const [content, setContent] = useState(SAMPLE_TEXT);
   const [fontSizeIdx, setFontSizeIdx] = useState(2);
   const [darkMode, setDarkMode] = useState(false);
   const [selectedText, setSelectedText] = useState('');
   const [translation, setTranslation] = useState('');
-  const [showTranslate, setShowTranslate] = useState(false);
+  const [translating, setTranslating] = useState(false);
   const [translateTo, setTranslateTo] = useState('fr');
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [showRightPanel, setShowRightPanel] = useState(true);
-  const [showAIPanel, setShowAIPanel] = useState(false);
   const [page, setPage] = useState(1);
-  const totalPages = Math.ceil(SAMPLE_TEXT.split('\n\n').length);
-  const paragraphs = SAMPLE_TEXT.split('\n\n');
+  const readStartRef = useRef(Date.now());
+
+  // Try to load real content from backend
+  useEffect(() => {
+    bookService.get(id).then(data => { if (data?.content) setContent(data.content); }).catch(() => {});
+  }, [id]);
+
+  // Auto-start audio if ?mode=audio
+  const autoAudio = searchParams.get('mode') === 'audio';
+
+  // Save reading progress when leaving
+  useEffect(() => {
+    const startTime = readStartRef.current;
+    return () => {
+      const minutes = Math.round((Date.now() - startTime) / 60000);
+      if (minutes > 0) statsService.logRead(id, minutes).catch(() => {});
+    };
+  }, [id]);
+
+  const totalPages = Math.ceil(content.split('\n\n').length);
+  const paragraphs = content.split('\n\n');
   const fontSize = FONT_SIZES[fontSizeIdx];
 
   const handleTextSelect = () => {
     const sel = window.getSelection()?.toString().trim();
-    if (sel && sel.length > 2) { setSelectedText(sel); setShowTranslate(true); }
+    if (sel && sel.length > 2) setSelectedText(sel);
   };
 
-  const mockTranslate = () => {
-    const mocks = {
-      fr: 'Il était une fois, dans une terre où les histoires vivaient dans chaque feuille et pierre…',
-      sw: 'Hapo zamani za kale, katika nchi ambapo hadithi ziliishi katika kila jani na jiwe…',
-      rw: 'Mu gihe cy\'kera, mu gihugu aho inkuru zatuye mu majani no mu mabuye…',
-    };
-    setTranslation(mocks[translateTo] || 'Translation not available');
+  const doTranslate = async () => {
+    if (!selectedText) return;
+    setTranslating(true);
+    try {
+      const result = await translationService.translate(selectedText, 'en', translateTo);
+      setTranslation(result?.translated || result);
+    } catch {
+      setTranslation(MOCK_TRANSLATIONS[translateTo] || 'Translation not available');
+    }
+    setTranslating(false);
   };
 
   const bg = darkMode ? '#2A1F18' : '#FFFCF8';
@@ -215,7 +245,7 @@ export default function ReadBook() {
               style={{ borderColor: darkMode ? '#4A3628' : '#EDD9CB', background: surfaceBg }}>
               <div className="w-[300px] h-full flex flex-col overflow-y-auto p-4 space-y-4">
                 {/* Audio player */}
-                <AudioPlayer text={SAMPLE_TEXT} lang={language} />
+                <AudioPlayer text={content} lang={language} autoPlay={autoAudio} />
 
                 {/* Translation panel */}
                 <div className="rounded-2xl border p-4 space-y-3" style={{ background: darkMode ? '#3A2A18' : '#F8F4EE', borderColor: '#EDD9CB' }}>
@@ -235,8 +265,9 @@ export default function ReadBook() {
                       <p className="text-xs italic bg-white rounded-xl px-3 py-2 border border-[#EDD9CB] line-clamp-2" style={{ color: '#6B5044' }}>"{selectedText}"</p>
                     </div>
                   )}
-                  <button onClick={mockTranslate} disabled={!selectedText}
-                    className="btn-primary w-full text-xs py-2.5 disabled:opacity-50">
+                  <button onClick={doTranslate} disabled={!selectedText || translating}
+                    className="btn-primary w-full text-xs py-2.5 disabled:opacity-50 flex items-center justify-center gap-2">
+                    {translating && <span className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
                     Translate Selected
                   </button>
                   {translation && (

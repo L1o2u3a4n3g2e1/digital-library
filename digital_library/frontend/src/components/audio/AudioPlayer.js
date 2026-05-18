@@ -5,7 +5,7 @@ import { MdSpeed } from 'react-icons/md';
 
 const SPEEDS = [0.75, 1, 1.25, 1.5, 2];
 
-export default function AudioPlayer({ text = '', lang = 'en', compact = false }) {
+export default function AudioPlayer({ text = '', lang = 'en', compact = false, autoPlay = false }) {
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [speed, setSpeed] = useState(1);
@@ -55,6 +55,8 @@ export default function AudioPlayer({ text = '', lang = 'en', compact = false })
   }, [speed]);
 
   useEffect(() => () => window.speechSynthesis.cancel(), []);
+
+  useEffect(() => { if (autoPlay && text) speak(); }, [autoPlay]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (compact) {
     return (

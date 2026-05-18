@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiTrendingUp, FiClock, FiBookOpen, FiHeadphones, FiArrowRight, FiMic, FiZap } from 'react-icons/fi';
@@ -7,9 +7,9 @@ import BookCard from '../components/books/BookCard';
 import AudioPlayer from '../components/audio/AudioPlayer';
 import { useApp } from '../context/AppContext';
 import { useTranslation } from '../utils/translations';
-import { MOCK_BOOKS, MOCK_STATS, MOCK_USER } from '../data/mockData';
+import { MOCK_BOOKS, MOCK_STATS, SAMPLE_TEXT } from '../data/mockData';
 import { CATEGORIES } from '../utils/constants';
-import { SAMPLE_TEXT } from '../data/mockData';
+import { bookService, statsService } from '../services/api';
 
 const StatCard = ({ icon: Icon, value, label, color }) => (
   <motion.div whileHover={{ y: -3 }} className="card p-5 flex items-center gap-4">
@@ -42,10 +42,19 @@ export default function Dashboard() {
   const { t } = useTranslation(language);
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState('all');
-  const inProgress = MOCK_BOOKS.filter(b => b.progress > 0 && b.progress < 100);
-  const recommended = MOCK_BOOKS.filter(b => b.progress === 0).slice(0, 4);
-  const trending = MOCK_BOOKS.slice(0, 6);
-  const audioBooks = MOCK_BOOKS.filter(b => b.hasAudio).slice(0, 4);
+  const [books, setBooks] = useState(MOCK_BOOKS);
+  const [stats, setStats] = useState(MOCK_STATS);
+
+  useEffect(() => {
+    bookService.list().then(data => { if (data?.length) setBooks(data); }).catch(() => {});
+    statsService.get().then(data => { if (data) setStats(data); }).catch(() => {});
+    bookService.recommend().then(data => { if (data?.length) setBooks(prev => [...data, ...prev.filter(b => !data.find(d => d.id === b.id))]); }).catch(() => {});
+  }, []);
+
+  const inProgress = books.filter(b => b.progress > 0 && b.progress < 100);
+  const recommended = books.filter(b => b.progress === 0).slice(0, 4);
+  const trending = books.slice(0, 6);
+  const audioBooks = books.filter(b => b.hasAudio).slice(0, 4);
 
   return (
     <MainLayout>
@@ -58,7 +67,7 @@ export default function Dashboard() {
             <h1 className="text-3xl font-['Playfair_Display'] font-bold text-[#4A3628]">
               {t('welcome')}, {user?.name?.split(' ')[0] || 'Reader'} 👋
             </h1>
-            <p className="text-[#9E8E80] mt-1 text-sm">You've read <strong className="text-[#8B6F5A]">{MOCK_STATS.booksRead} books</strong> — keep going!</p>
+            <p className="text-[#9E8E80] mt-1 text-sm">You've read <strong className="text-[#8B6F5A]">{stats.booksRead} books</strong> — keep going!</p>
           </div>
           <div className="flex gap-2">
             <button onClick={() => navigate('/search')}
@@ -71,9 +80,9 @@ export default function Dashboard() {
 
         {/* Stats row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard icon={FiBookOpen} value={MOCK_STATS.booksRead} label={t('booksRead')} color="#8B6F5A" />
-          <StatCard icon={FiHeadphones} value={`${MOCK_STATS.listeningHours}h`} label={t('listeningTime')} color="#B08968" />
-          <StatCard icon={FiZap} value={`${MOCK_STATS.streak} days`} label={t('streak')} color="#D4A574" />
+          <StatCard icon={FiBookOpen} value={stats.booksRead} label={t('booksRead')} color="#8B6F5A" />
+          <StatCard icon={FiHeadphones} value={`${stats.listeningHours}h`} label={t('listeningTime')} color="#B08968" />
+          <StatCard icon={FiZap} value={`${stats.streak} days`} label={t('streak')} color="#D4A574" />
           <StatCard icon={FiTrendingUp} value="78%" label={t('readingProgress')} color="#C9A882" />
         </div>
 
@@ -155,9 +164,9 @@ export default function Dashboard() {
           <SectionHeader title="Weekly Reading Activity" />
           <div className="card p-6">
             <div className="flex items-end gap-2 h-24">
-              {MOCK_STATS.weeklyReadingMinutes.map((mins, i) => {
+              {stats.weeklyReadingMinutes.map((mins, i) => {
                 const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-                const maxMins = Math.max(...MOCK_STATS.weeklyReadingMinutes);
+                const maxMins = Math.max(...stats.weeklyReadingMinutes);
                 return (
                   <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
                     <motion.div initial={{ height: 0 }} animate={{ height: `${(mins / maxMins) * 80}px` }}

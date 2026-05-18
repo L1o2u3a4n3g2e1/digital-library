@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiSearch, FiMic, FiGrid, FiList, FiX, FiSliders } from 'react-icons/fi';
@@ -8,6 +8,7 @@ import { useApp } from '../context/AppContext';
 import { useTranslation } from '../utils/translations';
 import { MOCK_BOOKS } from '../data/mockData';
 import { CATEGORIES, LANGUAGES } from '../utils/constants';
+import { bookService } from '../services/api';
 
 const SORT_OPTIONS = [
   { value: 'relevance', label: 'Most Relevant' },
@@ -26,8 +27,20 @@ export default function SearchBooks() {
   const [filters, setFilters] = useState({ lang: 'all', category: 'all', hasAudio: false, sort: 'relevance' });
   const [listening, setListening] = useState(false);
   const [results, setResults] = useState(MOCK_BOOKS);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+  const runSearch = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await bookService.search(query, {
+        lang: filters.lang !== 'all' ? filters.lang : undefined,
+        category: filters.category !== 'all' ? filters.category : undefined,
+        hasAudio: filters.hasAudio || undefined,
+        sort: filters.sort,
+      });
+      if (data?.length !== undefined) { setResults(data); return; }
+    } catch {}
+    // Fallback: filter mock data locally
     let filtered = [...MOCK_BOOKS];
     if (query) filtered = filtered.filter(b => b.title.toLowerCase().includes(query.toLowerCase()) || b.author.toLowerCase().includes(query.toLowerCase()));
     if (filters.lang !== 'all') filtered = filtered.filter(b => b.language === filters.lang);
@@ -36,7 +49,10 @@ export default function SearchBooks() {
     if (filters.sort === 'rating') filtered.sort((a, b) => b.rating - a.rating);
     if (filters.sort === 'popular') filtered.sort((a, b) => b.readers - a.readers);
     setResults(filtered);
+    setLoading(false);
   }, [query, filters]);
+
+  useEffect(() => { runSearch(); }, [runSearch]);
 
   const startVoice = () => {
     if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) return;
@@ -142,8 +158,10 @@ export default function SearchBooks() {
         {/* Results header */}
         <div className="flex items-center justify-between mb-5">
           <p className="text-sm text-[#9E8E80]">
-            <strong className="text-[#4A3628]">{results.length}</strong> books found
-            {query && <> for <em className="text-[#8B6F5A] not-italic font-medium">"{query}"</em></>}
+            {loading
+              ? <span className="flex items-center gap-1.5"><span className="w-3 h-3 border-2 border-[#B08968]/40 border-t-[#B08968] rounded-full animate-spin inline-block" /> Searching…</span>
+              : <><strong className="text-[#4A3628]">{results.length}</strong> books found{query && <> for <em className="text-[#8B6F5A] not-italic font-medium">"{query}"</em></>}</>
+            }
           </p>
           <div className="flex gap-1 bg-[#F8F4EE] rounded-xl p-1">
             {[{ icon: FiGrid, v: 'grid' }, { icon: FiList, v: 'list' }].map(({ icon: Icon, v }) => (

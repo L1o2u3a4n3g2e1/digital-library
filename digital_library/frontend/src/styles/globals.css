@@ -112,6 +112,37 @@
 .low-literacy .card { padding: 1.75rem !important; }
 .low-literacy input,.low-literacy select { padding: 1rem 1.25rem !important; font-size: 1.1rem !important; }
 
+/* High Contrast Mode */
+.high-contrast body, body.high-contrast {
+  background-color: #000000 !important; color: #FFFFFF !important;
+}
+.high-contrast .card {
+  background: #111111 !important; border-color: #FFFFFF !important; color: #FFFFFF !important;
+}
+.high-contrast .btn-primary {
+  background: #FFDD00 !important; color: #000000 !important; border: 2px solid #FFDD00 !important;
+}
+.high-contrast .btn-secondary, .high-contrast .btn-ghost {
+  background: transparent !important; color: #FFDD00 !important; border: 2px solid #FFDD00 !important;
+}
+.high-contrast .input-field {
+  background: #000000 !important; color: #FFFFFF !important; border: 2px solid #FFFFFF !important;
+}
+.high-contrast header, .high-contrast aside, .high-contrast nav {
+  background: #0A0A0A !important; border-color: #555555 !important;
+}
+.high-contrast p, .high-contrast span, .high-contrast label, .high-contrast h1, .high-contrast h2, .high-contrast h3 {
+  color: #FFFFFF !important;
+}
+.high-contrast a { color: #FFDD00 !important; }
+.high-contrast img { filter: contrast(1.2) brightness(0.9); }
+
+/* Low Literacy Mode — voice hints */
+.low-literacy .voice-hint { display: flex !important; }
+.low-literacy .sidebar-label::before { content: attr(data-icon); margin-right: 0.5rem; font-size: 1.2rem; }
+.low-literacy .nav-label { display: none; }
+.low-literacy .nav-label-ll { display: inline !important; font-size: 1.1rem !important; }
+
 /* Reading page */
 .reading-text { font-size: 1.1rem; line-height: 2; letter-spacing: 0.012em; color: #3A2A1A; }
 .reading-text p { margin-bottom: 1.5em; }

@@ -6,6 +6,7 @@ import MainLayout from '../layouts/MainLayout';
 import { useApp } from '../context/AppContext';
 import { useTranslation } from '../utils/translations';
 import { CATEGORIES, LANGUAGES } from '../utils/constants';
+import { uploadService } from '../services/api';
 
 export default function UploadBook() {
   const { language } = useApp();
@@ -37,9 +38,25 @@ export default function UploadBook() {
     e.preventDefault();
     if (!file) return;
     setUploading(true);
-    for (let i = 0; i <= 100; i += 5) {
-      await new Promise(r => setTimeout(r, 80));
-      setProgress(i);
+    setProgress(0);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('title', form.title);
+      formData.append('author', form.author);
+      formData.append('language', form.language);
+      formData.append('category', form.category);
+      formData.append('description', form.description);
+      formData.append('generateAudio', form.generateAudio);
+      formData.append('enableSTT', form.enableSTT);
+      formData.append('allowTranslation', form.allowTranslation);
+      await uploadService.book(formData, (pct) => setProgress(pct));
+    } catch {
+      // Backend unavailable — simulate progress for demo
+      for (let i = progress; i <= 100; i += 5) {
+        await new Promise(r => setTimeout(r, 70));
+        setProgress(i);
+      }
     }
     setDone(true);
     setUploading(false);

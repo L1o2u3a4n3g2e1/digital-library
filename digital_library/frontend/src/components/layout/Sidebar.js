@@ -9,12 +9,12 @@ import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../utils/translations';
 
 const NAV_ITEMS = [
-  { icon: FiGrid, key: 'dashboard', to: '/dashboard' },
-  { icon: FiSearch, key: 'books', to: '/search' },
-  { icon: FiUpload, key: 'upload', to: '/upload' },
-  { icon: FiBookmark, key: 'bookmarks', to: '/bookmarks' },
-  { icon: FiClock, key: 'history', to: '/history' },
-  { icon: FiHeadphones, key: 'audio', to: '/audio' },
+  { icon: FiGrid, key: 'dashboard', to: '/dashboard', emoji: '🏠' },
+  { icon: FiSearch, key: 'books', to: '/search', emoji: '🔍' },
+  { icon: FiUpload, key: 'upload', to: '/upload', emoji: '📤' },
+  { icon: FiBookmark, key: 'bookmarks', to: '/bookmarks', emoji: '🔖' },
+  { icon: FiClock, key: 'history', to: '/history', emoji: '🕐' },
+  { icon: FiHeadphones, key: 'audio', to: '/audio', emoji: '🎧' },
 ];
 
 const BOTTOM_ITEMS = [
@@ -23,7 +23,7 @@ const BOTTOM_ITEMS = [
 ];
 
 export default function Sidebar() {
-  const { language, logout, sidebarOpen, setSidebarOpen, user } = useApp();
+  const { language, logout, sidebarOpen, setSidebarOpen, user, lowLiteracy, speakHint } = useApp();
   const { t } = useTranslation(language);
   const navigate = useNavigate();
 
@@ -65,13 +65,23 @@ export default function Sidebar() {
         </div>
       )}
 
+      {/* Low Literacy voice banner */}
+      {lowLiteracy && (
+        <div className="mx-3 mb-2 px-3 py-2 rounded-xl bg-[#8B6F5A]/10 border border-[#D8BFAA] flex items-center gap-2">
+          <span className="text-lg">🔊</span>
+          <p className="text-xs text-[#6B5044] font-medium">Hover a menu item to hear it</p>
+        </div>
+      )}
+
       {/* Nav items */}
       <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
-        {NAV_ITEMS.map(({ icon: Icon, key, to }) => (
+        {NAV_ITEMS.map(({ icon: Icon, key, to, emoji }) => (
           <NavLink key={to} to={to}
             onClick={() => setSidebarOpen(false)}
+            onMouseEnter={() => speakHint(t(key))}
             className={({ isActive }) =>
-              `flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-200 group
+              `flex items-center gap-3.5 px-4 rounded-2xl font-medium transition-all duration-200 group
+              ${lowLiteracy ? 'py-4 text-base' : 'py-3 text-sm'}
               ${isActive
                 ? 'bg-gradient-to-r from-[#8B6F5A] to-[#B08968] text-white shadow-[0_4px_14px_-2px_rgba(139,111,90,0.35)]'
                 : 'text-[#6B5044] hover:bg-[#F8F4EE] hover:text-[#8B6F5A]'
@@ -79,7 +89,10 @@ export default function Sidebar() {
             }>
             {({ isActive }) => (
               <>
-                <Icon size={18} className={isActive ? 'text-white' : 'text-[#B08968] group-hover:text-[#8B6F5A]'} />
+                {lowLiteracy
+                  ? <span className="text-xl">{emoji}</span>
+                  : <Icon size={18} className={isActive ? 'text-white' : 'text-[#B08968] group-hover:text-[#8B6F5A]'} />
+                }
                 <span>{t(key)}</span>
               </>
             )}

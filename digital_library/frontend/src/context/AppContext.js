@@ -46,6 +46,14 @@ export const AppProvider = ({ children }) => {
     setNotifications(prev => [n, ...prev].slice(0, 20));
   }, []);
 
+  const speakHint = useCallback((text) => {
+    if (!lowLiteracy || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 0.9;
+    window.speechSynthesis.speak(u);
+  }, [lowLiteracy]);
+
   return (
     <AppContext.Provider value={{
       user, setUser, login, logout, token,
@@ -56,6 +64,7 @@ export const AppProvider = ({ children }) => {
       bookmarks, toggleBookmark, isBookmarked,
       notifications, setNotifications, addNotification,
       sidebarOpen, setSidebarOpen,
+      speakHint,
     }}>
       {children}
     </AppContext.Provider>

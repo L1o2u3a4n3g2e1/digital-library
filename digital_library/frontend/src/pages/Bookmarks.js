@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiBookmark, FiSearch, FiTrash2 } from 'react-icons/fi';
+import { FiBookmark, FiSearch } from 'react-icons/fi';
 import MainLayout from '../layouts/MainLayout';
 import BookCard from '../components/books/BookCard';
 import { useApp } from '../context/AppContext';
 import { useTranslation } from '../utils/translations';
 
 export default function Bookmarks() {
-  const { bookmarks, toggleBookmark, language } = useApp();
+  const { bookmarks, language } = useApp();
   const { t } = useTranslation(language);
   const [search, setSearch] = useState('');
-  const [layout, setLayout] = useState('grid');
 
   const filtered = bookmarks.filter(b =>
     b.title?.toLowerCase().includes(search.toLowerCase()) ||

@@ -15,7 +15,7 @@ const TabBtn = ({ active, onClick, children }) => (
 
 export default function Profile() {
   const { user, language, setLanguage, theme, setTheme, lowLiteracy, setLowLiteracy, highContrast, setHighContrast, bookmarks } = useApp();
-  const { t } = useTranslation(language);
+  useTranslation(language);
   const [tab, setTab] = useState('activity');
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user?.name || 'Reader');
