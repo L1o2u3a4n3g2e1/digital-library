@@ -69,8 +69,8 @@ export default function Dashboard() {
   // Categories that actually have books
   const availableCategories = CATEGORIES.filter(c => USED_CATEGORIES.includes(c.id));
   const activeCategoryLabel = activeCategory === 'all'
-    ? 'All Books'
-    : availableCategories.find(c => c.id === activeCategory)?.label || 'Books';
+    ? t('allBooks')
+    : availableCategories.find(c => c.id === activeCategory)?.label || t('books');
 
   return (
     <MainLayout>
@@ -84,15 +84,15 @@ export default function Dashboard() {
               {t('welcome')}, {user?.name?.split(' ')[0] || 'Reader'} 👋
             </h1>
             <p className="text-gray-500 mt-1 text-sm">
-              You've read <strong className="text-brand-600">{stats.booksRead} books</strong> — keep going!
+              {t('youveRead')} <strong className="text-brand-600">{stats.booksRead} {t('bookPlural')}</strong>{t('keepGoing')}
             </p>
           </div>
           <div className="flex gap-2">
             <button onClick={() => navigate('/search')}
               className="btn-ghost flex items-center gap-2 text-sm border border-brand-200">
-              <FiMic size={15} /> Voice Search
+              <FiMic size={15} /> {t('voiceSearchBtn')}
             </button>
-            <Link to="/upload" className="btn-primary text-sm">+ Upload Book</Link>
+            <Link to="/upload" className="btn-primary text-sm">{t('uploadBtn')}</Link>
           </div>
         </motion.div>
 
@@ -123,7 +123,7 @@ export default function Dashboard() {
                     <p className="text-xs text-gray-500 mt-0.5">{book.author}</p>
                     <div className="mt-2.5">
                       <div className="flex justify-between text-xs text-gray-400 mb-1">
-                        <span>Progress</span><span>{book.progress}%</span>
+                        <span>{t('progress')}</span><span>{book.progress}%</span>
                       </div>
                       <div className="h-1.5 bg-brand-100 rounded-full">
                         <div className="h-full bg-gradient-to-r from-brand-500 to-brand-600 rounded-full" style={{ width: `${book.progress}%` }} />
@@ -138,7 +138,7 @@ export default function Dashboard() {
 
         {/* ── BROWSE BY CATEGORY ── */}
         <section>
-          <SectionHeader title="Browse by Category" to="/search" icon={FiBookOpen} />
+          <SectionHeader title={t('browseByCategory')} to="/search" icon={FiBookOpen} />
 
           {/* Category pills */}
           <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide -mx-1 px-1">
@@ -148,7 +148,7 @@ export default function Dashboard() {
                 ${activeCategory === 'all'
                   ? 'bg-brand-600 text-white shadow-sm'
                   : 'bg-white border border-brand-200 text-brand-800 hover:border-brand-500 hover:bg-brand-50'}`}>
-              📚 All
+              📚 {t('allBooks')}
             </button>
             {availableCategories.map(c => (
               <button key={c.id}
@@ -171,11 +171,11 @@ export default function Dashboard() {
                 <>
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-sm text-gray-500">
-                      <strong className="text-brand-950">{filteredBooks.length}</strong> book{filteredBooks.length !== 1 ? 's' : ''} in <span className="text-brand-600 font-medium">{activeCategoryLabel}</span>
+                      <strong className="text-brand-950">{filteredBooks.length}</strong> {filteredBooks.length !== 1 ? t('bookPlural') : t('bookSingular')} {t('inCat')} <span className="text-brand-600 font-medium">{activeCategoryLabel}</span>
                     </p>
                     <Link to={`/search${activeCategory !== 'all' ? `?category=${activeCategory}` : ''}`}
                       className="flex items-center gap-1 text-xs text-brand-500 hover:text-brand-600 font-medium transition-colors">
-                      <FiSearch size={12} /> Search in category
+                      <FiSearch size={12} /> {t('searchInCategory')}
                     </Link>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -187,8 +187,8 @@ export default function Dashboard() {
               ) : (
                 <div className="text-center py-14 text-gray-400">
                   <p className="text-4xl mb-3">📂</p>
-                  <p className="font-medium text-brand-950">No books in this category yet</p>
-                  <Link to="/upload" className="btn-primary text-sm mt-4 inline-flex">Upload First Book</Link>
+                  <p className="font-medium text-brand-950">{t('noBooksYet')}</p>
+                  <Link to="/upload" className="btn-primary text-sm mt-4 inline-flex">{t('uploadFirstBook')}</Link>
                 </div>
               )}
             </motion.div>
@@ -218,11 +218,11 @@ export default function Dashboard() {
 
         {/* Weekly activity */}
         <section>
-          <SectionHeader title="Weekly Reading Activity" />
+          <SectionHeader title={t('weeklyActivity')} />
           <div className="card p-6">
             <div className="flex items-end gap-2 h-24">
               {stats.weeklyReadingMinutes.map((mins, i) => {
-                const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                const days = t('daysShort');
                 const maxMins = Math.max(...stats.weeklyReadingMinutes);
                 return (
                   <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
@@ -236,7 +236,7 @@ export default function Dashboard() {
               })}
             </div>
             <p className="text-xs text-gray-500 mt-3 text-center">
-              Average <strong className="text-brand-600">41 min/day</strong> this week 🎉
+              {t('avgLabel')} <strong className="text-brand-600">41 {t('minPerDay')}</strong> {t('thisWeek')} 🎉
             </p>
           </div>
         </section>

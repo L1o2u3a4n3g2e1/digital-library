@@ -2,10 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiPlay, FiPause, FiSquare, FiVolume2, FiVolumeX, FiSkipBack, FiSkipForward } from 'react-icons/fi';
 import { MdSpeed } from 'react-icons/md';
+import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../utils/translations';
 
 const SPEEDS = [0.75, 1, 1.25, 1.5, 2];
 
 export default function AudioPlayer({ text = '', lang = 'en', compact = false, autoPlay = false }) {
+  const { language } = useApp();
+  const { t } = useTranslation(language);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [speed, setSpeed] = useState(1);
@@ -79,7 +83,7 @@ export default function AudioPlayer({ text = '', lang = 'en', compact = false, a
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
       className="bg-white rounded-3xl border border-brand-100 shadow-card p-5">
       <div className="flex items-center justify-between mb-4">
-        <h4 className="text-sm font-semibold text-brand-950">🎧 Audio Reading</h4>
+        <h4 className="text-sm font-semibold text-brand-950">{t('audioReading')}</h4>
         <div className="flex items-center gap-2">
           <button onClick={() => setMuted(v => !v)} className="text-brand-500 hover:text-brand-600 transition-colors p-1">
             {muted ? <FiVolumeX size={15} /> : <FiVolume2 size={15} />}
@@ -109,7 +113,7 @@ export default function AudioPlayer({ text = '', lang = 'en', compact = false, a
             style={{ width: `${progress}%` }} transition={{ duration: 0.2 }} />
         </div>
         <div className="flex justify-between mt-1.5">
-          <span className="text-xs text-gray-400">Word {wordIndex} / {totalWords}</span>
+          <span className="text-xs text-gray-400">{t('wordLabel')} {wordIndex} / {totalWords}</span>
           <span className="text-xs text-gray-400">{Math.round(progress)}%</span>
         </div>
       </div>

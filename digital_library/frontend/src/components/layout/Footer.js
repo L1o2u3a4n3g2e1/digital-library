@@ -26,7 +26,7 @@ export default function Footer() {
             </div>
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-brand-950 mb-3">Platform</h4>
+            <h4 className="text-sm font-semibold text-brand-950 mb-3">{t('platformLabel')}</h4>
             <ul className="space-y-2">
               {[['Search Books', '/search'], ['Upload', '/upload'], ['Dashboard', '/dashboard']].map(([l, h]) => (
                 <li key={h}><Link to={h} className="text-sm text-gray-500 hover:text-brand-600 transition-colors">{l}</Link></li>
@@ -34,7 +34,7 @@ export default function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-brand-950 mb-3">Languages</h4>
+            <h4 className="text-sm font-semibold text-brand-950 mb-3">{t('languagesLabel')}</h4>
             <ul className="space-y-2">
               {['🇬🇧 English', '🇷🇼 Kinyarwanda'].map(l => (
                 <li key={l}><span className="text-sm text-gray-500">{l}</span></li>
@@ -43,7 +43,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t border-gray-200 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="text-xs text-gray-400">© 2026 Digital Library. Built for accessibility & inclusion.</p>
+          <p className="text-xs text-gray-400">{t('footerCopy')}</p>
         </div>
       </div>
     </footer>

@@ -27,7 +27,7 @@ export default function ReadBook() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const { language, toggleBookmark, isBookmarked } = useApp();
-  useTranslation(language);
+  const { t } = useTranslation(language);
   const book = MOCK_BOOKS.find(b => b.id === Number(id)) || MOCK_BOOKS[0];
   const bookmarked = isBookmarked(book.id);
 
@@ -100,7 +100,7 @@ export default function ReadBook() {
                 {/* Back + bookmark */}
                 <div className="flex items-center gap-2 mb-5">
                   <Link to="/search" className="btn-ghost p-2 rounded-xl text-sm flex items-center gap-1.5">
-                    <FiArrowLeft size={15} /> Back
+                    <FiArrowLeft size={15} /> {t('back')}
                   </Link>
                   <button onClick={() => toggleBookmark(book)}
                     className={`ml-auto p-2 rounded-xl transition-colors ${bookmarked ? 'text-brand-600 bg-brand-100' : 'text-gray-400 hover:text-brand-600 hover:bg-brand-50'}`}>
@@ -120,21 +120,21 @@ export default function ReadBook() {
                 {/* Progress */}
                 <div className="mb-5">
                   <div className="flex justify-between text-xs text-gray-500 mb-1.5">
-                    <span>Reading Progress</span><span>{Math.round((page / totalPages) * 100)}%</span>
+                    <span>{t('readingProgress')}</span><span>{Math.round((page / totalPages) * 100)}%</span>
                   </div>
                   <div className="h-2 rounded-full bg-brand-200">
                     <div className="h-full rounded-full transition-all bg-brand-600" style={{ width: `${(page / totalPages) * 100}%` }} />
                   </div>
-                  <p className="text-xs mt-1 text-gray-400">Page {page} of {totalPages}</p>
+                  <p className="text-xs mt-1 text-gray-400">{t('page')} {page} {t('ofPage')} {totalPages}</p>
                 </div>
 
                 {/* Reading settings */}
                 <div className="rounded-2xl p-4 space-y-4" style={{ background: darkMode ? 'var(--brand-950)' : 'var(--brand-50)' }}>
-                  <p className="text-xs font-semibold text-gray-500">READING SETTINGS</p>
+                  <p className="text-xs font-semibold text-gray-500">{t('readingSettings')}</p>
                   {/* Font size */}
                   <div>
                     <p className="text-xs mb-2 flex items-center gap-1.5 text-brand-800">
-                      <MdFormatSize size={13} /> Font size: {fontSize}px
+                      <MdFormatSize size={13} /> {t('fontSizeLabel')}: {fontSize}px
                     </p>
                     <div className="flex items-center gap-2">
                       <button onClick={() => setFontSizeIdx(i => Math.max(0, i - 1))}
@@ -157,7 +157,7 @@ export default function ReadBook() {
                   {/* Dark mode */}
                   <div className="flex items-center justify-between">
                     <span className="text-xs flex items-center gap-1.5 text-brand-800">
-                      {darkMode ? <FiMoon size={13} /> : <FiSun size={13} />} {darkMode ? 'Night mode' : 'Day mode'}
+                      {darkMode ? <FiMoon size={13} /> : <FiSun size={13} />} {darkMode ? t('nightMode') : t('dayMode')}
                     </span>
                     <button onClick={() => setDarkMode(v => !v)}
                       className="w-10 h-5 rounded-full relative transition-all"
@@ -169,7 +169,7 @@ export default function ReadBook() {
 
                 {/* Language */}
                 <div className="mt-4">
-                  <p className="text-xs font-semibold mb-2 text-gray-500">LANGUAGE</p>
+                  <p className="text-xs font-semibold mb-2 text-gray-500">{t('language').toUpperCase()}</p>
                   <div className="grid grid-cols-2 gap-1.5">
                     {LANGUAGES.map(l => (
                       <button key={l.code} className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs transition-all text-brand-800 hover:bg-brand-50">
@@ -191,7 +191,7 @@ export default function ReadBook() {
               <FiMenu size={16} />
             </button>
             <div className="flex-1 text-center">
-              <span className="text-xs font-medium text-gray-500">Page {page} of {totalPages}</span>
+              <span className="text-xs font-medium text-gray-500">{t('page')} {page} {t('ofPage')} {totalPages}</span>
             </div>
             <button onClick={() => setShowRightPanel(v => !v)} className="p-1.5 rounded-lg transition-colors hover:bg-brand-50 text-gray-500">
               <FiMessageSquare size={16} />
@@ -212,7 +212,7 @@ export default function ReadBook() {
           <div className="flex items-center justify-between px-6 py-4 border-t" style={{ borderColor: borderClr, background: surfaceBg }}>
             <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all disabled:opacity-40 text-brand-600">
-              <FiChevronLeft /> Previous
+              <FiChevronLeft /> {t('previous')}
             </button>
             <div className="flex gap-1">
               {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => (
@@ -228,7 +228,7 @@ export default function ReadBook() {
             </div>
             <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all disabled:opacity-40 text-brand-600">
-              Next <FiChevronRight />
+              {t('next')} <FiChevronRight />
             </button>
           </div>
         </div>
@@ -248,24 +248,24 @@ export default function ReadBook() {
                 <div className="rounded-2xl border border-brand-100 p-4 space-y-3" style={{ background: darkMode ? 'var(--reader-dark-surface)' : 'var(--brand-50)' }}>
                   <div className="flex items-center gap-2">
                     <FiGlobe size={14} className="text-brand-500" />
-                    <p className="text-sm font-semibold text-brand-950">Translation</p>
+                    <p className="text-sm font-semibold text-brand-950">{t('translate')}</p>
                   </div>
                   <div>
-                    <label className="text-xs mb-1 block text-gray-500">Translate to</label>
+                    <label className="text-xs mb-1 block text-gray-500">{t('translateTo')}</label>
                     <select value={translateTo} onChange={e => setTranslateTo(e.target.value)} className="input-field text-sm py-2">
                       {LANGUAGES.filter(l => l.code !== 'en').map(l => <option key={l.code} value={l.code}>{l.flag} {l.label}</option>)}
                     </select>
                   </div>
                   {selectedText && (
                     <div>
-                      <p className="text-xs mb-1 text-gray-500">Selected:</p>
+                      <p className="text-xs mb-1 text-gray-500">{t('selectedText')}</p>
                       <p className="text-xs italic bg-white rounded-xl px-3 py-2 border border-brand-100 line-clamp-2 text-brand-800">"{selectedText}"</p>
                     </div>
                   )}
                   <button onClick={doTranslate} disabled={!selectedText || translating}
                     className="btn-primary w-full text-xs py-2.5 disabled:opacity-50 flex items-center justify-center gap-2">
                     {translating && <span className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
-                    Translate Selected
+                    {t('translateSelected')}
                   </button>
                   {translation && (
                     <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
@@ -273,13 +273,13 @@ export default function ReadBook() {
                       <p className="text-xs text-brand-950">{translation}</p>
                     </motion.div>
                   )}
-                  {!selectedText && <p className="text-xs text-center text-gray-400">Select text to translate</p>}
+                  {!selectedText && <p className="text-xs text-center text-gray-400">{t('selectToTranslate')}</p>}
                 </div>
 
                 {/* AI Assistant (embedded) */}
                 <div className="flex-1">
                   <p className="text-sm font-semibold mb-2 flex items-center gap-2 text-brand-950">
-                    🤖 AI Assistant
+                    🤖 {t('aiAssistant')}
                   </p>
                   <div className="h-64">
                     <AIAssistant floating={false} />
@@ -288,8 +288,8 @@ export default function ReadBook() {
 
                 {/* Notes */}
                 <div className="rounded-2xl border border-brand-100 p-4" style={{ background: darkMode ? 'var(--reader-dark-surface)' : 'var(--brand-50)' }}>
-                  <p className="text-xs font-semibold mb-2 text-gray-500">NOTES</p>
-                  <textarea placeholder="Write your notes here…" rows={3}
+                  <p className="text-xs font-semibold mb-2 text-gray-500">{t('notesLabel')}</p>
+                  <textarea placeholder={t('writeNotes')} rows={3}
                     className="w-full bg-transparent text-xs resize-none focus:outline-none text-brand-800" />
                 </div>
               </div>

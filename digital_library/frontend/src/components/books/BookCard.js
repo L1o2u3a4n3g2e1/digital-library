@@ -30,7 +30,7 @@ export default function BookCard({ book, layout = 'grid', index = 0 }) {
           <div className="flex items-center gap-3 mt-2">
             <span className="text-xs text-gray-400">{LANG_FLAGS[book.language]} {book.language?.toUpperCase()}</span>
             <span className="flex items-center gap-1 text-xs text-brand-500"><FiStar size={10} className="fill-current" />{book.rating}</span>
-            {book.hasAudio && <span className="badge bg-audio-100 text-audio-600"><FiHeadphones size={10} />Audio</span>}
+            {book.hasAudio && <span className="badge bg-audio-100 text-audio-600"><FiHeadphones size={10} />{t('audioBadge')}</span>}
           </div>
         </div>
         {/* Actions */}
@@ -73,7 +73,7 @@ export default function BookCard({ book, layout = 'grid', index = 0 }) {
         </div>
         {/* Badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
-          {book.hasAudio && <span className="badge bg-audio-600/90 text-white backdrop-blur-sm"><FiHeadphones size={9} />Audio</span>}
+          {book.hasAudio && <span className="badge bg-audio-600/90 text-white backdrop-blur-sm"><FiHeadphones size={9} />{t('audioBadge')}</span>}
           {book.hasTranslation && <span className="badge bg-lang-600/90 text-white backdrop-blur-sm"><FiGlobe size={9} />Translate</span>}
         </div>
         {/* Bookmark */}
@@ -107,7 +107,7 @@ export default function BookCard({ book, layout = 'grid', index = 0 }) {
             <span className="text-xs text-brand-500 font-medium">{book.progress}%</span>
           )}
           {book.progress === 100 && (
-            <span className="badge bg-green-100 text-green-700"><FiBook size={9} />Done</span>
+            <span className="badge bg-green-100 text-green-700"><FiBook size={9} />{t('doneBadge')}</span>
           )}
         </div>
       </div>

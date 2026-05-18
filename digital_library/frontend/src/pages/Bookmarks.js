@@ -26,7 +26,7 @@ export default function Bookmarks() {
             </div>
             <h1 className="section-title text-2xl">{t('bookmarks')}</h1>
           </div>
-          <p className="text-sm text-gray-500">{bookmarks.length} saved book{bookmarks.length !== 1 ? 's' : ''}</p>
+          <p className="text-sm text-gray-500">{bookmarks.length} {bookmarks.length !== 1 ? t('bookPlural') : t('bookSingular')} {t('savedBooksCount')}</p>
         </motion.div>
 
         {bookmarks.length === 0 ? (
@@ -35,19 +35,19 @@ export default function Bookmarks() {
             <div className="w-20 h-20 rounded-3xl bg-brand-50 flex items-center justify-center mx-auto mb-5">
               <FiBookmark size={32} className="text-brand-200" />
             </div>
-            <h2 className="text-lg font-['Playfair_Display'] font-semibold text-brand-950 mb-2">No bookmarks yet</h2>
-            <p className="text-sm text-gray-500 max-w-xs mx-auto">Start bookmarking books you want to read later by tapping the bookmark icon on any book card.</p>
+            <h2 className="text-lg font-['Playfair_Display'] font-semibold text-brand-950 mb-2">{t('noBookmarks')}</h2>
+            <p className="text-sm text-gray-500 max-w-xs mx-auto">{t('noBookmarksDesc')}</p>
           </motion.div>
         ) : (
           <>
             <div className="relative mb-6">
               <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-500" size={16} />
               <input value={search} onChange={e => setSearch(e.target.value)}
-                placeholder="Search your bookmarks…" className="input-field pl-10" />
+                placeholder={t('searchBookmarks')} className="input-field pl-10" />
             </div>
 
             {filtered.length === 0 ? (
-              <p className="text-center text-gray-500 py-12">No bookmarks match your search.</p>
+              <p className="text-center text-gray-500 py-12">{t('noBookmarksMatch')}</p>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 <AnimatePresence>

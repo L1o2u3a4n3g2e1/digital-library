@@ -5,10 +5,10 @@ import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../utils/translations';
 
 const SUGGESTIONS = [
-  { icon: FiBook, label: 'Suggest books', action: 'suggest' },
-  { icon: FiGlobe, label: 'Translate text', action: 'translate' },
-  { icon: FiZap, label: 'Explain word', action: 'explain' },
-  { icon: FiVolume2, label: 'Read aloud', action: 'read' },
+  { icon: FiBook, tKey: 'suggestBooksBtn', action: 'suggest' },
+  { icon: FiGlobe, tKey: 'translateTextBtn', action: 'translate' },
+  { icon: FiZap, tKey: 'explainWordBtn', action: 'explain' },
+  { icon: FiVolume2, tKey: 'readAloud', action: 'read' },
 ];
 
 const RESPONSES = {
@@ -19,19 +19,19 @@ const RESPONSES = {
 };
 
 export default function AIAssistant({ floating = true }) {
+  const { language } = useApp();
+  const { t } = useTranslation(language);
   const [open, setOpen] = useState(!floating);
-  const [messages, setMessages] = useState([
-    { role: 'ai', text: '👋 Hi! I\'m your AI reading assistant. I can suggest books, translate text, explain words, or read content aloud. How can I help?' }
+  const [messages, setMessages] = useState(() => [
+    { role: 'ai', text: t('aiGreeting') }
   ]);
   const [input, setInput] = useState('');
-  const { language } = useApp();
-  useTranslation(language);
 
   const send = (text) => {
     if (!text.trim()) return;
     const userMsg = { role: 'user', text };
     const action = Object.keys(RESPONSES).find(k => text.toLowerCase().includes(k));
-    const aiReply = { role: 'ai', text: action ? RESPONSES[action] : `I understand you're asking about "${text}". Let me help you find the best answer from our library collection! 🔍` };
+    const aiReply = { role: 'ai', text: action ? RESPONSES[action] : `${t('aiDefaultReply')} "${text}". ${t('aiDefaultReply2')}` };
     setMessages(prev => [...prev, userMsg, aiReply]);
     setInput('');
   };
@@ -43,8 +43,8 @@ export default function AIAssistant({ floating = true }) {
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-sm">🤖</div>
           <div>
-            <p className="text-sm font-semibold">AI Assistant</p>
-            <p className="text-xs opacity-80">Always here to help</p>
+            <p className="text-sm font-semibold">{t('aiAssistant')}</p>
+            <p className="text-xs opacity-80">{t('aiAlwaysHere')}</p>
           </div>
         </div>
         {floating && <button onClick={() => setOpen(false)} className="text-white/80 hover:text-white"><FiX size={16} /></button>}
@@ -52,11 +52,11 @@ export default function AIAssistant({ floating = true }) {
 
       {/* Quick actions */}
       <div className="grid grid-cols-4 gap-1 p-2 bg-brand-50 border-b border-brand-100">
-        {SUGGESTIONS.map(({ icon: Icon, label, action }) => (
+        {SUGGESTIONS.map(({ icon: Icon, tKey, action }) => (
           <button key={action} onClick={() => send(action)}
             className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-brand-50 transition-colors group">
             <Icon size={14} className="text-brand-500" />
-            <span className="text-[9px] text-gray-500 text-center leading-tight">{label}</span>
+            <span className="text-[9px] text-gray-500 text-center leading-tight">{t(tKey)}</span>
           </button>
         ))}
       </div>
@@ -77,7 +77,7 @@ export default function AIAssistant({ floating = true }) {
       <div className="p-3 border-t border-brand-100">
         <form onSubmit={e => { e.preventDefault(); send(input); }} className="flex gap-2">
           <input value={input} onChange={e => setInput(e.target.value)}
-            placeholder="Ask me anything…"
+            placeholder={t('aiAskPlaceholder')}
             className="flex-1 bg-brand-50 border border-brand-100 rounded-xl px-3 py-2 text-xs text-brand-950 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-500" />
           <button type="submit" className="w-8 h-8 rounded-xl bg-brand-600 flex items-center justify-center text-white hover:bg-brand-800 transition-colors flex-shrink-0">
             <FiSend size={12} />

@@ -7,6 +7,17 @@ import { useTranslation } from '../utils/translations';
 import { MOCK_BOOKS, MOCK_STATS } from '../data/mockData';
 import { LANGUAGES } from '../utils/constants';
 
+const BADGE_KEYS = [
+  { icon: '📚', tKey: 'badge_firstBook',    earned: true  },
+  { icon: '🔥', tKey: 'badge_streak7',      earned: true  },
+  { icon: '🌍', tKey: 'badge_bilingual',    earned: true  },
+  { icon: '🎧', tKey: 'badge_audioListener',earned: true  },
+  { icon: '📝', tKey: 'badge_10books',      earned: false },
+  { icon: '⭐', tKey: 'badge_topReader',    earned: false },
+  { icon: '🌟', tKey: 'badge_streak30',     earned: false },
+  { icon: '🏆', tKey: 'badge_master',       earned: false },
+];
+
 const TabBtn = ({ active, onClick, children }) => (
   <button onClick={onClick} className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${active ? 'bg-brand-600 text-white shadow-sm' : 'text-gray-500 hover:text-brand-600 hover:bg-brand-50'}`}>
     {children}
@@ -15,12 +26,24 @@ const TabBtn = ({ active, onClick, children }) => (
 
 export default function Profile() {
   const { user, language, setLanguage, theme, setTheme, lowLiteracy, setLowLiteracy, highContrast, setHighContrast, bookmarks } = useApp();
-  useTranslation(language);
+  const { t } = useTranslation(language);
   const [tab, setTab] = useState('activity');
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user?.name || 'Reader');
 
   const recentBooks = MOCK_BOOKS.filter(b => b.progress > 0);
+
+  const TABS = [
+    ['activity', `📊 ${t('activityTab')}`],
+    ['settings', `⚙️ ${t('settings')}`],
+    ['badges',   `🏆 ${t('achievementsLabel')}`],
+  ];
+
+  const TOGGLES = [
+    { key: 'theme',       icon: theme === 'dark' ? FiMoon : FiSun, label: t('darkMode'),    desc: t('darkModeDesc'),        value: theme === 'dark',  toggle: () => setTheme(th => th === 'dark' ? 'light' : 'dark') },
+    { key: 'lowLiteracy', icon: FiEye,                              label: t('lowLiteracy'), desc: t('lowLiteracyModeDesc'), value: lowLiteracy,        toggle: () => setLowLiteracy(v => !v) },
+    { key: 'highContrast',icon: FiEye,                              label: t('highContrast'),desc: t('highContrastDesc'),    value: highContrast,       toggle: () => setHighContrast(v => !v) },
+  ];
 
   return (
     <MainLayout>
@@ -55,10 +78,10 @@ export default function Profile() {
 
               <div className="flex flex-wrap justify-center sm:justify-start gap-6">
                 {[
-                  { icon: FiBookOpen, value: MOCK_STATS.booksRead, label: 'Books Read' },
-                  { icon: FiHeadphones, value: `${MOCK_STATS.listeningHours}h`, label: 'Listened' },
-                  { icon: FiBookmark, value: bookmarks.length, label: 'Bookmarks' },
-                  { icon: FiStar, value: `${MOCK_STATS.streak}d`, label: 'Streak' },
+                  { icon: FiBookOpen,   value: MOCK_STATS.booksRead,           label: t('booksRead')     },
+                  { icon: FiHeadphones, value: `${MOCK_STATS.listeningHours}h`, label: t('listened')      },
+                  { icon: FiBookmark,   value: bookmarks.length,               label: t('bookmarks')     },
+                  { icon: FiStar,       value: `${MOCK_STATS.streak}d`,         label: t('streak')        },
                 ].map(({ icon: Icon, value, label }, i) => (
                   <div key={i} className="text-center">
                     <div className="flex items-center gap-1 justify-center">
@@ -74,7 +97,7 @@ export default function Profile() {
             {/* Level badge */}
             <div className="text-center">
               <div className="px-4 py-2 bg-gradient-to-r from-brand-100 to-brand-200 rounded-2xl border border-brand-400">
-                <p className="text-xs text-brand-600 font-medium">Level</p>
+                <p className="text-xs text-brand-600 font-medium">{t('levelLabel')}</p>
                 <p className="font-['Playfair_Display'] font-bold text-brand-950">{MOCK_STATS.level}</p>
               </div>
             </div>
@@ -83,7 +106,7 @@ export default function Profile() {
 
         {/* Tabs */}
         <div className="flex gap-2 bg-white rounded-2xl p-1.5 border border-brand-100 overflow-x-auto">
-          {[['activity', '📊 Activity'], ['settings', '⚙️ Settings'], ['badges', '🏆 Badges']].map(([v, l]) => (
+          {TABS.map(([v, l]) => (
             <TabBtn key={v} active={tab === v} onClick={() => setTab(v)}>{l}</TabBtn>
           ))}
         </div>
@@ -93,10 +116,10 @@ export default function Profile() {
           <div className="space-y-6">
             {/* Weekly chart */}
             <div className="card p-6">
-              <h3 className="section-title text-base mb-5">Reading This Week</h3>
+              <h3 className="section-title text-base mb-5">{t('readingThisWeek')}</h3>
               <div className="flex items-end gap-2 h-28">
                 {MOCK_STATS.weeklyReadingMinutes.map((mins, i) => {
-                  const days = ['M','T','W','T','F','S','S'];
+                  const days = t('daysShort');
                   const max = Math.max(...MOCK_STATS.weeklyReadingMinutes);
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
@@ -104,19 +127,19 @@ export default function Profile() {
                         transition={{ delay: i * 0.06, duration: 0.5 }}
                         className="w-full rounded-t-lg min-h-[4px]"
                         style={{ background: i === 6 ? 'var(--brand-600)' : 'linear-gradient(to top, var(--brand-500), var(--brand-200))' }} />
-                      <span className="text-[10px] text-gray-400">{days[i]}</span>
+                      <span className="text-[10px] text-gray-400">{days[i].charAt(0)}</span>
                     </div>
                   );
                 })}
               </div>
-              <p className="text-xs text-center text-gray-500 mt-3">Avg <strong className="text-brand-600">41 min/day</strong></p>
+              <p className="text-xs text-center text-gray-500 mt-3">{t('avgLabel')} <strong className="text-brand-600">41 {t('minPerDay')}</strong></p>
             </div>
 
             {/* Recent books */}
             <div className="card p-6">
-              <h3 className="section-title text-base mb-4">Recently Read</h3>
+              <h3 className="section-title text-base mb-4">{t('recentlyRead')}</h3>
               <div className="space-y-3">
-                {recentBooks.map((book, i) => (
+                {recentBooks.map((book) => (
                   <div key={book.id} className="flex items-center gap-4">
                     <div className="w-10 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-brand-200">
                       {book.cover && <img src={book.cover} alt={book.title} className="w-full h-full object-cover" />}
@@ -137,11 +160,11 @@ export default function Profile() {
 
         <AnimatedTab active={tab === 'settings'}>
           <div className="card p-6 space-y-6">
-            <h3 className="section-title text-base">Preferences</h3>
+            <h3 className="section-title text-base">{t('preferencesLabel')}</h3>
 
             {/* Language */}
             <div>
-              <label className="text-sm font-medium text-brand-800 mb-3 block">Preferred Language</label>
+              <label className="text-sm font-medium text-brand-800 mb-3 block">{t('preferredLanguage')}</label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {LANGUAGES.map(l => (
                   <button key={l.code} onClick={() => setLanguage(l.code)}
@@ -155,11 +178,7 @@ export default function Profile() {
 
             {/* Toggles */}
             <div className="space-y-3">
-              {[
-                { key: 'theme', icon: theme === 'dark' ? FiMoon : FiSun, label: 'Dark Mode', desc: 'Switch to dark reading theme', value: theme === 'dark', toggle: () => setTheme(t => t === 'dark' ? 'light' : 'dark') },
-                { key: 'lowLiteracy', icon: FiEye, label: 'Low Literacy Mode', desc: 'Larger text, simpler UI, voice guidance', value: lowLiteracy, toggle: () => setLowLiteracy(v => !v) },
-                { key: 'highContrast', icon: FiEye, label: 'High Contrast', desc: 'Enhanced contrast for better visibility', value: highContrast, toggle: () => setHighContrast(v => !v) },
-              ].map(({ key, icon: Icon, label, desc, value, toggle }) => (
+              {TOGGLES.map(({ key, icon: Icon, label, desc, value, toggle }) => (
                 <div key={key} className="flex items-center justify-between p-4 rounded-2xl bg-brand-50 border border-brand-100">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-xl bg-brand-50 flex items-center justify-center"><Icon size={16} className="text-brand-500" /></div>
@@ -179,23 +198,14 @@ export default function Profile() {
 
         <AnimatedTab active={tab === 'badges'}>
           <div className="card p-6">
-            <h3 className="section-title text-base mb-5">Achievements</h3>
+            <h3 className="section-title text-base mb-5">{t('achievementsLabel')}</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {[
-                { icon: '📚', label: 'First Book', earned: true },
-                { icon: '🔥', label: '7-Day Streak', earned: true },
-                { icon: '🌍', label: 'Bilingual', earned: true },
-                { icon: '🎧', label: 'Audio Listener', earned: true },
-                { icon: '📝', label: '10 Books Read', earned: false },
-                { icon: '⭐', label: 'Top Reader', earned: false },
-                { icon: '🌟', label: '30-Day Streak', earned: false },
-                { icon: '🏆', label: 'Library Master', earned: false },
-              ].map((b, i) => (
+              {BADGE_KEYS.map((b, i) => (
                 <motion.div key={i} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.06 }}
                   className={`card p-4 text-center ${b.earned ? '' : 'opacity-40 grayscale'}`}>
                   <span className="text-3xl">{b.icon}</span>
-                  <p className="text-xs font-medium text-brand-950 mt-2">{b.label}</p>
-                  {b.earned && <span className="text-xs text-brand-500 mt-1 block">Earned</span>}
+                  <p className="text-xs font-medium text-brand-950 mt-2">{t(b.tKey)}</p>
+                  {b.earned && <span className="text-xs text-brand-500 mt-1 block">{t('earnedLabel')}</span>}
                 </motion.div>
               ))}
             </div>

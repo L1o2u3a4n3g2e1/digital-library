@@ -11,18 +11,20 @@ import { CATEGORIES, LANGUAGES } from '../utils/constants';
 const fadeUp = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true }, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } };
 
 const FEATURES = [
-  { icon: FiMic,        title: 'Voice Search',        desc: 'Search any book by speaking in English or Kinyarwanda',                color: 'var(--brand-200)' },
-  { icon: FiHeadphones, title: 'Audio Reading',        desc: 'Listen to books with AI-generated narration at your own pace',          color: 'var(--audio-100)' },
-  { icon: FiGlobe,      title: 'Instant Translation',  desc: 'Translate any passage between English and Kinyarwanda with one tap',    color: 'var(--lang-100)'  },
-  { icon: FiBookOpen,   title: 'Low Literacy Mode',    desc: 'Larger text, icon-first UI, and voice guidance for every reader',       color: 'var(--brand-100)' },
+  { icon: FiMic,        titleKey: 'voiceSearchTitle',  descKey: 'featureVoiceDesc',     color: 'var(--brand-200)' },
+  { icon: FiHeadphones, titleKey: 'audiobooks',        descKey: 'featureAudioDesc',     color: 'var(--audio-100)' },
+  { icon: FiGlobe,      titleKey: 'translationTitle',  descKey: 'featureTranslateDesc', color: 'var(--lang-100)'  },
+  { icon: FiBookOpen,   titleKey: 'lowLiteracyTitle',  descKey: 'featureLowLitDesc',    color: 'var(--brand-100)' },
 ];
 
 const STATS = [
-  { value: '5,000+', label: 'Books Available' },
-  { value: '2',      label: 'Languages' },
-  { value: '50K+',   label: 'Active Readers' },
-  { value: '98%',    label: 'Accessibility Score' },
+  { value: '5,000+', labelKey: 'booksAvailable' },
+  { value: '2',      labelKey: 'languagesLabel' },
+  { value: '50K+',   labelKey: 'activeReaders' },
+  { value: '98%',    labelKey: 'accessibilityScore' },
 ];
+
+const ACC_FEATURE_KEYS = ['featureLargerText', 'featureVoiceGuidance', 'featureSimpleNav', 'featureHighContrast', 'featureIconFirst'];
 
 const TRANSLATION_DEMO = [
   { en: 'I want to learn about good health practices.', rw: 'Ndashaka kwiga ku myitwarire myiza y\'ubuzima.' },
@@ -65,7 +67,7 @@ export default function Landing() {
   const handleGuestContinue = () => {
     const clean = guestPhone.replace(/\s/g, '');
     if (!clean || clean.length < 9) {
-      setGuestError('Please enter a valid phone number.');
+      setGuestError(t('phoneInvalid'));
       return;
     }
     setGuestError('');
@@ -202,7 +204,7 @@ export default function Landing() {
             {STATS.map((s, i) => (
               <motion.div key={i} {...fadeUp} transition={{ ...fadeUp.transition, delay: i * 0.1 }} className="text-center">
                 <p className="font-['Playfair_Display'] text-3xl font-bold text-brand-600">{s.value}</p>
-                <p className="text-sm text-gray-500 mt-1">{s.label}</p>
+                <p className="text-sm text-gray-500 mt-1">{t(s.labelKey)}</p>
               </motion.div>
             ))}
           </div>
@@ -213,9 +215,9 @@ export default function Landing() {
       <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div {...fadeUp} className="text-center mb-14">
-            <span className="inline-block px-4 py-1.5 bg-brand-100 text-brand-600 text-xs font-semibold rounded-full mb-4">WHY CHOOSE US</span>
-            <h2 className="text-4xl font-['Playfair_Display'] font-bold text-brand-950">Built for Every Reader</h2>
-            <p className="text-gray-500 mt-3 max-w-xl mx-auto">Inclusive, accessible, and powered by AI — designed for all literacy levels.</p>
+            <span className="inline-block px-4 py-1.5 bg-brand-100 text-brand-600 text-xs font-semibold rounded-full mb-4">{t('whyChooseUs')}</span>
+            <h2 className="text-4xl font-['Playfair_Display'] font-bold text-brand-950">{t('builtForEvery')}</h2>
+            <p className="text-gray-500 mt-3 max-w-xl mx-auto">{t('builtDesc')}</p>
           </motion.div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {FEATURES.map((f, i) => (
@@ -226,8 +228,8 @@ export default function Landing() {
                   style={{ background: `${f.color}50` }}>
                   <f.icon size={24} className="text-brand-600" />
                 </div>
-                <h3 className="font-semibold text-brand-950 mb-2">{f.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
+                <h3 className="font-semibold text-brand-950 mb-2">{t(f.titleKey)}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{t(f.descKey)}</p>
               </motion.div>
             ))}
           </div>
@@ -242,7 +244,7 @@ export default function Landing() {
         </div>
         <div className="relative max-w-3xl mx-auto text-center">
           <motion.div {...fadeUp}>
-            <span className="inline-block px-4 py-1.5 bg-white/15 text-brand-200 text-xs font-semibold rounded-full mb-5">SPEECH TO TEXT</span>
+            <span className="inline-block px-4 py-1.5 bg-white/15 text-brand-200 text-xs font-semibold rounded-full mb-5">{t('sttBadge')}</span>
             <h2 className="text-4xl font-['Playfair_Display'] font-bold mb-4">{t('voiceSearchTitle')}</h2>
             <p className="text-brand-200 text-lg mb-10">{t('voiceSearchDesc')}</p>
 
@@ -258,18 +260,18 @@ export default function Landing() {
               </motion.button>
 
               <p className="text-sm text-brand-300">
-                {listening ? 'Listening… speak now' : 'Tap the mic and speak'}
+                {listening ? t('listeningSpeak') : t('tapMicSpeak')}
               </p>
 
               <AnimatePresence>
                 {voiceText && (
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                     className="glass rounded-2xl px-6 py-4 max-w-md w-full text-center">
-                    <p className="text-xs text-brand-300 mb-1 uppercase tracking-wide">You said</p>
+                    <p className="text-xs text-brand-300 mb-1 uppercase tracking-wide">{t('youSaid')}</p>
                     <p className="text-white font-medium">"{voiceText}"</p>
                     <Link to={`/search?q=${encodeURIComponent(voiceText)}`}>
                       <button className="mt-3 text-xs bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-xl transition-all">
-                        Search for this <FiArrowRight size={11} className="inline ml-1" />
+                        {t('searchForThis')} <FiArrowRight size={11} className="inline ml-1" />
                       </button>
                     </Link>
                   </motion.div>
@@ -295,7 +297,7 @@ export default function Landing() {
       <section className="py-20 px-6 bg-white">
         <div className="max-w-5xl mx-auto">
           <motion.div {...fadeUp} className="text-center mb-12">
-            <span className="inline-block px-4 py-1.5 bg-lang-100 text-lang-600 text-xs font-semibold rounded-full mb-4">TRANSLATION</span>
+            <span className="inline-block px-4 py-1.5 bg-lang-100 text-lang-600 text-xs font-semibold rounded-full mb-4">{t('translationBadge')}</span>
             <h2 className="text-4xl font-['Playfair_Display'] font-bold text-brand-950">{t('translationTitle')}</h2>
             <p className="text-gray-500 mt-3 max-w-xl mx-auto">{t('translationDesc')}</p>
           </motion.div>
@@ -311,7 +313,7 @@ export default function Landing() {
                   showRw ? 'bg-lang-100 text-lang-600 border-lang-100' : 'bg-brand-50 text-brand-600 border-brand-200 hover:border-brand-400'
                 }`}>
                 <FiGlobe size={14} />
-                {showRw ? 'Hide Kinyarwanda' : 'Translate to Kinyarwanda'}
+                {showRw ? t('hideKinyarwanda') : t('translateToKinyarwanda')}
               </button>
             </div>
 
@@ -339,7 +341,7 @@ export default function Landing() {
                   className={`w-2 h-2 rounded-full transition-all ${demoIdx === i ? 'bg-brand-600 w-5' : 'bg-brand-200'}`} />
               ))}
             </div>
-            <p className="text-center text-xs text-gray-400 mt-3">Click dots to see more examples</p>
+            <p className="text-center text-xs text-gray-400 mt-3">{t('clickDots')}</p>
           </motion.div>
         </div>
       </section>
@@ -348,7 +350,7 @@ export default function Landing() {
       <section className="py-16 px-6 bg-brand-50">
         <div className="max-w-6xl mx-auto">
           <motion.div {...fadeUp} className="text-center mb-12">
-            <h2 className="text-3xl font-['Playfair_Display'] font-bold text-brand-950">Explore by Topic</h2>
+            <h2 className="text-3xl font-['Playfair_Display'] font-bold text-brand-950">{t('exploreByTopic')}</h2>
           </motion.div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
             {CATEGORIES.map((c, i) => (
@@ -370,13 +372,13 @@ export default function Landing() {
       <section className="py-20 px-6 bg-white">
         <div className="max-w-4xl mx-auto">
           <motion.div {...fadeUp} className="text-center">
-            <span className="inline-block px-4 py-1.5 bg-brand-100 text-brand-600 text-xs font-semibold rounded-full mb-5">ACCESSIBILITY FIRST</span>
-            <h2 className="text-4xl font-['Playfair_Display'] font-bold text-brand-950 mb-4">Low Literacy Mode</h2>
-            <p className="text-gray-500 text-lg mb-8 max-w-2xl mx-auto">One click transforms the entire interface — larger text, dominant icons, voice guidance, and simplified navigation. Because everyone deserves to read.</p>
+            <span className="inline-block px-4 py-1.5 bg-brand-100 text-brand-600 text-xs font-semibold rounded-full mb-5">{t('accessibilityFirst')}</span>
+            <h2 className="text-4xl font-['Playfair_Display'] font-bold text-brand-950 mb-4">{t('lowLiteracyTitle')}</h2>
+            <p className="text-gray-500 text-lg mb-8 max-w-2xl mx-auto">{t('lowLiteracyLong')}</p>
             <div className="flex flex-wrap justify-center gap-3 mb-10">
-              {['Larger Text', 'Voice Guidance', 'Simple Navigation', 'High Contrast', 'Icon-First UI'].map((f, i) => (
+              {ACC_FEATURE_KEYS.map((key, i) => (
                 <div key={i} className="flex items-center gap-2 px-4 py-2 bg-brand-50 rounded-full text-sm text-brand-800 border border-brand-100">
-                  <FiCheck size={13} className="text-brand-500" /> {f}
+                  <FiCheck size={13} className="text-brand-500" /> {t(key)}
                 </div>
               ))}
             </div>

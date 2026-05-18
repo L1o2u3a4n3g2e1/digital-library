@@ -29,14 +29,14 @@ export default function Login() {
       login({ ...MOCK_USER, email: form.email || MOCK_USER.email, name: 'Anne Louange' }, 'mock-token-123');
       navigate('/dashboard');
     } catch {
-      setError('Invalid credentials. Please try again.');
+      setError(t('invalidCredentials'));
     } finally { setLoading(false); }
   };
 
   const handleGuestLogin = async () => {
     const clean = guestPhone.replace(/\s/g, '');
     if (!clean || clean.length < 9) {
-      setGuestError('Please enter a valid phone number.');
+      setGuestError(t('phoneInvalid'));
       return;
     }
     setGuestError('');
@@ -47,7 +47,7 @@ export default function Login() {
   };
 
   return (
-    <AuthLayout title={t('login')} subtitle="Welcome back to your library">
+    <AuthLayout title={t('login')} subtitle={t('loginSubtitle')}>
       <form onSubmit={handleSubmit} className="space-y-5">
         {error && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
@@ -88,7 +88,7 @@ export default function Login() {
           {loading ? (
             <span className="flex items-center gap-2">
               <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-              Signing in…
+              {t('signingIn')}
             </span>
           ) : (
             <span className="flex items-center gap-2">{t('login')} <FiArrowRight /></span>
@@ -97,13 +97,13 @@ export default function Login() {
 
         {/* Demo hint */}
         <div className="bg-brand-50 rounded-2xl px-4 py-3 text-center">
-          <p className="text-xs text-gray-500">Demo: use any email & password to continue</p>
+          <p className="text-xs text-gray-500">{t('demoHint')}</p>
         </div>
 
         {/* ── Continue as Guest ── */}
         <div className="relative flex items-center gap-3 py-1">
           <div className="flex-1 h-px bg-brand-100" />
-          <span className="text-xs text-gray-400 font-medium">or</span>
+          <span className="text-xs text-gray-400 font-medium">{t('orDivider')}</span>
           <div className="flex-1 h-px bg-brand-100" />
         </div>
 
@@ -111,7 +111,7 @@ export default function Login() {
           <p className="text-sm font-semibold text-brand-950 flex items-center gap-2">
             <FiPhone size={14} className="text-brand-500" /> {t('continueAsGuest')}
           </p>
-          <p className="text-xs text-gray-500">Enter your phone number to browse as a guest — no account required.</p>
+          <p className="text-xs text-gray-500">{t('guestDesc')}</p>
 
           {guestError && (
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
@@ -139,7 +139,7 @@ export default function Login() {
             {guestLoading ? (
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 border-2 border-brand-300 border-t-brand-600 rounded-full animate-spin" />
-                Connecting…
+                {t('connecting')}
               </span>
             ) : (
               <span className="flex items-center gap-2"><FiPhone size={14} /> {t('continueAsGuest')}</span>
@@ -148,7 +148,7 @@ export default function Login() {
         </div>
 
         <p className="text-center text-sm text-gray-500">
-          Don't have an account?{' '}
+          {t('noAccount')}{' '}
           <Link to="/register" className="text-brand-600 font-semibold hover:text-brand-800 transition-colors">{t('register')}</Link>
         </p>
       </form>

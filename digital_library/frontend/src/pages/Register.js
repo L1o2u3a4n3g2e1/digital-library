@@ -23,18 +23,18 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (form.password !== form.confirm) { setError('Passwords do not match.'); return; }
+    if (form.password !== form.confirm) { setError(t('passwordMismatch')); return; }
     setError(''); setLoading(true);
     try {
       await new Promise(r => setTimeout(r, 1100));
       login({ ...MOCK_USER, name: form.name || 'New Reader', email: form.email }, 'mock-token-456');
       navigate('/dashboard');
-    } catch { setError('Registration failed. Please try again.'); }
+    } catch { setError(t('registrationFailed')); }
     finally { setLoading(false); }
   };
 
   return (
-    <AuthLayout title="Create Account" subtitle="Join thousands of readers worldwide">
+    <AuthLayout title={t('registerTitle')} subtitle={t('registerSubtitle')}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
@@ -43,8 +43,8 @@ export default function Register() {
 
         {/* Language selector */}
         <div>
-          <label className="block text-sm font-medium text-brand-800 mb-2">Preferred Language</label>
-          <div className="grid grid-cols-4 gap-2">
+          <label className="block text-sm font-medium text-brand-800 mb-2">{t('preferredLanguage')}</label>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {LANGUAGES.map(l => (
               <button key={l.code} type="button" onClick={() => setLanguage(l.code)}
                 className={`flex flex-col items-center gap-1 py-2.5 rounded-xl border transition-all text-xs
@@ -62,7 +62,7 @@ export default function Register() {
           <div className="relative">
             <FiUser className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-500" size={16} />
             <input type="text" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-              placeholder="Your full name" className="input-field pl-10" required />
+              placeholder={t('namePlaceholder')} className="input-field pl-10" required />
           </div>
         </div>
 
@@ -81,7 +81,7 @@ export default function Register() {
             <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-500" size={16} />
             <input type={showPw ? 'text' : 'password'} value={form.password}
               onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
-              placeholder="Min. 8 characters" className="input-field pl-10 pr-10" required />
+              placeholder={t('passwordMin')} className="input-field pl-10 pr-10" required />
             <button type="button" onClick={() => setShowPw(v => !v)}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-600">
               {showPw ? <FiEyeOff size={15} /> : <FiEye size={15} />}
@@ -92,7 +92,7 @@ export default function Register() {
               <div className="h-1 bg-brand-100 rounded-full overflow-hidden">
                 <div className={`h-full rounded-full transition-all duration-300 ${strengthColors[pwStrength]}`} style={{ width: strengthWidths[pwStrength] }} />
               </div>
-              <p className="text-xs text-gray-500 mt-1 capitalize">{pwStrength} password</p>
+              <p className="text-xs text-gray-500 mt-1 capitalize">{t(`password${pwStrength.charAt(0).toUpperCase() + pwStrength.slice(1)}`)}</p>
             </div>
           )}
         </div>
@@ -102,7 +102,7 @@ export default function Register() {
           <div className="relative">
             <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-500" size={16} />
             <input type="password" value={form.confirm} onChange={e => setForm(p => ({ ...p, confirm: e.target.value }))}
-              placeholder="Repeat password" className="input-field pl-10" required />
+              placeholder={t('repeatPassword')} className="input-field pl-10" required />
             {form.confirm && form.password === form.confirm && (
               <FiCheck className="absolute right-3.5 top-1/2 -translate-y-1/2 text-green-500" size={16} />
             )}
@@ -112,12 +112,12 @@ export default function Register() {
         <motion.button type="submit" disabled={loading}
           whileHover={{ scale: loading ? 1 : 1.02 }} whileTap={{ scale: loading ? 1 : 0.98 }}
           className="btn-primary w-full py-3.5 text-base mt-1">
-          {loading ? <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Creating account…</span>
+          {loading ? <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />{t('creatingAccount')}</span>
             : <span className="flex items-center gap-2">{t('register')} <FiArrowRight /></span>}
         </motion.button>
 
         <p className="text-center text-sm text-gray-500">
-          Already have an account?{' '}
+          {t('hasAccount')}{' '}
           <Link to="/login" className="text-brand-600 font-semibold hover:text-brand-800 transition-colors">{t('login')}</Link>
         </p>
       </form>

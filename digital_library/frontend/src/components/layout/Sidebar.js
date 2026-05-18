@@ -53,7 +53,7 @@ export default function Sidebar() {
             </div>
             <div className="min-w-0">
               <p className="text-sm font-semibold text-brand-950 truncate">{user?.name}</p>
-              <p className="text-xs text-brand-500">Avid Reader</p>
+              <p className="text-xs text-brand-500">{t('avidReader')}</p>
             </div>
           </div>
         </div>
@@ -63,7 +63,7 @@ export default function Sidebar() {
       {lowLiteracy && (
         <div className="mx-3 mb-2 px-3 py-2 rounded-xl bg-brand-600/10 border border-brand-200 flex items-center gap-2">
           <span className="text-lg">🔊</span>
-          <p className="text-xs text-brand-800 font-medium">Hover a menu item to hear it</p>
+          <p className="text-xs text-brand-800 font-medium">{t('hoverToHear')}</p>
         </div>
       )}
 

@@ -84,7 +84,7 @@ export default function UploadBook() {
       <div className="p-6 max-w-4xl mx-auto">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="section-title text-2xl mb-1">{t('uploadBook')}</h1>
-          <p className="text-sm text-gray-500 mb-8">Share knowledge with the world in any language</p>
+          <p className="text-sm text-gray-500 mb-8">{t('uploadSubtitle')}</p>
         </motion.div>
 
         <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-6">
@@ -109,7 +109,7 @@ export default function UploadBook() {
                     <p className="text-xs text-gray-500 mt-1">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                     <button type="button" onClick={e => { e.stopPropagation(); setFile(null); }}
                       className="mt-3 flex items-center gap-1 text-xs text-red-400 hover:text-red-500 mx-auto">
-                      <FiX size={12} /> Remove
+                      <FiX size={12} /> {t('remove')}
                     </button>
                   </motion.div>
                 ) : (
@@ -120,7 +120,7 @@ export default function UploadBook() {
                     </motion.div>
                     <p className="font-semibold text-brand-950">{t('dragDrop')}</p>
                     <p className="text-sm text-gray-500 mt-1">{t('orBrowse')}</p>
-                    <p className="text-xs text-gray-400 mt-3">Supports PDF, TXT up to 50MB</p>
+                    <p className="text-xs text-gray-400 mt-3">{t('supportsPDF')}</p>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -128,17 +128,17 @@ export default function UploadBook() {
 
             {/* Book details */}
             <div className="card p-6 space-y-4">
-              <h3 className="font-semibold text-brand-950">Book Details</h3>
+              <h3 className="font-semibold text-brand-950">{t('bookDetails')}</h3>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-medium text-brand-800 mb-1.5 block">{t('titleLabel')} *</label>
                   <input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
-                    placeholder="Enter book title" className="input-field" required />
+                    placeholder={t('bookTitlePlaceholder')} className="input-field" required />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-brand-800 mb-1.5 block">{t('author')} *</label>
                   <input value={form.author} onChange={e => setForm(p => ({ ...p, author: e.target.value }))}
-                    placeholder="Author name" className="input-field" required />
+                    placeholder={t('authorPlaceholder')} className="input-field" required />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-brand-800 mb-1.5 block">{t('language')}</label>
@@ -154,9 +154,9 @@ export default function UploadBook() {
                 </div>
               </div>
               <div>
-                <label className="text-xs font-medium text-brand-800 mb-1.5 block">Description</label>
+                <label className="text-xs font-medium text-brand-800 mb-1.5 block">{t('descriptionLabel')}</label>
                 <textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-                  placeholder="Brief description of the book…" rows={3} className="input-field resize-none" />
+                  placeholder={t('descriptionPlaceholder')} rows={3} className="input-field resize-none" />
               </div>
             </div>
           </div>
@@ -165,7 +165,7 @@ export default function UploadBook() {
           <div className="space-y-5">
             {/* Cover upload */}
             <div className="card p-5">
-              <h3 className="font-semibold text-brand-950 mb-3 text-sm">Cover Image</h3>
+              <h3 className="font-semibold text-brand-950 mb-3 text-sm">{t('coverImage')}</h3>
               <div onClick={() => coverRef.current?.click()}
                 className="aspect-[2/3] rounded-2xl border-2 border-dashed border-brand-200 overflow-hidden cursor-pointer hover:border-brand-500 transition-colors bg-brand-50 flex items-center justify-center">
                 <input ref={coverRef} type="file" accept="image/*" className="hidden" onChange={handleCover} />
@@ -174,7 +174,7 @@ export default function UploadBook() {
                 ) : (
                   <div className="text-center p-4">
                     <FiImage size={24} className="text-gray-400 mx-auto mb-2" />
-                    <p className="text-xs text-gray-400">Click to upload cover</p>
+                    <p className="text-xs text-gray-400">{t('clickToUploadCover')}</p>
                   </div>
                 )}
               </div>
@@ -182,11 +182,11 @@ export default function UploadBook() {
 
             {/* AI options */}
             <div className="card p-5 space-y-3">
-              <h3 className="font-semibold text-brand-950 text-sm">AI Features</h3>
+              <h3 className="font-semibold text-brand-950 text-sm">{t('aiFeatures')}</h3>
               {[
-                { key: 'generateAudio', icon: '🎧', label: t('generateAudio'), desc: 'Auto-create narration' },
-                { key: 'enableSTT', icon: '🎙️', label: t('enableSTT'), desc: 'Enable voice search' },
-                { key: 'allowTranslation', icon: '🌍', label: 'Auto Translation', desc: 'Translate to all languages' },
+                { key: 'generateAudio', icon: '🎧', label: t('generateAudio'), desc: t('autoNarration') },
+                { key: 'enableSTT', icon: '🎙️', label: t('enableSTT'), desc: t('enableVoiceSearch') },
+                { key: 'allowTranslation', icon: '🌍', label: t('autoTranslation'), desc: t('translateAllLangs') },
               ].map(({ key, icon, label, desc }) => (
                 <div key={key} className="flex items-center justify-between py-1">
                   <div className="flex items-start gap-2.5">
@@ -211,8 +211,8 @@ export default function UploadBook() {
                   <FiMic size={16} className="text-brand-600" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-brand-950">Voice Dictation</p>
-                  <p className="text-xs text-gray-500">Speak your book aloud to upload</p>
+                  <p className="text-xs font-semibold text-brand-950">{t('voiceDictation')}</p>
+                  <p className="text-xs text-gray-500">{t('speakToUpload')}</p>
                 </div>
               </div>
             </div>
@@ -225,7 +225,7 @@ export default function UploadBook() {
                 <div className="w-full">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                    Uploading… {progress}%
+                    {t('uploading')} {progress}%
                   </div>
                   <div className="h-1 bg-white/30 rounded-full overflow-hidden">
                     <div className="h-full bg-white rounded-full transition-all" style={{ width: `${progress}%` }} />

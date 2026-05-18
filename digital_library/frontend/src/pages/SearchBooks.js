@@ -11,10 +11,10 @@ import { CATEGORIES, LANGUAGES } from '../utils/constants';
 import { bookService } from '../services/api';
 
 const SORT_OPTIONS = [
-  { value: 'relevance', label: 'Most Relevant'  },
-  { value: 'rating',    label: 'Highest Rated'  },
-  { value: 'newest',    label: 'Newest'          },
-  { value: 'popular',   label: 'Most Read'       },
+  { value: 'relevance', tKey: 'sortRelevance' },
+  { value: 'rating',    tKey: 'sortRating'    },
+  { value: 'newest',    tKey: 'sortNewest'    },
+  { value: 'popular',   tKey: 'sortPopular'   },
 ];
 
 export default function SearchBooks() {
@@ -110,7 +110,7 @@ export default function SearchBooks() {
 
         {/* Search header */}
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <h1 className="section-title text-2xl mb-5">Search Books</h1>
+          <h1 className="section-title text-2xl mb-5">{t('searchTitle')}</h1>
 
           {/* Search bar */}
           <div className="relative flex items-center gap-3">
@@ -140,7 +140,7 @@ export default function SearchBooks() {
                   ? 'border-brand-600 bg-brand-600 text-white'
                   : 'border-brand-200 bg-white text-brand-800 hover:border-brand-500'}`}>
               <FiSliders size={16} />
-              <span className="hidden sm:inline">Filters</span>
+              <span className="hidden sm:inline">{t('filtersBtn')}</span>
               {activeFiltersCount > 0 && (
                 <span className="w-5 h-5 bg-white text-brand-600 rounded-full text-xs font-bold flex items-center justify-center">
                   {activeFiltersCount}
@@ -158,7 +158,7 @@ export default function SearchBooks() {
                   <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
                     {/* Language */}
                     <div>
-                      <label className="text-xs font-semibold text-brand-800 mb-2 block uppercase tracking-wide">Language</label>
+                      <label className="text-xs font-semibold text-brand-800 mb-2 block uppercase tracking-wide">{t('language')}</label>
                       <div className="flex flex-wrap gap-1.5">
                         {[{ code: 'all', label: 'All', flag: '🌐' }, ...LANGUAGES].map(l => (
                           <button key={l.code} onClick={() => setFilters(p => ({ ...p, lang: l.code }))}
@@ -171,11 +171,11 @@ export default function SearchBooks() {
                     </div>
                     {/* Category */}
                     <div>
-                      <label className="text-xs font-semibold text-brand-800 mb-2 block uppercase tracking-wide">Category</label>
+                      <label className="text-xs font-semibold text-brand-800 mb-2 block uppercase tracking-wide">{t('category')}</label>
                       <select value={filters.category}
                         onChange={e => setFilters(p => ({ ...p, category: e.target.value }))}
                         className="input-field py-2 text-sm">
-                        <option value="all">All Categories</option>
+                        <option value="all">{t('allCategories')}</option>
                         {CATEGORIES.map(c => (
                           <option key={c.id} value={c.id}>{c.icon} {c.label}</option>
                         ))}
@@ -183,21 +183,21 @@ export default function SearchBooks() {
                     </div>
                     {/* Audio */}
                     <div>
-                      <label className="text-xs font-semibold text-brand-800 mb-2 block uppercase tracking-wide">Type</label>
+                      <label className="text-xs font-semibold text-brand-800 mb-2 block uppercase tracking-wide">{t('filterBy')}</label>
                       <button onClick={() => setFilters(p => ({ ...p, hasAudio: !p.hasAudio }))}
                         className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all
                           ${filters.hasAudio ? 'border-audio-600 bg-audio-100 text-audio-600' : 'border-brand-200 text-brand-800 hover:border-brand-400'}`}>
-                        🎧 Audio only
+                        🎧 {t('audioOnly')}
                       </button>
                     </div>
                     {/* Sort */}
                     <div>
-                      <label className="text-xs font-semibold text-brand-800 mb-2 block uppercase tracking-wide">Sort by</label>
+                      <label className="text-xs font-semibold text-brand-800 mb-2 block uppercase tracking-wide">{t('sortBy')}</label>
                       <select value={filters.sort}
                         onChange={e => setFilters(p => ({ ...p, sort: e.target.value }))}
                         className="input-field py-2 text-sm">
                         {SORT_OPTIONS.map(o => (
-                          <option key={o.value} value={o.value}>{o.label}</option>
+                          <option key={o.value} value={o.value}>{t(o.tKey)}</option>
                         ))}
                       </select>
                     </div>
@@ -205,7 +205,7 @@ export default function SearchBooks() {
                   <div className="flex justify-end mt-4">
                     <button onClick={clearAll}
                       className="text-sm text-gray-400 hover:text-brand-600 transition-colors">
-                      Clear all filters
+                      {t('clearAllFilters')}
                     </button>
                   </div>
                 </div>
@@ -220,15 +220,15 @@ export default function SearchBooks() {
             {loading ? (
               <span className="flex items-center gap-1.5">
                 <span className="w-3 h-3 border-2 border-brand-300 border-t-brand-600 rounded-full animate-spin inline-block" />
-                Searching…
+                {t('searching')}
               </span>
             ) : (
               <>
                 <strong className="text-brand-950">{results.length}</strong>{' '}
-                book{results.length !== 1 ? 's' : ''} found
-                {query && <> for <em className="text-brand-600 not-italic font-medium">"{query}"</em></>}
+                {results.length !== 1 ? t('booksFound') : t('bookFound')}
+                {query && <> {t('forQuery')} <em className="text-brand-600 not-italic font-medium">"{query}"</em></>}
                 {filters.category !== 'all' && (
-                  <> in <span className="text-brand-600 font-medium capitalize">{filters.category}</span></>
+                  <> {t('inCategory')} <span className="text-brand-600 font-medium capitalize">{filters.category}</span></>
                 )}
               </>
             )}
@@ -251,7 +251,7 @@ export default function SearchBooks() {
               <p className="text-5xl mb-4">📚</p>
               <p className="text-lg font-semibold text-brand-950">{t('noResults')}</p>
               <p className="text-sm text-gray-500 mt-2">{t('trySearch')}</p>
-              <button onClick={clearAll} className="btn-secondary mt-5 text-sm">Clear search</button>
+              <button onClick={clearAll} className="btn-secondary mt-5 text-sm">{t('clearSearch')}</button>
             </motion.div>
           ) : layout === 'grid' ? (
             <motion.div key="grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
