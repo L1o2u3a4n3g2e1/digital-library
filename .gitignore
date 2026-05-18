@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+venv/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Large data & model files
+digital_library/data/
+digital_library/models/
+digital_library/books/*.pdf
+digital_library/Antigravity/
+
+# Logs
+*.log
+backend.log
+server.log
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Build output
+digital_library/frontend/build/
+digital_library/mobile/.expo/
+digital_library/mobile/dist/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/settings.json
+.idea/
+
+# Installers (downloaded files)
+*.exe
+*.msi
+
+# Uploads (user-generated content)
+digital_library/uploads/
