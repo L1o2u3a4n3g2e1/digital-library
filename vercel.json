@@ -1,8 +1,3 @@
 {
-    "buildCommand": "cd digital_library/frontend && npm install && npm run build",
-    "outputDirectory": "digital_library/frontend/build",
-    "installCommand": "echo 'skipping root install'",
-    "rewrites": [
-          { "source": "/(.*)", "destination": "/index.html" }
-    ]
+      "root": "digital_library/frontend"
 }
