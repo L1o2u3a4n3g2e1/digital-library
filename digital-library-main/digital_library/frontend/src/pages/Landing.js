@@ -7,7 +7,7 @@ import Footer from '../components/layout/Footer';
 import LanguageToggleButtons from '../components/ui/LanguageToggleButtons';
 import { useApp } from '../context/AppContext';
 import { useTranslation } from '../utils/translations';
-import { CATEGORIES, LANGUAGES } from '../utils/constants';
+import { CATEGORIES } from '../utils/constants';
 import { authService } from '../services/api';
 
 const fadeUp = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true }, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } };
