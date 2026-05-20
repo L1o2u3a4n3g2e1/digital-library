@@ -1,0 +1,10 @@
+.git
+.github
+node_modules
+digital-library-main/digital_library/frontend/node_modules
+vendor
+logs
+uploads
+build
+digital_library
+public

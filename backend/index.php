@@ -7,7 +7,7 @@
 // Load environment variables before reading configuration values.
 require_once __DIR__ . '/../vendor/autoload.php';
 $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
-$dotenv->load();
+$dotenv->safeLoad();
 
 // Enable error reporting for development
 error_reporting(E_ALL);
@@ -17,7 +17,14 @@ ini_set('display_errors', ($_ENV['APP_DEBUG'] ?? false) ? '1' : '0');
 header('Content-Type: application/json');
 
 // Enable CORS
-$allowedOrigins = explode(',', $_ENV['ALLOWED_ORIGINS'] ?? 'http://localhost:3000');
+$allowedOrigins = array_filter(array_map('trim', explode(',', $_ENV['ALLOWED_ORIGINS'] ?? '')));
+$frontendUrl = trim($_ENV['FRONTEND_URL'] ?? '');
+if ($frontendUrl !== '' && !in_array($frontendUrl, $allowedOrigins, true)) {
+    $allowedOrigins[] = $frontendUrl;
+}
+if (empty($allowedOrigins)) {
+    $allowedOrigins = ['http://localhost:3000'];
+}
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
 if (in_array($origin, $allowedOrigins)) {
@@ -41,6 +48,9 @@ require_once __DIR__ . '/helpers/logger.php';
 
 // Initialize database
 $db = new Database();
+require_once __DIR__ . '/services/SchemaService.php';
+$schema = new SchemaService($db);
+$schema->ensureCoreSchema();
 
 // Get request method and path
 $method = $_SERVER['REQUEST_METHOD'];

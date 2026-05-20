@@ -2,13 +2,15 @@
 
 class LibraryService {
     private $catalogPath;
-    private $metricsPath;
+    private $legacyMetricsPath;
     private $catalog;
+    private $conn;
 
-    public function __construct() {
+    public function __construct($database = null) {
         $this->catalogPath = __DIR__ . '/../data/library_catalog.json';
-        $this->metricsPath = __DIR__ . '/../data/user_metrics.json';
+        $this->legacyMetricsPath = __DIR__ . '/../data/user_metrics.json';
         $this->catalog = $this->loadCatalog();
+        $this->conn = $database && method_exists($database, 'getConnection') ? $database->getConnection() : null;
     }
 
     private function loadCatalog() {
@@ -20,22 +22,22 @@ class LibraryService {
         return is_array($decoded) ? $decoded : [];
     }
 
-    private function loadMetrics() {
-        if (!file_exists($this->metricsPath)) {
+    private function loadLegacyMetrics() {
+        if (!file_exists($this->legacyMetricsPath)) {
             return ['users' => []];
         }
 
-        $decoded = json_decode(file_get_contents($this->metricsPath), true);
+        $decoded = json_decode(file_get_contents($this->legacyMetricsPath), true);
         return is_array($decoded) ? $decoded : ['users' => []];
     }
 
-    private function saveMetrics($metrics) {
-        $dir = dirname($this->metricsPath);
+    private function saveLegacyMetrics($metrics) {
+        $dir = dirname($this->legacyMetricsPath);
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
 
-        file_put_contents($this->metricsPath, json_encode($metrics, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        file_put_contents($this->legacyMetricsPath, json_encode($metrics, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     }
 
     private function loadKinyarwandaResources() {
@@ -64,17 +66,104 @@ class LibraryService {
         ];
     }
 
-    private function getUserMetricsInternal(&$metrics, $userId) {
-        $key = $this->userKey($userId);
-        if (!isset($metrics['users'][$key])) {
-            $metrics['users'][$key] = $this->defaultUserMetrics();
+    private function normalizeMetrics($metrics) {
+        $defaults = $this->defaultUserMetrics();
+        if (!is_array($metrics)) {
+            return $defaults;
         }
-        return $metrics['users'][$key];
+
+        foreach ($defaults as $key => $value) {
+            if (!isset($metrics[$key]) || !is_array($metrics[$key])) {
+                $metrics[$key] = $value;
+            }
+        }
+
+        return $metrics;
+    }
+
+    private function loadMetricsFromDatabase($userId) {
+        if (!$this->conn || !$userId) {
+            return null;
+        }
+
+        $stmt = $this->conn->prepare('SELECT metrics FROM user_metrics WHERE user_id = ? LIMIT 1');
+        if (!$stmt) {
+            return null;
+        }
+
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $decoded = json_decode($row['metrics'] ?? '{}', true);
+            return $this->normalizeMetrics($decoded);
+        }
+
+        return null;
+    }
+
+    private function saveMetricsToDatabase($userId, $metrics) {
+        if (!$this->conn || !$userId) {
+            return false;
+        }
+
+        $payload = json_encode($this->normalizeMetrics($metrics), JSON_UNESCAPED_UNICODE);
+        $stmt = $this->conn->prepare('
+            INSERT INTO user_metrics (user_id, metrics, created_at, updated_at)
+            VALUES (?, ?, NOW(), NOW())
+            ON DUPLICATE KEY UPDATE metrics = VALUES(metrics), updated_at = NOW()
+        ');
+
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param('is', $userId, $payload);
+        return $stmt->execute();
+    }
+
+    private function loadLegacyMetricsForUser($userId) {
+        $allMetrics = $this->loadLegacyMetrics();
+        $key = $this->userKey($userId);
+        return $this->normalizeMetrics($allMetrics['users'][$key] ?? null);
+    }
+
+    private function saveLegacyMetricsForUser($userId, $metrics) {
+        $allMetrics = $this->loadLegacyMetrics();
+        $allMetrics['users'][$this->userKey($userId)] = $this->normalizeMetrics($metrics);
+        $this->saveLegacyMetrics($allMetrics);
     }
 
     private function getUserMetrics($userId) {
-        $metrics = $this->loadMetrics();
-        return $this->getUserMetricsInternal($metrics, $userId);
+        if (!$userId) {
+            return $this->defaultUserMetrics();
+        }
+
+        $databaseMetrics = $this->loadMetricsFromDatabase($userId);
+        if ($databaseMetrics !== null) {
+            return $databaseMetrics;
+        }
+
+        $legacyMetrics = $this->loadLegacyMetricsForUser($userId);
+        if ($this->conn) {
+            $this->saveMetricsToDatabase($userId, $legacyMetrics);
+        }
+
+        return $legacyMetrics;
+    }
+
+    private function persistUserMetrics($userId, $metrics) {
+        if (!$userId) {
+            return;
+        }
+
+        $normalized = $this->normalizeMetrics($metrics);
+
+        if ($this->conn && $this->saveMetricsToDatabase($userId, $normalized)) {
+            return;
+        }
+
+        $this->saveLegacyMetricsForUser($userId, $normalized);
     }
 
     private function summarizeBookForUser($book, $progressMap) {
@@ -224,19 +313,14 @@ class LibraryService {
             return;
         }
 
-        $metrics = $this->loadMetrics();
-        $userMetrics = &$metrics['users'][$this->userKey($userId)];
-        if (!isset($userMetrics)) {
-            $userMetrics = $this->defaultUserMetrics();
-        }
-
+        $userMetrics = $this->getUserMetrics($userId);
         $userMetrics['book_views'][] = [
             'book_id' => (int)$book['id'],
             'category' => $book['category'],
             'at' => date('c'),
         ];
 
-        $this->saveMetrics($metrics);
+        $this->persistUserMetrics($userId, $userMetrics);
     }
 
     public function recordRead($userId, $payload, $book = null) {
@@ -244,11 +328,7 @@ class LibraryService {
             return null;
         }
 
-        $metrics = $this->loadMetrics();
-        $userMetrics = &$metrics['users'][$this->userKey($userId)];
-        if (!isset($userMetrics)) {
-            $userMetrics = $this->defaultUserMetrics();
-        }
+        $userMetrics = $this->getUserMetrics($userId);
 
         $bookId = (int)($payload['bookId'] ?? 0);
         $minutes = max(0, (int)($payload['minutes'] ?? 0));
@@ -283,7 +363,7 @@ class LibraryService {
             'at' => date('c'),
         ];
 
-        $this->saveMetrics($metrics);
+        $this->persistUserMetrics($userId, $userMetrics);
         return $progressMap[$key];
     }
 
@@ -292,12 +372,7 @@ class LibraryService {
             return;
         }
 
-        $metrics = $this->loadMetrics();
-        $userMetrics = &$metrics['users'][$this->userKey($userId)];
-        if (!isset($userMetrics)) {
-            $userMetrics = $this->defaultUserMetrics();
-        }
-
+        $userMetrics = $this->getUserMetrics($userId);
         $userMetrics['audio_events'][] = [
             'book_id' => (int)($payload['bookId'] ?? 0),
             'category' => $book['category'] ?? null,
@@ -306,7 +381,7 @@ class LibraryService {
             'at' => date('c'),
         ];
 
-        $this->saveMetrics($metrics);
+        $this->persistUserMetrics($userId, $userMetrics);
     }
 
     public function recordVoice($userId, $payload) {
@@ -314,19 +389,14 @@ class LibraryService {
             return;
         }
 
-        $metrics = $this->loadMetrics();
-        $userMetrics = &$metrics['users'][$this->userKey($userId)];
-        if (!isset($userMetrics)) {
-            $userMetrics = $this->defaultUserMetrics();
-        }
-
+        $userMetrics = $this->getUserMetrics($userId);
         $userMetrics['voice_events'][] = [
             'text' => trim($payload['text'] ?? ''),
             'detected_language' => $payload['detected_language'] ?? 'unknown',
             'at' => date('c'),
         ];
 
-        $this->saveMetrics($metrics);
+        $this->persistUserMetrics($userId, $userMetrics);
     }
 
     public function recordSearch($userId, $query, $language = null) {
@@ -334,19 +404,14 @@ class LibraryService {
             return;
         }
 
-        $metrics = $this->loadMetrics();
-        $userMetrics = &$metrics['users'][$this->userKey($userId)];
-        if (!isset($userMetrics)) {
-            $userMetrics = $this->defaultUserMetrics();
-        }
-
+        $userMetrics = $this->getUserMetrics($userId);
         $userMetrics['searches'][] = [
             'query' => $query,
             'language' => $language ?: 'unknown',
             'at' => date('c'),
         ];
 
-        $this->saveMetrics($metrics);
+        $this->persistUserMetrics($userId, $userMetrics);
     }
 
     public function recordTranslation($userId, $payload, $book = null) {
@@ -354,12 +419,7 @@ class LibraryService {
             return;
         }
 
-        $metrics = $this->loadMetrics();
-        $userMetrics = &$metrics['users'][$this->userKey($userId)];
-        if (!isset($userMetrics)) {
-            $userMetrics = $this->defaultUserMetrics();
-        }
-
+        $userMetrics = $this->getUserMetrics($userId);
         $userMetrics['translation_events'][] = [
             'book_id' => (int)($payload['bookId'] ?? 0),
             'category' => $book['category'] ?? null,
@@ -369,7 +429,7 @@ class LibraryService {
             'at' => date('c'),
         ];
 
-        $this->saveMetrics($metrics);
+        $this->persistUserMetrics($userId, $userMetrics);
     }
 
     public function detectLanguage($text) {
@@ -519,16 +579,17 @@ class LibraryService {
             foreach ($glossary as $english => $kinya) {
                 $text = preg_replace('/\b' . preg_quote($english, '/') . '\b/i', $kinya, $text);
             }
-            return "[rw] " . $text;
+            return '[rw] ' . $text;
         }
 
         if ($from === 'rw' && $to === 'en') {
             foreach ($glossary as $english => $kinya) {
                 $text = preg_replace('/\b' . preg_quote($kinya, '/') . '\b/ui', $english, $text);
             }
-            return "[en] " . $text;
+            return '[en] ' . $text;
         }
 
-        return "[" . $to . "] " . $text;
+        return '[' . $to . '] ' . $text;
     }
 }
+?>

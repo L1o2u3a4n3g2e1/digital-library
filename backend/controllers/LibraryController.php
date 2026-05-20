@@ -9,7 +9,7 @@ class LibraryController {
         $this->db = $database;
         require_once __DIR__ . '/../services/LibraryService.php';
         require_once __DIR__ . '/../services/TokenService.php';
-        $this->service = new LibraryService();
+        $this->service = new LibraryService($database);
         $this->tokenService = new TokenService();
     }
 

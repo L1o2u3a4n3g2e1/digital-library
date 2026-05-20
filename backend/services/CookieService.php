@@ -8,10 +8,41 @@ class CookieService {
     private $isHttpOnly = true;
     private $isSecure = false; // Set to true in production with HTTPS
     private $sameSite = 'Lax';
+    private $frontendOrigin;
 
     public function __construct() {
-        // Use Secure flag in production
-        $this->isSecure = ($_ENV['APP_ENV'] ?? 'development') === 'production';
+        $this->frontendOrigin = $_ENV['FRONTEND_URL'] ?? '';
+        $this->isSecure = $this->shouldUseSecureCookies();
+        $this->sameSite = $this->isCrossSiteRequest() && $this->isSecure ? 'None' : 'Lax';
+    }
+
+    private function shouldUseSecureCookies() {
+        $appEnv = $_ENV['APP_ENV'] ?? 'development';
+        if ($appEnv === 'production') {
+            return true;
+        }
+
+        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+            return true;
+        }
+
+        if (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function isCrossSiteRequest() {
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+        if ($origin === '' || $this->frontendOrigin === '') {
+            return false;
+        }
+
+        $originHost = parse_url($origin, PHP_URL_HOST);
+        $frontendHost = parse_url($this->frontendOrigin, PHP_URL_HOST);
+
+        return !empty($originHost) && !empty($frontendHost) && strcasecmp($originHost, $frontendHost) === 0;
     }
 
     private function getCookieDomain() {
@@ -97,7 +128,7 @@ class CookieService {
         setcookie(
             'csrf_token',
             $token,
-            $this->buildCookieOptions(time() + (2 * 60 * 60), false, 'Strict')
+            $this->buildCookieOptions(time() + (2 * 60 * 60), false, $this->sameSite === 'None' ? 'None' : 'Strict')
         );
     }
 
@@ -187,7 +218,7 @@ class CookieService {
      * Clear CSRF cookie
      */
     public function clearCsrfCookie() {
-        setcookie('csrf_token', '', $this->buildCookieOptions(time() - 3600, false, 'Strict'));
+        setcookie('csrf_token', '', $this->buildCookieOptions(time() - 3600, false, $this->sameSite === 'None' ? 'None' : 'Strict'));
         unset($_COOKIE['csrf_token']);
     }
 

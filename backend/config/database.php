@@ -9,18 +9,54 @@ class Database {
     private $user;
     private $password;
     private $name;
+    private $port;
     private $conn;
 
     public function __construct() {
-        $this->host = $_ENV['DB_HOST'] ?? 'localhost';
-        $this->user = $_ENV['DB_USER'] ?? 'root';
-        $this->password = $_ENV['DB_PASSWORD'] ?? '';
-        $this->name = $_ENV['DB_NAME'] ?? 'multilingual_library';
+        $config = $this->resolveConfig();
+        $this->host = $config['host'];
+        $this->user = $config['user'];
+        $this->password = $config['password'];
+        $this->name = $config['name'];
+        $this->port = $config['port'];
         $this->connect();
     }
 
+    private function resolveConfig() {
+        $config = [
+            'host' => $_ENV['DB_HOST'] ?? $_SERVER['DB_HOST'] ?? 'localhost',
+            'user' => $_ENV['DB_USER'] ?? $_SERVER['DB_USER'] ?? 'root',
+            'password' => $_ENV['DB_PASSWORD'] ?? $_SERVER['DB_PASSWORD'] ?? '',
+            'name' => $_ENV['DB_NAME'] ?? $_SERVER['DB_NAME'] ?? 'multilingual_library',
+            'port' => (int)($_ENV['DB_PORT'] ?? $_SERVER['DB_PORT'] ?? 3306),
+        ];
+
+        $railwayHost = $_ENV['MYSQLHOST'] ?? $_SERVER['MYSQLHOST'] ?? null;
+        if ($railwayHost) {
+            $config['host'] = $railwayHost;
+            $config['user'] = $_ENV['MYSQLUSER'] ?? $_SERVER['MYSQLUSER'] ?? $config['user'];
+            $config['password'] = $_ENV['MYSQLPASSWORD'] ?? $_SERVER['MYSQLPASSWORD'] ?? $config['password'];
+            $config['name'] = $_ENV['MYSQLDATABASE'] ?? $_SERVER['MYSQLDATABASE'] ?? $config['name'];
+            $config['port'] = (int)($_ENV['MYSQLPORT'] ?? $_SERVER['MYSQLPORT'] ?? $config['port']);
+        }
+
+        $databaseUrl = $_ENV['DATABASE_URL'] ?? $_SERVER['DATABASE_URL'] ?? $_ENV['MYSQL_URL'] ?? $_SERVER['MYSQL_URL'] ?? null;
+        if ($databaseUrl) {
+            $parts = parse_url($databaseUrl);
+            if ($parts !== false) {
+                $config['host'] = $parts['host'] ?? $config['host'];
+                $config['user'] = $parts['user'] ?? $config['user'];
+                $config['password'] = $parts['pass'] ?? $config['password'];
+                $config['name'] = isset($parts['path']) ? ltrim($parts['path'], '/') : $config['name'];
+                $config['port'] = (int)($parts['port'] ?? $config['port']);
+            }
+        }
+
+        return $config;
+    }
+
     private function connect() {
-        $this->conn = new mysqli($this->host, $this->user, $this->password, $this->name);
+        $this->conn = new mysqli($this->host, $this->user, $this->password, $this->name, $this->port);
 
         if ($this->conn->connect_error) {
             die(json_encode([

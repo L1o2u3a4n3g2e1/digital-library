@@ -1,10 +1,37 @@
 import axios from 'axios';
 
-const BASE = process.env.REACT_APP_API_URL || 'http://localhost:80/digital-library/backend';
+const resolveApiBaseUrl = () => {
+  const configured = (process.env.REACT_APP_API_URL || '').trim();
+
+  if (configured) {
+    const normalized = configured.replace(/\/+$/, '');
+    if (normalized.endsWith('/api')) {
+      return normalized;
+    }
+    if (normalized.endsWith('/backend')) {
+      return `${normalized}/api`;
+    }
+    return `${normalized}/api`;
+  }
+
+  if (typeof window !== 'undefined') {
+    const { hostname, origin } = window.location;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'http://localhost/digital-library/backend/api';
+    }
+
+    return `${origin}/api`;
+  }
+
+  return 'http://localhost/digital-library/backend/api';
+};
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 const http = axios.create({
-  baseURL: `${BASE}/api`,
+  baseURL: API_BASE_URL,
   timeout: 15000,
+  withCredentials: true,
 });
 
 const unwrap = (request) => request.then((response) => response?.data ?? response);
@@ -18,6 +45,7 @@ http.interceptors.request.use((config) => {
   }
 
   config.headers['X-App-Language'] = language;
+  config.withCredentials = true;
   return config;
 });
 
