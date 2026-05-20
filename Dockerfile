@@ -7,7 +7,7 @@ RUN npm run build
 
 FROM composer:2 AS composer-builder
 WORKDIR /app
-COPY composer.json composer.lock ./
+COPY composer.json ./
 RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
 FROM php:8.2-cli
