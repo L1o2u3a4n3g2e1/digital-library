@@ -1,7 +1,7 @@
 FROM node:20-bookworm-slim AS frontend-builder
 WORKDIR /app/digital-library-main/digital_library/frontend
 COPY digital-library-main/digital_library/frontend/package*.json ./
-RUN npm ci
+RUN npm install
 COPY digital-library-main/digital_library/frontend/ ./
 RUN npm run build
 

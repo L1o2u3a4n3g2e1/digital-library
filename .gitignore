@@ -30,7 +30,6 @@ logs/
 
 # Composer
 vendor/
-composer.lock
 
 # Node
 npm-debug.log
