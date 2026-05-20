@@ -3,34 +3,56 @@
 .env.local
 .env.*.local
 
+# Dependencies
+node_modules/
+venv/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Large data & model files
+digital_library/data/
+digital_library/models/
+digital_library/books/*.pdf
+digital_library/Antigravity/
+
+# Logs
+*.log
+backend.log
+server.log
+logs/
+
 # Composer
 vendor/
 composer.lock
 
 # Node
-node_modules/
 npm-debug.log
 yarn-error.log
 
 # IDE
 .vscode/
+.vscode/settings.json
 .idea/
 *.swp
 *.swo
 *~
-.DS_Store
-
-# Logs
-logs/
-*.log
 
 # Upload directories
 uploads/
+digital_library/uploads/
 temp/
 
 # OS
 Thumbs.db
 .DS_Store
+desktop.ini
 
 # Cache
 .cache/
@@ -42,3 +64,12 @@ Thumbs.db
 # Testing
 coverage/
 .phpunit.result.cache
+
+# Build output
+digital_library/frontend/build/
+digital_library/mobile/.expo/
+digital_library/mobile/dist/
+
+# Installers (downloaded files)
+*.exe
+*.msi
