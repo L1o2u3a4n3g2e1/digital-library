@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import {
   FiArrowRight,
   FiBookOpen,
-  FiDownload,
   FiHeadphones,
   FiLayers,
   FiMic,
@@ -13,8 +12,8 @@ import {
   FiZap,
 } from 'react-icons/fi';
 import MainLayout from '../layouts/MainLayout';
-import BookCard from '../components/books/BookCard';
 import AudioPlayer from '../components/audio/AudioPlayer';
+import CategoryCard from '../components/categories/CategoryCard';
 import { useApp } from '../context/AppContext';
 import { CATEGORIES, getCategoryLabel } from '../utils/constants';
 import { bookService, statsService } from '../services/api';
@@ -51,85 +50,6 @@ const SectionHeader = ({ title, subtitle, actionTo, actionLabel }) => (
   </div>
 );
 
-const ContinueCard = ({ book, onOpen, isRw }) => (
-  <motion.button
-    whileHover={{ y: -3 }}
-    onClick={() => onOpen(book.id)}
-    className="card flex w-full items-center gap-4 p-4 text-left"
-  >
-    <div className="h-20 w-14 flex-shrink-0 overflow-hidden rounded-xl bg-brand-100">
-      {book.cover ? (
-        <img
-          src={book.cover}
-          alt={book.title}
-          className="h-full w-full object-cover"
-          onError={(event) => {
-            event.target.style.display = 'none';
-          }}
-        />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center text-xl font-bold text-brand-600">
-          {book.title.charAt(0)}
-        </div>
-      )}
-    </div>
-    <div className="min-w-0 flex-1">
-      <h3 className="truncate text-sm font-semibold text-brand-950">{book.title}</h3>
-      {book.title_en && <p className="truncate text-xs text-brand-500">{book.title_en}</p>}
-      <p className="mt-1 text-xs text-gray-500">{book.author}</p>
-      <div className="mt-3">
-        <div className="mb-1 flex justify-between text-xs text-gray-400">
-          <span>{isRw ? 'Aho ugeze' : 'Progress'}</span>
-          <span>{book.progress}%</span>
-        </div>
-        <div className="h-1.5 rounded-full bg-brand-100">
-          <div className="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-600" style={{ width: `${book.progress}%` }} />
-        </div>
-      </div>
-    </div>
-  </motion.button>
-);
-
-const Shelf = ({ shelf, isRw, language }) => {
-  const englishDownloads = shelf.books.filter((book) => book.language === 'en' && book.download_url);
-
-  return (
-    <section className="rounded-3xl border border-brand-100 bg-white p-5 shadow-soft">
-      <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-        <div>
-          <div className="mb-2 flex items-center gap-2">
-            <span className="text-xl">{shelf.category.icon}</span>
-            <h3 className="text-lg font-semibold text-brand-950">{getCategoryLabel(shelf.category.id, language)}</h3>
-          </div>
-          <p className="text-sm text-gray-500">
-            {isRw
-              ? '3 ibitabo by\'Icyongereza n\'igitabo 1 cy\'Ikinyarwanda muri iki cyiciro.'
-              : '3 English ebooks plus 1 Kinyarwanda reader edition in this category.'}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {englishDownloads.map((book) => (
-            <a
-              key={book.id}
-              href={book.download_url}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 rounded-full border border-brand-200 px-3 py-1.5 text-xs font-medium text-brand-700 transition-colors hover:border-brand-500 hover:bg-brand-50"
-            >
-              <FiDownload size={12} />
-              {book.title}
-            </a>
-          ))}
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        {shelf.books.map((book, index) => (
-          <BookCard key={book.id} book={book} index={index} />
-        ))}
-      </div>
-    </section>
-  );
-};
 
 export default function Dashboard() {
   const { user, language } = useApp();
@@ -162,36 +82,18 @@ export default function Dashboard() {
     statsService.get().then((data) => data && setStats((prev) => ({ ...prev, ...data }))).catch(() => {});
   }, []);
 
-  const categoryShelves = useMemo(() => {
-    return CATEGORIES
-      .map((category) => {
-        const categoryBooks = books.filter((book) => book.category === category.id);
-        if (!categoryBooks.length) {
-          return null;
-        }
-
-        const english = categoryBooks.filter((book) => book.language === 'en').slice(0, 3);
-        const featuredRw =
-          categoryBooks.find((book) => book.language === 'rw' || (book.available_languages || []).includes('rw')) || null;
-
-        return {
-          category,
-          books: [...english, ...(featuredRw ? [featuredRw] : [])].slice(0, 4),
-        };
-      })
-      .filter(Boolean);
+  const categoryCounts = useMemo(() => {
+    const counts = {};
+    CATEGORIES.forEach((cat) => {
+      counts[cat.id] = books.filter((book) => book.category === cat.id).length;
+    });
+    return counts;
   }, [books]);
 
-  const inProgress = useMemo(
-    () => books.filter((book) => book.progress > 0 && book.progress < 100).slice(0, 3),
-    [books]
-  );
-  const featuredRwBooks = useMemo(() => books.filter((book) => book.language === 'rw').slice(0, 7), [books]);
   const featuredAudioBook = useMemo(
-    () => featuredRwBooks[0] || recommended[0] || books.find((book) => book.hasAudio) || null,
-    [books, featuredRwBooks, recommended]
+    () => recommended[0] || books.find((book) => book.hasAudio) || null,
+    [books, recommended]
   );
-  const recommendedBooks = recommended.length ? recommended.slice(0, 6) : books.slice(0, 6);
   const weeklyMax = Math.max(...stats.weeklyReadingMinutes, 1);
   const weeklyAverage = Math.round(
     stats.weeklyReadingMinutes.reduce((sum, value) => sum + value, 0) / Math.max(stats.weeklyReadingMinutes.length, 1)
@@ -341,50 +243,21 @@ export default function Dashboard() {
           </div>
         </motion.section>
 
-        {inProgress.length > 0 && (
-          <section>
-            <SectionHeader
-              title={isRw ? 'Komeza aho wageze' : 'Continue reading'}
-              subtitle={isRw ? 'Aha ni ho ibikorwa byawe nyabyo byo gusoma biri.' : 'This section is driven by your real reading activity.'}
-              actionTo="/search"
-              actionLabel={isRw ? 'Reba byinshi' : 'See more'}
-            />
-            <div className="grid gap-4 lg:grid-cols-3">
-              {inProgress.map((book) => (
-                <ContinueCard key={book.id} book={book} onOpen={(id) => navigate(`/read/${id}`)} isRw={isRw} />
-              ))}
-            </div>
-          </section>
-        )}
-
         <section>
           <SectionHeader
-            title={isRw ? 'Ibitabo by\'Ikinyarwanda byatoranyijwe' : 'Featured Kinyarwanda reader editions'}
-            subtitle={
-              isRw
-                ? 'Iki ni igitabo 1 cy\'Ikinyarwanda muri buri cyiciro, gifite na English view igihe kiboneka.'
-                : 'These are the Kinyarwanda-first reader editions, one featured title per category with English view available.'
-            }
-            actionTo="/search?lang=rw"
-            actionLabel={isRw ? 'Fungura byose' : 'Open all'}
-          />
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-7">
-            {featuredRwBooks.map((book, index) => (
-              <BookCard key={book.id} book={book} index={index} />
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <SectionHeader
-            title={isRw ? 'Byagenewe wowe' : 'Recommended for you'}
-            subtitle={isRw ? 'Byatoranyijwe hashingiwe ku isomwa ryawe n\'ibyiciro ukunda.' : 'Ranked from your reading activity and category interest.'}
+            title={isRw ? 'Ivugururira mu Byiciro' : 'Browse by Category'}
+            subtitle={isRw ? 'Gushyiraho ibyiciro byose kandi guhitamo ibyihiga byawe.' : 'Explore all categories and find books that interest you.'}
             actionTo="/search"
-            actionLabel={isRw ? 'Shakisha' : 'Browse'}
+            actionLabel={isRw ? 'Shakisha' : 'Advanced search'}
           />
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
-            {recommendedBooks.map((book, index) => (
-              <BookCard key={book.id} book={book} index={index} />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {CATEGORIES.map((category) => (
+              <CategoryCard
+                key={category.id}
+                category={category}
+                bookCount={categoryCounts[category.id] || 0}
+                language={language}
+              />
             ))}
           </div>
         </section>
@@ -462,124 +335,88 @@ export default function Dashboard() {
           </div>
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-          <div className="rounded-3xl border border-brand-100 bg-white p-6 shadow-soft">
-            <SectionHeader
-              title={isRw ? 'Voice books ushobora kumva ubu' : 'Voice books ready now'}
-              subtitle={
-                isRw
-                  ? 'Izi ni books zifite audio playback nyayo muri browser, kandi ziri muri dashboard.'
-                  : 'These dashboard books are immediately playable with live browser voice narration.'
-              }
-              actionTo="/search?hasAudio=true"
-              actionLabel={isRw ? 'Reba zose' : 'See all'}
-            />
-            <div className="space-y-3">
-              {books
-                .filter((book) => book.hasAudio)
-                .slice(0, 4)
-                .map((book, index) => (
-                  <BookCard key={book.id} book={book} index={index} layout="list" />
-                ))}
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-brand-100 bg-white p-6 shadow-soft">
-            <SectionHeader
-              title={isRw ? 'Kwakira ijwi mu gihe nyacyo' : 'Live voice recognition'}
-              subtitle={
-                isRw
-                  ? 'Vuga mu Cyongereza cyangwa mu Kinyarwanda, dashboard ikwereke ibyo wavuze kandi ibibike muri analytics.'
-                  : 'Speak in English or Kinyarwanda and the dashboard will show what you said and log it into analytics.'
-              }
-            />
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <button
-                onClick={() => startVoiceCapture('en')}
-                className={`rounded-2xl border px-4 py-4 text-left transition-all ${
-                  voiceState.listening && voiceState.mode === 'en'
-                    ? 'border-brand-600 bg-brand-600 text-white'
-                    : 'border-brand-200 bg-brand-50 text-brand-900 hover:border-brand-500'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <FiMic size={16} />
-                  <span className="font-semibold">{isRw ? 'Vuga Icyongereza' : 'Speak English'}</span>
-                </div>
-                <p className={`mt-2 text-xs ${voiceState.listening && voiceState.mode === 'en' ? 'text-white/80' : 'text-gray-500'}`}>
-                  {isRw ? 'Recognition mode: en-US' : 'Recognition mode: en-US'}
-                </p>
-              </button>
-              <button
-                onClick={() => startVoiceCapture('rw')}
-                className={`rounded-2xl border px-4 py-4 text-left transition-all ${
-                  voiceState.listening && voiceState.mode === 'rw'
-                    ? 'border-brand-600 bg-brand-600 text-white'
-                    : 'border-brand-200 bg-brand-50 text-brand-900 hover:border-brand-500'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <FiMic size={16} />
-                  <span className="font-semibold">{isRw ? 'Vuga Ikinyarwanda' : 'Speak Kinyarwanda'}</span>
-                </div>
-                <p className={`mt-2 text-xs ${voiceState.listening && voiceState.mode === 'rw' ? 'text-white/80' : 'text-gray-500'}`}>
-                  {isRw ? 'Recognition mode: rw-RW' : 'Recognition mode: rw-RW'}
-                </p>
-              </button>
-            </div>
-
-            <div className="mt-5 rounded-2xl bg-brand-50 p-4">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-brand-500">
-                    {voiceState.listening
-                      ? isRw
-                        ? 'Turatega amatwi'
-                        : 'Listening now'
-                      : isRw
-                      ? 'Ibisohoka'
-                      : 'Transcript'}
-                  </p>
-                  <p className="mt-2 text-sm font-medium text-brand-950">
-                    {voiceState.transcript || voiceState.interim || (isRw ? 'Vuga ubu kugira ngo tubyandike hano.' : 'Start speaking and your words will appear here.')}
-                  </p>
-                </div>
-                <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-brand-600">
-                  {labelForLanguage(voiceState.detectedLanguage, language)}
-                </div>
-              </div>
-
-              {voiceState.error && <p className="mt-3 text-xs text-red-500">{voiceState.error}</p>}
-
-              {(voiceState.transcript || voiceState.interim) && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <button
-                    onClick={() => navigate(`/search?q=${encodeURIComponent(voiceState.transcript || voiceState.interim)}`)}
-                    className="btn-primary flex items-center gap-2 text-xs"
-                  >
-                    <FiSearch size={12} />
-                    {isRw ? 'Shakisha ibyo wavuze' : 'Search what you said'}
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-
-        <section className="space-y-6">
+        <section className="rounded-3xl border border-brand-100 bg-white p-6 shadow-soft">
           <SectionHeader
-            title={isRw ? 'Amashelufu y\'ibyiciro' : 'Category shelves'}
+            title={isRw ? 'Kwakira ijwi mu gihe nyacyo' : 'Live voice recognition'}
             subtitle={
               isRw
-                ? 'Buri shelf igizwe na ebooks 3 z\'Icyongereza zifite source links hamwe n\'igitabo 1 cy\'Ikinyarwanda.'
-                : 'Every shelf combines 3 English ebooks with source downloads and 1 Kinyarwanda title.'
+                ? 'Vuga mu Cyongereza cyangwa mu Kinyarwanda, dashboard ikwereke ibyo wavuze kandi ibibike muri analytics.'
+                : 'Speak in English or Kinyarwanda and the dashboard will show what you said and log it into analytics.'
             }
           />
-          {categoryShelves.map((shelf) => (
-            <Shelf key={shelf.category.id} shelf={shelf} isRw={isRw} language={language} />
-          ))}
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button
+              onClick={() => startVoiceCapture('en')}
+              className={`rounded-2xl border px-4 py-4 text-left transition-all ${
+                voiceState.listening && voiceState.mode === 'en'
+                  ? 'border-brand-600 bg-brand-600 text-white'
+                  : 'border-brand-200 bg-brand-50 text-brand-900 hover:border-brand-500'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <FiMic size={16} />
+                <span className="font-semibold">{isRw ? 'Vuga Icyongereza' : 'Speak English'}</span>
+              </div>
+              <p className={`mt-2 text-xs ${voiceState.listening && voiceState.mode === 'en' ? 'text-white/80' : 'text-gray-500'}`}>
+                {isRw ? 'Recognition mode: en-US' : 'Recognition mode: en-US'}
+              </p>
+            </button>
+            <button
+              onClick={() => startVoiceCapture('rw')}
+              className={`rounded-2xl border px-4 py-4 text-left transition-all ${
+                voiceState.listening && voiceState.mode === 'rw'
+                  ? 'border-brand-600 bg-brand-600 text-white'
+                  : 'border-brand-200 bg-brand-50 text-brand-900 hover:border-brand-500'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <FiMic size={16} />
+                <span className="font-semibold">{isRw ? 'Vuga Ikinyarwanda' : 'Speak Kinyarwanda'}</span>
+              </div>
+              <p className={`mt-2 text-xs ${voiceState.listening && voiceState.mode === 'rw' ? 'text-white/80' : 'text-gray-500'}`}>
+                {isRw ? 'Recognition mode: rw-RW' : 'Recognition mode: rw-RW'}
+              </p>
+            </button>
+          </div>
+
+          <div className="mt-5 rounded-2xl bg-brand-50 p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-brand-500">
+                  {voiceState.listening
+                    ? isRw
+                      ? 'Turatega amatwi'
+                      : 'Listening now'
+                    : isRw
+                    ? 'Ibisohoka'
+                    : 'Transcript'}
+                </p>
+                <p className="mt-2 text-sm font-medium text-brand-950">
+                  {voiceState.transcript || voiceState.interim || (isRw ? 'Vuga ubu kugira ngo tubyandike hano.' : 'Start speaking and your words will appear here.')}
+                </p>
+              </div>
+              <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-brand-600">
+                {labelForLanguage(voiceState.detectedLanguage, language)}
+              </div>
+            </div>
+
+            {voiceState.error && <p className="mt-3 text-xs text-red-500">{voiceState.error}</p>}
+
+            {(voiceState.transcript || voiceState.interim) && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  onClick={() => navigate(`/search?q=${encodeURIComponent(voiceState.transcript || voiceState.interim)}`)}
+                  className="btn-primary flex items-center gap-2 text-xs"
+                >
+                  <FiSearch size={12} />
+                  {isRw ? 'Shakisha ibyo wavuze' : 'Search what you said'}
+                </button>
+              </div>
+            )}
+          </div>
         </section>
+
       </div>
     </MainLayout>
   );
