@@ -31,16 +31,17 @@ const parseConnectionUrl = (value) => {
 
 const resolveConnectionConfig = () => {
   const fromUrl =
+    parseConnectionUrl(config.database.url) ||
     parseConnectionUrl(process.env.DATABASE_URL) ||
     parseConnectionUrl(process.env.MYSQL_URL) ||
     parseConnectionUrl(process.env.MYSQL_PUBLIC_URL);
 
   return {
-    host: config.database.host || fromUrl?.host || '127.0.0.1',
-    port: Number(config.database.port || fromUrl?.port || 3306),
-    user: config.database.user || fromUrl?.user || 'root',
-    password: config.database.password || fromUrl?.password || '',
-    database: config.database.name || fromUrl?.database || 'multilingual_library',
+    host: fromUrl?.host || config.database.host || '127.0.0.1',
+    port: Number(fromUrl?.port || config.database.port || 3306),
+    user: fromUrl?.user || config.database.user || 'root',
+    password: fromUrl?.password || config.database.password || '',
+    database: fromUrl?.database || config.database.name || 'multilingual_library',
     waitForConnections: true,
     connectionLimit: Number(process.env.DB_CONNECTION_LIMIT || 10),
     queueLimit: 0,

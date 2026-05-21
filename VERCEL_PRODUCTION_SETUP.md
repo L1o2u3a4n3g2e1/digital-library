@@ -52,6 +52,18 @@ DB_SSL=true
 DB_SSL_REJECT_UNAUTHORIZED=false
 ```
 
+### Aiven for MySQL
+
+For Aiven, use this shape:
+
+```env
+DATABASE_URL=mysql://USER:PASSWORD@HOST:PORT/DATABASE?ssl-mode=REQUIRED
+DB_SSL=true
+DB_SSL_REJECT_UNAUTHORIZED=false
+```
+
+This has already been validated successfully against the live app runtime.
+
 ### Real email delivery
 
 ```env
