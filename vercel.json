@@ -1,8 +1,4 @@
 {
-  "installCommand": "cd digital-library-main/digital_library/frontend && npm install",
-  "buildCommand": "cd digital-library-main/digital_library/frontend && CI=false npm run build",
-  "outputDirectory": "digital-library-main/digital_library/frontend/build",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "installCommand": "npm install && npm --prefix digital-library-main/digital_library/frontend install",
+  "buildCommand": "node scripts/build-frontend.mjs"
 }

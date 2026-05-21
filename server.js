@@ -1,35 +1,17 @@
-import express from 'express';
-import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import 'dotenv/config';
+import app from './api-lib/app.js';
+import config from './api-lib/config.js';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const isExecutedDirectly =
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+if (isExecutedDirectly) {
+  app.listen(config.port, () => {
+    console.log(`Digital Library server listening on http://localhost:${config.port}`);
+  });
+}
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Routes
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Digital Library API is running' });
-});
-
-// Serve frontend
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ error: 'Not found' });
-});
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running at http://localhost:${PORT}`);
-});
+export default app;

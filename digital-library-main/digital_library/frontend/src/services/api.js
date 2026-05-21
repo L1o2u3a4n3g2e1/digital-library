@@ -15,15 +15,18 @@ const resolveApiBaseUrl = () => {
   }
 
   if (typeof window !== 'undefined') {
-    const { hostname, origin } = window.location;
+    const { hostname, origin, port } = window.location;
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return 'http://localhost/digital-library/backend/api';
+      if (port === '3000') {
+        return 'http://localhost:3001/api';
+      }
+      return `${origin}/api`;
     }
 
     return `${origin}/api`;
   }
 
-  return 'http://localhost/digital-library/backend/api';
+  return 'http://localhost:3001/api';
 };
 
 const API_BASE_URL = resolveApiBaseUrl();

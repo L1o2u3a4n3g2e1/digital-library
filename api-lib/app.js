@@ -1,0 +1,371 @@
+import express from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import multer from 'multer';
+import path from 'node:path';
+import fs from 'node:fs';
+import config from './config.js';
+import { getPool, initializeDatabase } from './db.js';
+import UserRepository from './repositories/userRepository.js';
+import TokenService from './services/tokenService.js';
+import EmailService from './services/emailService.js';
+import SmsService from './services/smsService.js';
+import AuthService from './services/authService.js';
+import LibraryService from './services/libraryService.js';
+
+const sendSuccess = (response, data = null, message = 'Success', statusCode = 200) => {
+  response.status(statusCode).json({ success: true, message, data });
+};
+
+const sendError = (response, message = 'Error', statusCode = 400, errors = null) => {
+  response.status(statusCode).json({ success: false, message, errors });
+};
+
+const sendValidationError = (response, errors) => {
+  response.status(422).json({ success: false, message: 'Validation failed', errors });
+};
+
+const resolveToken = (request) => {
+  const authHeader = request.headers.authorization || '';
+  if (authHeader.startsWith('Bearer ')) {
+    return authHeader.slice(7);
+  }
+  return request.cookies?.ml_auth_token || null;
+};
+
+const buildServices = () => {
+  const pool = getPool();
+  const userRepository = new UserRepository(pool);
+  const tokenService = new TokenService();
+  const emailService = new EmailService(userRepository);
+  const smsService = new SmsService(userRepository);
+  const authService = new AuthService({ userRepository, emailService, tokenService, smsService });
+  const libraryService = new LibraryService(pool);
+
+  return { pool, userRepository, tokenService, emailService, smsService, authService, libraryService };
+};
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: config.maxUploadSize },
+});
+
+const publicDir = path.join(process.cwd(), 'public');
+const indexHtmlPath = path.join(publicDir, 'index.html');
+const schemaReady = initializeDatabase();
+const services = buildServices();
+
+const app = express();
+app.disable('x-powered-by');
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || config.allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(null, false);
+    },
+    credentials: true,
+  })
+);
+app.use(cookieParser());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(publicDir));
+
+app.use(async (request, response, next) => {
+  try {
+    await schemaReady;
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get('/api/health', async (_request, response) => {
+  const [rows] = await services.pool.query('SELECT 1 AS ok');
+  sendSuccess(response, { status: 'ok', database: rows[0]?.ok === 1 ? 'connected' : 'unknown' }, 'Digital Library API is running');
+});
+
+app.post('/api/auth/register', async (request, response) => {
+  const { name = '', email = '', password = '', phone = null } = request.body || {};
+  const errors = {};
+  if (!String(name).trim()) errors.name = 'Name is required';
+  if (!String(email).trim()) errors.email = 'Email is required';
+  if (!String(password)) errors.password = 'Password is required';
+  if (String(password).length > 0 && String(password).length < 6) errors.password = 'Password must be at least 6 characters';
+  if (Object.keys(errors).length) return sendValidationError(response, errors);
+
+  const result = await services.authService.register(String(name).trim(), String(email).trim(), String(password), phone ? String(phone).trim() : null);
+  return result.success ? sendSuccess(response, result.data, result.message, 201) : sendError(response, result.message, 400, { code: result.code || null });
+});
+
+app.post('/api/auth/register-guest', async (request, response) => {
+  const phone = String(request.body?.phone || '').trim();
+  if (!phone) return sendValidationError(response, { phone: 'Phone number is required' });
+  const result = await services.authService.registerGuest(phone);
+  return result.success ? sendSuccess(response, result.data, result.message, 201) : sendError(response, result.message, 400, { code: result.code || null });
+});
+
+app.post('/api/auth/verify-guest-phone', async (request, response) => {
+  const phone = String(request.body?.phone || '').trim();
+  const code = String(request.body?.code || '').trim();
+  const errors = {};
+  if (!phone) errors.phone = 'Phone number is required';
+  if (!code) errors.code = 'Verification code is required';
+  if (Object.keys(errors).length) return sendValidationError(response, errors);
+  const result = await services.authService.verifyGuestPhone(phone, code, response);
+  return result.success ? sendSuccess(response, result.data, result.message) : sendError(response, result.message, result.code === 'USER_NOT_FOUND' ? 404 : 400, { code: result.code || null });
+});
+
+app.post('/api/auth/verify-email', async (request, response) => {
+  const email = String(request.body?.email || '').trim();
+  const code = String(request.body?.code || '').trim();
+  const errors = {};
+  if (!email) errors.email = 'Email is required';
+  if (!code) errors.code = 'Verification code is required';
+  if (Object.keys(errors).length) return sendValidationError(response, errors);
+  const result = await services.authService.verifyEmail(email, code, response);
+  return result.success ? sendSuccess(response, result.data, result.message) : sendError(response, result.message, result.code === 'USER_NOT_FOUND' ? 404 : 400, { code: result.code || null });
+});
+
+app.post('/api/auth/login', async (request, response) => {
+  const email = String(request.body?.email || '').trim();
+  const password = String(request.body?.password || '');
+  const rememberMe = Boolean(request.body?.remember_me);
+  const errors = {};
+  if (!email) errors.email = 'Email is required';
+  if (!password) errors.password = 'Password is required';
+  if (Object.keys(errors).length) return sendValidationError(response, errors);
+  const result = await services.authService.login(email, password, rememberMe, response);
+  return result.success ? sendSuccess(response, result.data, result.message) : sendError(response, result.message, 401, { code: result.code || null });
+});
+
+app.get('/api/auth/me', async (request, response) => {
+  const token = resolveToken(request);
+  if (!token) return sendError(response, 'Unauthorized - Token required', 401, { code: 'NO_TOKEN' });
+  const result = await services.authService.getCurrentUser(token);
+  return result.success ? sendSuccess(response, result.data, 'User retrieved') : sendError(response, result.message, 401, { code: result.code || null });
+});
+
+app.post('/api/auth/resend-verification', async (request, response) => {
+  const email = String(request.body?.email || '').trim();
+  if (!email) return sendValidationError(response, { email: 'Email is required' });
+  const result = await services.authService.resendVerification(email);
+  return result.success ? sendSuccess(response, result.data, result.message) : sendError(response, result.message, result.code === 'USER_NOT_FOUND' ? 404 : 400, { code: result.code || null });
+});
+
+app.post('/api/auth/resend-guest-verification', async (request, response) => {
+  const phone = String(request.body?.phone || '').trim();
+  if (!phone) return sendValidationError(response, { phone: 'Phone number is required' });
+  const result = await services.authService.resendGuestVerification(phone);
+  return result.success ? sendSuccess(response, result.data, result.message) : sendError(response, result.message, result.code === 'USER_NOT_FOUND' ? 404 : 400, { code: result.code || null });
+});
+
+app.post('/api/auth/logout', async (request, response) => {
+  const result = await services.authService.logout(resolveToken(request), response);
+  return sendSuccess(response, result.data, result.message);
+});
+
+app.post('/api/auth/forgot-password', async (request, response) => {
+  const email = String(request.body?.email || '').trim();
+  if (!email) return sendValidationError(response, { email: 'Email is required' });
+  const result = await services.authService.requestPasswordReset(email);
+  return result.success ? sendSuccess(response, result.data || {}, result.message) : sendError(response, result.message, 400, { code: result.code || null });
+});
+
+app.post('/api/auth/reset-password', async (request, response) => {
+  const email = String(request.body?.email || '').trim();
+  const resetCode = String(request.body?.reset_code || '').trim();
+  const newPassword = String(request.body?.new_password || '');
+  const errors = {};
+  if (!email) errors.email = 'Email is required';
+  if (!resetCode) errors.reset_code = 'Reset code is required';
+  if (!newPassword) errors.new_password = 'New password is required';
+  if (newPassword && newPassword.length < 6) errors.new_password = 'Password must be at least 6 characters';
+  if (Object.keys(errors).length) return sendValidationError(response, errors);
+  const result = await services.authService.resetPassword(email, resetCode, newPassword);
+  return result.success ? sendSuccess(response, {}, result.message) : sendError(response, result.message, result.code === 'USER_NOT_FOUND' ? 404 : 400, { code: result.code || null });
+});
+
+app.get('/api/books', async (request, response) => {
+  const token = resolveToken(request);
+  const userResult = token ? await services.authService.getCurrentUser(token) : null;
+  const preferredLanguage = request.headers['x-app-language'] || request.query.language || null;
+  const books = await services.libraryService.listBooks(userResult?.success ? userResult.data.id : null, preferredLanguage);
+  return sendSuccess(response, books);
+});
+
+app.get('/api/books/search', async (request, response) => {
+  const token = resolveToken(request);
+  const userResult = token ? await services.authService.getCurrentUser(token) : null;
+  const userId = userResult?.success ? userResult.data.id : null;
+  const query = String(request.query.q || '').trim();
+  if (query) {
+    await services.libraryService.recordSearch(userId, query, request.query.lang || request.headers['x-app-language'] || null);
+  }
+  const books = await services.libraryService.searchBooks(request.query, userId, request.headers['x-app-language'] || request.query.language || null);
+  return sendSuccess(response, books);
+});
+
+app.get('/api/books/recommended', async (request, response) => {
+  const token = resolveToken(request);
+  const userResult = token ? await services.authService.getCurrentUser(token) : null;
+  const books = await services.libraryService.recommendedBooks(userResult?.success ? userResult.data.id : null, request.headers['x-app-language'] || null);
+  return sendSuccess(response, books);
+});
+
+app.get('/api/books/:id', async (request, response) => {
+  const token = resolveToken(request);
+  const userResult = token ? await services.authService.getCurrentUser(token) : null;
+  const userId = userResult?.success ? userResult.data.id : null;
+  const book = await services.libraryService.getBook(request.params.id, userId);
+  if (!book) return sendError(response, 'Book not found', 404);
+  await services.libraryService.recordBookView(userId, book);
+  return sendSuccess(response, book);
+});
+
+app.post('/api/upload/book', upload.single('file'), async (request, response) => {
+  if (!request.file) return sendValidationError(response, { file: 'Book file is required' });
+  const extension = path.extname(request.file.originalname).toLowerCase();
+  if (!['.pdf', '.txt'].includes(extension)) {
+    return sendValidationError(response, { file: 'Only PDF and TXT files are supported' });
+  }
+
+  const token = resolveToken(request);
+  const userResult = token ? await services.authService.getCurrentUser(token) : null;
+  const createdBook = await services.libraryService.createUploadedBook({
+    file: request.file,
+    body: request.body || {},
+    currentUserId: userResult?.success ? userResult.data.id : null,
+  });
+
+  return sendSuccess(response, createdBook, 'Book uploaded successfully', 201);
+});
+
+app.post('/api/upload/cover', upload.single('file'), async (request, response) => {
+  if (!request.file) return sendValidationError(response, { file: 'Cover image is required' });
+  const extension = path.extname(request.file.originalname).toLowerCase();
+  if (!['.jpg', '.jpeg', '.png', '.webp'].includes(extension)) {
+    return sendValidationError(response, { file: 'Only JPG, PNG, and WEBP images are supported' });
+  }
+
+  const dataUrl = `data:${request.file.mimetype};base64,${request.file.buffer.toString('base64')}`;
+  return sendSuccess(response, { path: dataUrl, size: request.file.size }, 'Cover uploaded successfully', 201);
+});
+
+app.post('/api/translate', async (request, response) => {
+  const { text = '', from = 'en', to = 'rw', bookId = null } = request.body || {};
+  if (!String(text).trim()) return sendValidationError(response, { text: 'Text is required' });
+  const translated = await services.libraryService.translateText(String(text), String(from), String(to), bookId);
+  const token = resolveToken(request);
+  const userResult = token ? await services.authService.getCurrentUser(token) : null;
+  const book = bookId ? await services.libraryService.getBook(bookId, userResult?.success ? userResult.data.id : null) : null;
+  await services.libraryService.recordTranslation(userResult?.success ? userResult.data.id : null, request.body || {}, book);
+  return sendSuccess(response, { translated, from, to });
+});
+
+app.get('/api/translate/languages', (_request, response) => {
+  return sendSuccess(response, [
+    { code: 'en', label: 'English' },
+    { code: 'rw', label: 'Kinyarwanda' },
+  ]);
+});
+
+app.post('/api/audio/generate', async (request, response) => {
+  const book = await services.libraryService.getBook(request.body?.bookId);
+  return sendSuccess(
+    response,
+    {
+      book_id: request.body?.bookId,
+      language: request.body?.lang || book?.language || 'en',
+      status: 'browser_speech_ready',
+    },
+    'Audio ready for browser playback'
+  );
+});
+
+app.get('/api/audio/:bookId', async (request, response) => {
+  const token = resolveToken(request);
+  const userResult = token ? await services.authService.getCurrentUser(token) : null;
+  const book = await services.libraryService.getBook(request.params.bookId, userResult?.success ? userResult.data.id : null);
+  if (!book) return sendError(response, 'Book not found', 404);
+  return sendSuccess(response, {
+    book_id: request.params.bookId,
+    status: 'browser_speech_ready',
+    text: book.content?.[book.language] || Object.values(book.content || {})[0] || null,
+  });
+});
+
+app.get('/api/stats', async (request, response) => {
+  const token = resolveToken(request);
+  const userResult = token ? await services.authService.getCurrentUser(token) : null;
+  const stats = await services.libraryService.getStats(userResult?.success ? userResult.data.id : null);
+  return sendSuccess(response, stats);
+});
+
+app.post('/api/stats/read', async (request, response) => {
+  const token = resolveToken(request);
+  const userResult = token ? await services.authService.getCurrentUser(token) : null;
+  if (!userResult?.success) return sendError(response, 'Unauthorized', 401);
+  const book = await services.libraryService.getBook(request.body?.bookId, userResult.data.id);
+  const metrics = await services.libraryService.recordRead(userResult.data.id, request.body || {}, book);
+  return sendSuccess(response, { book_id: request.body?.bookId, metrics }, 'Reading activity recorded');
+});
+
+app.post('/api/stats/audio', async (request, response) => {
+  const token = resolveToken(request);
+  const userResult = token ? await services.authService.getCurrentUser(token) : null;
+  if (!userResult?.success) return sendError(response, 'Unauthorized', 401);
+  const book = await services.libraryService.getBook(request.body?.bookId, userResult.data.id);
+  await services.libraryService.recordAudio(userResult.data.id, request.body || {}, book);
+  return sendSuccess(response, {}, 'Audio activity recorded');
+});
+
+app.post('/api/stats/voice', async (request, response) => {
+  const token = resolveToken(request);
+  const userResult = token ? await services.authService.getCurrentUser(token) : null;
+  if (!userResult?.success) return sendError(response, 'Unauthorized', 401);
+  const detectedLanguage = request.body?.detected_language || services.libraryService.detectLanguage(request.body?.text || '');
+  const payload = { ...(request.body || {}), detected_language: detectedLanguage };
+  await services.libraryService.recordVoice(userResult.data.id, payload);
+  return sendSuccess(response, { detected_language: detectedLanguage, text: String(request.body?.text || '').trim() }, 'Voice activity recorded');
+});
+
+app.get('*', (request, response, next) => {
+  if (request.path.startsWith('/api')) {
+    return next();
+  }
+
+  if (fs.existsSync(indexHtmlPath)) {
+    return response.sendFile(indexHtmlPath);
+  }
+
+  return response.status(503).send('Frontend build not found. Run the frontend build before serving the app.');
+});
+
+app.use((request, response) => {
+  if (request.path.startsWith('/api')) {
+    return sendError(response, 'Not found', 404);
+  }
+
+  if (fs.existsSync(indexHtmlPath)) {
+    return response.sendFile(indexHtmlPath);
+  }
+
+  return response.status(404).send('Not found');
+});
+
+app.use((error, _request, response, _next) => {
+  console.error(error);
+
+  if (error instanceof multer.MulterError) {
+    return sendError(response, error.message, 400);
+  }
+
+  return sendError(response, error.message || 'Internal server error', 500);
+});
+
+export default app;

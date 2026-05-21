@@ -47,6 +47,10 @@ export const FONT_SIZES = [
   { value: 'xl', label: 'XL', size: '1.4rem' },
 ];
 
-export const API_BASE = process.env.REACT_APP_API_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
-  ? window.location.origin
-  : 'http://localhost/digital-library/backend');
+export const API_BASE = process.env.REACT_APP_API_URL || (
+  typeof window !== 'undefined'
+    ? ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? (window.location.port === '3000' ? 'http://localhost:3001' : window.location.origin)
+        : window.location.origin)
+    : 'http://localhost:3001'
+);
