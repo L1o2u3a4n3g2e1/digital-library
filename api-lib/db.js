@@ -1,3 +1,4 @@
+import { neon } from '@neondatabase/serverless';
 import pg from 'pg';
 import config from './config.js';
 import { ensureSchema } from './schema.js';
@@ -89,6 +90,55 @@ class PostgresPoolAdapter {
   }
 }
 
+class NeonHttpAdapter {
+  constructor(connectionString) {
+    this.connectionString = connectionString;
+    this.client = neon(connectionString);
+  }
+
+  async query(sql, params = []) {
+    const result = await this.client(convertPlaceholders(sql), params);
+    const isSelect = /^\s*(select|with)\b/i.test(sql);
+
+    if (isSelect) {
+      return [result, { rows: result, rowCount: Array.isArray(result) ? result.length : 0 }];
+    }
+
+    return [
+      {
+        affectedRows: Array.isArray(result) ? result.length : 0,
+        rowCount: Array.isArray(result) ? result.length : 0,
+        insertId: null,
+      },
+      { rows: result, rowCount: Array.isArray(result) ? result.length : 0 },
+    ];
+  }
+
+  async execute(sql, params = []) {
+    const wantsInsertId = /^\s*insert\b/i.test(sql) && !/\breturning\b/i.test(sql);
+    const text = wantsInsertId ? `${convertPlaceholders(sql)} RETURNING id` : convertPlaceholders(sql);
+    const result = await this.client(text, params);
+    const isSelect = /^\s*(select|with)\b/i.test(sql);
+
+    if (isSelect) {
+      return [result, { rows: result, rowCount: Array.isArray(result) ? result.length : 0 }];
+    }
+
+    return [
+      {
+        affectedRows: Array.isArray(result) ? result.length : 0,
+        rowCount: Array.isArray(result) ? result.length : 0,
+        insertId: result?.[0]?.id ?? null,
+      },
+      { rows: result, rowCount: Array.isArray(result) ? result.length : 0 },
+    ];
+  }
+
+  async end() {
+    return undefined;
+  }
+}
+
 const resolveConnectionConfig = () => {
   const fromUrl =
     parseConnectionUrl(config.database.url) ||
@@ -113,11 +163,19 @@ const resolveConnectionConfig = () => {
   };
 };
 
+const shouldUseNeonHttp = () =>
+  Boolean(
+    config.database.url &&
+      /(?:^postgres(?:ql)?:\/\/).*?(?:neon\.tech|aws\.neon\.tech)/i.test(config.database.url)
+  );
+
 export const getDatabaseState = () => ({ ...databaseState });
 
 export const getPool = () => {
   if (!pool) {
-    pool = new PostgresPoolAdapter(new Pool(resolveConnectionConfig()));
+    pool = shouldUseNeonHttp()
+      ? new NeonHttpAdapter(config.database.url)
+      : new PostgresPoolAdapter(new Pool(resolveConnectionConfig()));
   }
 
   return pool;
