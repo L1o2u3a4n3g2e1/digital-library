@@ -1,4 +1,8 @@
 {
   "installCommand": "npm install && npm --prefix digital-library-main/digital_library/frontend install",
-  "buildCommand": "node scripts/build-frontend.mjs"
+  "buildCommand": "node scripts/build-frontend.mjs",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
