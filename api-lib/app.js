@@ -56,7 +56,7 @@ const buildRuntimeReadiness = () => {
     sms: {
       required: true,
       ready: Boolean(config.sms.configured),
-      reason: config.sms.configured ? null : 'Missing Africa\'s Talking credentials or SMS_PROVIDER=africastalking',
+      reason: config.sms.configured ? null : 'Missing live SMS provider credentials',
     },
     jwt: {
       required: true,

@@ -43,11 +43,17 @@ const databaseConfigured = Boolean(
 const emailConfigured = Boolean(process.env.MAIL_HOST && process.env.MAIL_USERNAME && process.env.MAIL_PASSWORD);
 const smsConfigured = Boolean(
   (
-    (process.env.SMS_PROVIDER || '').toLowerCase() === 'africastalking' ||
-    (process.env.SMS_MODE || '').toLowerCase() === 'live'
-  ) &&
-    (process.env.AT_USERNAME || process.env.SMS_USERNAME) &&
-    (process.env.AT_API_KEY || process.env.SMS_API_KEY)
+    (
+      (process.env.SMS_PROVIDER || '').toLowerCase() === 'africastalking' ||
+      (process.env.SMS_MODE || '').toLowerCase() === 'live'
+    ) &&
+      (process.env.AT_USERNAME || process.env.SMS_USERNAME) &&
+      (process.env.AT_API_KEY || process.env.SMS_API_KEY)
+  ) ||
+  (
+    (process.env.SMS_PROVIDER || '').toLowerCase() === 'smsgateway' &&
+      Boolean(process.env.SMSGATEWAY_API_KEY)
+  )
 );
 const jwtConfigured = Boolean(process.env.JWT_SECRET && process.env.JWT_SECRET !== defaultJwtSecret);
 
@@ -110,6 +116,8 @@ const config = {
     username: process.env.AT_USERNAME || process.env.SMS_USERNAME || '',
     apiKey: process.env.AT_API_KEY || process.env.SMS_API_KEY || '',
     senderId: process.env.AT_SENDER_ID || process.env.SMS_SENDER_ID || '',
+    smsgatewayApiKey: process.env.SMSGATEWAY_API_KEY || '',
+    smsgatewayDeviceId: process.env.SMSGATEWAY_DEVICE_ID || '',
     configured: smsConfigured,
   },
 };
