@@ -5,7 +5,7 @@ import multer from 'multer';
 import path from 'node:path';
 import fs from 'node:fs';
 import config from './config.js';
-import { getPool, initializeDatabase, getDatabaseState } from './db.js';
+import { getDatabaseState, getPool, initializeDatabase } from './db.js';
 import UserRepository from './repositories/userRepository.js';
 import TokenService from './services/tokenService.js';
 import EmailService from './services/emailService.js';
@@ -33,6 +33,42 @@ const resolveToken = (request) => {
     return authHeader.slice(7);
   }
   return request.cookies?.ml_auth_token || null;
+};
+
+const buildRuntimeReadiness = () => {
+  const databaseState = getDatabaseState();
+  const checks = {
+    database: {
+      required: true,
+      ready: databaseState.mode === 'database',
+      reason:
+        databaseState.mode === 'database'
+          ? null
+          : config.database.configured
+            ? databaseState.error || databaseState.lastError?.message || 'Database connection failed'
+            : 'Missing DATABASE_URL or PGHOST/PGUSER/PGPASSWORD/PGDATABASE',
+    },
+    email: {
+      required: true,
+      ready: Boolean(config.mail.configured),
+      reason: config.mail.configured ? null : 'Missing MAIL_HOST, MAIL_USERNAME, or MAIL_PASSWORD',
+    },
+    sms: {
+      required: true,
+      ready: Boolean(config.sms.configured),
+      reason: config.sms.configured ? null : 'Missing Africa\'s Talking credentials or SMS_PROVIDER=africastalking',
+    },
+    jwt: {
+      required: true,
+      ready: Boolean(config.jwtConfigured),
+      reason: config.jwtConfigured ? null : 'JWT_SECRET is still using the default placeholder',
+    },
+  };
+
+  return {
+    ready: Object.values(checks).every((check) => check.ready || !check.required),
+    checks,
+  };
 };
 
 const buildServices = () => {
@@ -72,42 +108,6 @@ const getCurrentUserResult = async (request) => {
 
   const authService = resolveAuthService();
   return authService.getCurrentUser(token);
-};
-
-const buildRuntimeReadiness = () => {
-  const databaseState = getDatabaseState();
-  const checks = {
-    database: {
-      required: true,
-      ready: databaseState.mode === 'database',
-      reason:
-        databaseState.mode === 'database'
-          ? null
-          : config.database.configured
-            ? databaseState.error || 'Database connection failed'
-            : 'Missing DATABASE_URL or MYSQLHOST/MYSQLUSER/MYSQLPASSWORD/MYSQLDATABASE',
-    },
-    email: {
-      required: true,
-      ready: Boolean(config.mail.configured),
-      reason: config.mail.configured ? null : 'Missing MAIL_HOST, MAIL_USERNAME, or MAIL_PASSWORD',
-    },
-    sms: {
-      required: true,
-      ready: Boolean(config.sms.configured),
-      reason: config.sms.configured ? null : 'Missing Africa\'s Talking credentials or SMS_PROVIDER=africastalking',
-    },
-    jwt: {
-      required: true,
-      ready: Boolean(config.jwtConfigured),
-      reason: config.jwtConfigured ? null : 'JWT_SECRET is still using the default placeholder',
-    },
-  };
-
-  return {
-    ready: Object.values(checks).every((check) => check.ready || !check.required),
-    checks,
-  };
 };
 
 const app = express();

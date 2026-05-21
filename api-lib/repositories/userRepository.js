@@ -101,10 +101,11 @@ export default class UserRepository {
     await this.pool.execute(
       `INSERT INTO notification_preferences (user_id, email_notifications, sms_notifications, notification_frequency)
        VALUES (?, 1, 0, 'instant')
-       ON DUPLICATE KEY UPDATE
-         email_notifications = VALUES(email_notifications),
-         sms_notifications = VALUES(sms_notifications),
-         notification_frequency = VALUES(notification_frequency)`,
+       ON CONFLICT (user_id) DO UPDATE SET
+         email_notifications = EXCLUDED.email_notifications,
+         sms_notifications = EXCLUDED.sms_notifications,
+         notification_frequency = EXCLUDED.notification_frequency,
+         updated_at = NOW()`,
       [userId]
     );
 

@@ -20,21 +20,35 @@ const parseNumber = (value, fallback) => {
 };
 
 const configuredAppUrl = process.env.APP_URL || '';
+const configuredDatabaseUrl =
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.POSTGRES_PRISMA_URL ||
+  process.env.POSTGRES_URL_NON_POOLING ||
+  process.env.MYSQL_URL ||
+  process.env.MYSQL_PUBLIC_URL ||
+  '';
 const defaultPort = parseNumber(process.env.PORT, 3001);
-const configuredDatabaseUrl = process.env.DATABASE_URL || process.env.MYSQL_URL || process.env.MYSQL_PUBLIC_URL || '';
+const defaultJwtSecret = 'change-this-secret-before-production';
+
 const databaseConfigured = Boolean(
   configuredDatabaseUrl ||
-    ((process.env.MYSQLHOST || process.env.DB_HOST) &&
-      (process.env.MYSQLUSER || process.env.DB_USER) &&
-      (process.env.MYSQLDATABASE || process.env.DB_NAME))
+    (
+      (process.env.PGHOST || process.env.POSTGRES_HOST || process.env.MYSQLHOST || process.env.DB_HOST) &&
+      (process.env.PGUSER || process.env.POSTGRES_USER || process.env.MYSQLUSER || process.env.DB_USER) &&
+      (process.env.PGDATABASE || process.env.POSTGRES_DATABASE || process.env.MYSQLDATABASE || process.env.DB_NAME)
+    )
 );
+
 const emailConfigured = Boolean(process.env.MAIL_HOST && process.env.MAIL_USERNAME && process.env.MAIL_PASSWORD);
 const smsConfigured = Boolean(
-  (process.env.SMS_PROVIDER || '').toLowerCase() === 'africastalking' &&
+  (
+    (process.env.SMS_PROVIDER || '').toLowerCase() === 'africastalking' ||
+    (process.env.SMS_MODE || '').toLowerCase() === 'live'
+  ) &&
     (process.env.AT_USERNAME || process.env.SMS_USERNAME) &&
     (process.env.AT_API_KEY || process.env.SMS_API_KEY)
 );
-const defaultJwtSecret = 'change-this-secret-before-production';
 const jwtConfigured = Boolean(process.env.JWT_SECRET && process.env.JWT_SECRET !== defaultJwtSecret);
 
 const config = {
@@ -47,7 +61,7 @@ const config = {
     configuredAppUrl ||
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${defaultPort}`),
   port: defaultPort,
-  jwtSecret: process.env.JWT_SECRET || 'change-this-secret-before-production',
+  jwtSecret: process.env.JWT_SECRET || defaultJwtSecret,
   jwtExpiry: process.env.JWT_EXPIRY || '7d',
   jwtConfigured,
   defaultJwtSecret,
@@ -55,15 +69,16 @@ const config = {
   verificationCodeExpirySeconds: parseNumber(process.env.VERIFICATION_CODE_EXPIRY, 900),
   maxUploadSize: parseNumber(process.env.MAX_UPLOAD_SIZE, 50 * 1024 * 1024),
   logLevel: process.env.LOG_LEVEL || 'info',
+  databaseConfigured,
   database: {
     url: configuredDatabaseUrl,
-    host: process.env.MYSQLHOST || process.env.DB_HOST || '',
-    port: parseNumber(process.env.MYSQLPORT || process.env.DB_PORT, 3306),
-    user: process.env.MYSQLUSER || process.env.DB_USER || '',
-    password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || '',
-    name: process.env.MYSQLDATABASE || process.env.DB_NAME || '',
+    host: process.env.PGHOST || process.env.POSTGRES_HOST || process.env.MYSQLHOST || process.env.DB_HOST || '',
+    port: parseNumber(process.env.PGPORT || process.env.POSTGRES_PORT || process.env.MYSQLPORT || process.env.DB_PORT, 5432),
+    user: process.env.PGUSER || process.env.POSTGRES_USER || process.env.MYSQLUSER || process.env.DB_USER || '',
+    password: process.env.PGPASSWORD || process.env.POSTGRES_PASSWORD || process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || '',
+    name: process.env.PGDATABASE || process.env.POSTGRES_DATABASE || process.env.MYSQLDATABASE || process.env.DB_NAME || '',
     configured: databaseConfigured,
-    ssl: parseBoolean(process.env.DB_SSL || process.env.MYSQL_SSL, false),
+    ssl: parseBoolean(process.env.DB_SSL ?? process.env.POSTGRES_SSL ?? process.env.MYSQL_SSL, false),
     sslRejectUnauthorized: parseBoolean(process.env.DB_SSL_REJECT_UNAUTHORIZED, false),
   },
   allowedOrigins: Array.from(
