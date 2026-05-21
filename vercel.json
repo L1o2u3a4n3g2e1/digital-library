@@ -1,8 +1,10 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "npm install && npm --prefix digital-library-main/digital_library/frontend install",
   "buildCommand": "node scripts/build-frontend.mjs",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/api", "destination": "https://spotty-lamps-know.loca.lt/api" },
+    { "source": "/api/:path*", "destination": "https://spotty-lamps-know.loca.lt/api/:path*" },
+    { "source": "/:path*", "destination": "/index.html" }
   ]
 }
