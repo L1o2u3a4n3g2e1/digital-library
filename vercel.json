@@ -2,9 +2,9 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "npm install && npm --prefix digital-library-main/digital_library/frontend install",
   "buildCommand": "node scripts/build-frontend.mjs",
+  "outputDirectory": "public",
   "rewrites": [
-    { "source": "/api", "destination": "https://3b9720871da77a.lhr.life/api" },
-    { "source": "/api/:path*", "destination": "https://3b9720871da77a.lhr.life/api/:path*" },
-    { "source": "/:path*", "destination": "/index.html" }
+    { "source": "/api/:path*", "destination": "/api" },
+    { "source": "/:path((?!.*\\.(?:json|jpg|jpeg|png|gif|css|js|woff|woff2)).*)", "destination": "/index.html" }
   ]
 }
