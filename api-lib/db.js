@@ -97,7 +97,7 @@ class NeonHttpAdapter {
   }
 
   async query(sql, params = []) {
-    const result = await this.client(convertPlaceholders(sql), params);
+    const result = await this.client.query(convertPlaceholders(sql), params);
     const isSelect = /^\s*(select|with)\b/i.test(sql);
 
     if (isSelect) {
@@ -117,7 +117,7 @@ class NeonHttpAdapter {
   async execute(sql, params = []) {
     const wantsInsertId = /^\s*insert\b/i.test(sql) && !/\breturning\b/i.test(sql);
     const text = wantsInsertId ? `${convertPlaceholders(sql)} RETURNING id` : convertPlaceholders(sql);
-    const result = await this.client(text, params);
+    const result = await this.client.query(text, params);
     const isSelect = /^\s*(select|with)\b/i.test(sql);
 
     if (isSelect) {
