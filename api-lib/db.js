@@ -1,9 +1,14 @@
 import mysql from 'mysql2/promise';
 import config from './config.js';
 import { ensureSchema } from './schema.js';
+import MockPool from './mockDb.js';
 
 let pool;
 let schemaPromise;
+let databaseState = {
+  mode: 'database',
+  error: null,
+};
 
 const parseConnectionUrl = (value) => {
   if (!value) {
@@ -51,16 +56,25 @@ export const getPool = () => {
   return pool;
 };
 
+export const getDatabaseState = () => ({ ...databaseState });
+
 export const initializeDatabase = async () => {
   const currentPool = getPool();
 
   if (!schemaPromise) {
-    schemaPromise = ensureSchema(currentPool, config).catch((error) => {
-      schemaPromise = null;
-      throw error;
-    });
+    schemaPromise = ensureSchema(currentPool, config)
+      .then(() => {
+        databaseState = { mode: 'database', error: null };
+        return currentPool;
+      })
+      .catch((error) => {
+        console.warn('Database connection failed, using demo mode:', error.message);
+        pool = new MockPool();
+        databaseState = { mode: 'demo', error: error.message };
+        return pool;
+      });
   }
 
   await schemaPromise;
-  return currentPool;
+  return pool;
 };

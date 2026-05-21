@@ -52,6 +52,7 @@ export default function Login() {
       if (response.success) {
         localStorage.setItem('ml_guest_phone', response.data.phone || clean);
         localStorage.setItem('ml_guest_delivery', response.data.sms_delivery || '');
+        localStorage.setItem('ml_guest_verification_code', response.data.verification_code || '');
         navigate('/verify-phone', { state: { phone: response.data.phone || clean } });
       }
     } catch (err) {
@@ -90,7 +91,7 @@ export default function Login() {
             <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-500" size={16} />
             <input type={showPw ? 'text' : 'password'} value={form.password}
               onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
-              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" className="input-field pl-10 pr-10" required />
+              placeholder="••••••••" className="input-field pl-10 pr-10" required />
             <button type="button" onClick={() => setShowPw(v => !v)}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-600 transition-colors">
               {showPw ? <FiEyeOff size={15} /> : <FiEye size={15} />}
@@ -126,7 +127,7 @@ export default function Login() {
           <p className="text-xs text-gray-500">{t('demoHint')}</p>
         </div>
 
-        {/* â”€â”€ Continue as Guest â”€â”€ */}
+        {/* Continue as guest */}
         <div className="relative flex items-center gap-3 py-1">
           <div className="flex-1 h-px bg-brand-100" />
           <span className="text-xs text-gray-400 font-medium">{t('orDivider')}</span>
@@ -181,3 +182,4 @@ export default function Login() {
     </AuthLayout>
   );
 }
+

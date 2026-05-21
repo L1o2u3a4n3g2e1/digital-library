@@ -14,6 +14,7 @@ export default function VerifyGuestPhone() {
   const { t } = useTranslation(language);
   const phone = location.state?.phone || localStorage.getItem('ml_guest_phone') || '';
   const [deliveryMode, setDeliveryMode] = useState(() => localStorage.getItem('ml_guest_delivery') || '');
+  const [devCode, setDevCode] = useState(() => localStorage.getItem('ml_guest_verification_code') || '');
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
@@ -32,6 +33,7 @@ export default function VerifyGuestPhone() {
         login(response.data.user, response.data.token);
         localStorage.removeItem('ml_guest_phone');
         localStorage.removeItem('ml_guest_delivery');
+        localStorage.removeItem('ml_guest_verification_code');
         navigate('/dashboard');
       }
     } catch (err) {
@@ -55,7 +57,9 @@ export default function VerifyGuestPhone() {
       const response = await authService.resendGuestVerification(phone);
       if (response.success) {
         localStorage.setItem('ml_guest_delivery', response.data?.sms_delivery || '');
+        localStorage.setItem('ml_guest_verification_code', response.data?.verification_code || '');
         setDeliveryMode(response.data?.sms_delivery || '');
+        setDevCode(response.data?.verification_code || '');
         setSuccess(response.message || t('guestCodeResent'));
       }
     } catch (err) {
@@ -84,6 +88,15 @@ export default function VerifyGuestPhone() {
             {language === 'rw'
               ? 'Kohereza SMS nyayo ntibiratangira kuri iyi server. Ubutumwa bwa verification burimo gukinwa gusa muri development.'
               : 'Real SMS delivery is not configured on this server yet. The verification message is only being simulated in development.'}
+          </div>
+        )}
+
+        {devCode && (deliveryMode === 'simulated' || deliveryMode === 'unconfigured' || deliveryMode === 'demo') && (
+          <div className="rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-900">
+            <p className="font-semibold">
+              {language === 'rw' ? 'Kode ya verification yo muri demo' : 'Demo verification code'}
+            </p>
+            <p className="mt-2 font-mono text-lg tracking-[0.35em]">{devCode}</p>
           </div>
         )}
 
