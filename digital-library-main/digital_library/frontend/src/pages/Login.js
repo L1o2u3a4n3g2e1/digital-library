@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight, FiPhone } from 'react-icons/fi';
+import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight, FiPhone, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 import AuthLayout from '../layouts/AuthLayout';
 import { useApp } from '../context/AppContext';
 import { useTranslation } from '../utils/translations';
-import { authService } from '../services/api';
+import { authService, systemService } from '../services/api';
 
 export default function Login() {
   const { login, language } = useApp();
@@ -20,6 +20,29 @@ export default function Login() {
   const [guestPhone, setGuestPhone] = useState('');
   const [guestLoading, setGuestLoading] = useState(false);
   const [guestError, setGuestError] = useState('');
+  const [deploymentStatus, setDeploymentStatus] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadStatus = async () => {
+      try {
+        const response = await systemService.readiness();
+        if (active) {
+          setDeploymentStatus(response);
+        }
+      } catch {
+        if (active) {
+          setDeploymentStatus(null);
+        }
+      }
+    };
+
+    loadStatus();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -122,9 +145,36 @@ export default function Login() {
           )}
         </motion.button>
 
-        {/* Demo hint */}
-        <div className="bg-brand-50 rounded-2xl px-4 py-3 text-center">
-          <p className="text-xs text-gray-500">{t('demoHint')}</p>
+        <div className={`rounded-2xl border px-4 py-3 ${deploymentStatus?.production_ready ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50'}`}>
+          <div className="flex items-start gap-2">
+            {deploymentStatus?.production_ready ? (
+              <FiCheckCircle className="mt-0.5 text-green-600" size={15} />
+            ) : (
+              <FiAlertCircle className="mt-0.5 text-amber-700" size={15} />
+            )}
+            <div className="text-left">
+              <p className={`text-xs font-semibold ${deploymentStatus?.production_ready ? 'text-green-800' : 'text-amber-900'}`}>
+                {deploymentStatus?.production_ready
+                  ? (language === 'rw' ? 'Urubuga ruri muri production nyayo' : 'This deployment is in real production mode')
+                  : (language === 'rw' ? 'Urubuga ruracyakora nka demo' : 'This deployment is still running in demo mode')}
+              </p>
+              <p className={`mt-1 text-xs ${deploymentStatus?.production_ready ? 'text-green-700' : 'text-amber-800'}`}>
+                {deploymentStatus?.production_ready
+                  ? (language === 'rw'
+                    ? "Ububiko bw'amakuru n'izindi services z'ingenzi byashyizweho."
+                    : 'The database and core delivery services are configured.')
+                  : (language === 'rw'
+                    ? 'Hari settings za production zitarashyirwa muri Vercel. Reba deployment status kugira ngo ubone ibisigaye.'
+                    : 'Some production settings are still missing in Vercel. Open deployment status to see exactly what is left.')}
+              </p>
+              <Link
+                to="/deployment-status"
+                className={`mt-2 inline-flex text-xs font-semibold ${deploymentStatus?.production_ready ? 'text-green-700 hover:text-green-800' : 'text-amber-800 hover:text-amber-900'}`}
+              >
+                {language === 'rw' ? 'Reba deployment status' : 'View deployment status'}
+              </Link>
+            </div>
+          </div>
         </div>
 
         {/* Continue as guest */}

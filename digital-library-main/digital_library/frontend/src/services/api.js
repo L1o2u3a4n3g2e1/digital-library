@@ -121,4 +121,9 @@ export const statsService = {
     unwrap(http.post('/stats/voice', { text, detected_language: detectedLanguage })),
 };
 
+export const systemService = {
+  health: () => unwrap(http.get('/health')),
+  readiness: () => unwrap(http.get('/health/ready')),
+};
+
 export default http;

@@ -9,6 +9,7 @@ import VerifyEmail from './pages/VerifyEmail';
 import VerifyGuestPhone from './pages/VerifyGuestPhone';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import DeploymentStatus from './pages/DeploymentStatus';
 import Dashboard from './pages/Dashboard';
 import SearchBooks from './pages/SearchBooks';
 import UploadBook from './pages/UploadBook';
@@ -42,6 +43,7 @@ function AppRoutes() {
       <Route path="/verify-phone" element={<PublicRoute><VerifyGuestPhone /></PublicRoute>} />
       <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
       <Route path="/reset-password" element={<PublicRoute><ResetPassword /></PublicRoute>} />
+      <Route path="/deployment-status" element={<DeploymentStatus />} />
 
       {/* Protected */}
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
