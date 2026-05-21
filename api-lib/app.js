@@ -74,6 +74,42 @@ const getCurrentUserResult = async (request) => {
   return authService.getCurrentUser(token);
 };
 
+const buildRuntimeReadiness = () => {
+  const databaseState = getDatabaseState();
+  const checks = {
+    database: {
+      required: true,
+      ready: databaseState.mode === 'database',
+      reason:
+        databaseState.mode === 'database'
+          ? null
+          : config.database.configured
+            ? databaseState.error || 'Database connection failed'
+            : 'Missing DATABASE_URL or MYSQLHOST/MYSQLUSER/MYSQLPASSWORD/MYSQLDATABASE',
+    },
+    email: {
+      required: true,
+      ready: Boolean(config.mail.configured),
+      reason: config.mail.configured ? null : 'Missing MAIL_HOST, MAIL_USERNAME, or MAIL_PASSWORD',
+    },
+    sms: {
+      required: true,
+      ready: Boolean(config.sms.configured),
+      reason: config.sms.configured ? null : 'Missing Africa\'s Talking credentials or SMS_PROVIDER=africastalking',
+    },
+    jwt: {
+      required: true,
+      ready: Boolean(config.jwtConfigured),
+      reason: config.jwtConfigured ? null : 'JWT_SECRET is still using the default placeholder',
+    },
+  };
+
+  return {
+    ready: Object.values(checks).every((check) => check.ready || !check.required),
+    checks,
+  };
+};
+
 const app = express();
 app.disable('x-powered-by');
 
@@ -105,17 +141,49 @@ app.use(async (request, response, next) => {
 
 app.get('/api/health', async (_request, response) => {
   const databaseState = getDatabaseState();
+  const readiness = buildRuntimeReadiness();
   if (databaseState.mode === 'demo') {
     sendSuccess(
       response,
-      { status: 'ok', database: 'disconnected', mode: 'demo', message: databaseState.error || 'Running in demo mode' },
+      {
+        status: 'ok',
+        database: 'disconnected',
+        mode: 'demo',
+        message: databaseState.error || 'Running in demo mode',
+        production_ready: readiness.ready,
+        readiness: readiness.checks,
+      },
       'Digital Library API is running'
     );
     return;
   }
 
   const [rows] = await services.pool.query('SELECT 1 AS ok');
-  sendSuccess(response, { status: 'ok', database: rows[0]?.ok === 1 ? 'connected' : 'unknown', mode: 'database' }, 'Digital Library API is running');
+  sendSuccess(
+    response,
+    {
+      status: 'ok',
+      database: rows[0]?.ok === 1 ? 'connected' : 'unknown',
+      mode: 'database',
+      production_ready: readiness.ready,
+      readiness: readiness.checks,
+    },
+    'Digital Library API is running'
+  );
+});
+
+app.get('/api/health/ready', (_request, response) => {
+  const readiness = buildRuntimeReadiness();
+  sendSuccess(
+    response,
+    {
+      app_env: config.appEnv,
+      production_ready: readiness.ready,
+      mode: isDemoMode() ? 'demo' : 'database',
+      checks: readiness.checks,
+    },
+    readiness.ready ? 'Production dependencies are configured' : 'Production dependencies are incomplete'
+  );
 });
 
 app.post('/api/auth/register', async (request, response) => {

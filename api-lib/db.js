@@ -36,15 +36,16 @@ const resolveConnectionConfig = () => {
     parseConnectionUrl(process.env.MYSQL_PUBLIC_URL);
 
   return {
-    host: process.env.MYSQLHOST || process.env.DB_HOST || fromUrl?.host || '127.0.0.1',
-    port: Number(process.env.MYSQLPORT || process.env.DB_PORT || fromUrl?.port || 3306),
-    user: process.env.MYSQLUSER || process.env.DB_USER || fromUrl?.user || 'root',
-    password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || fromUrl?.password || '',
-    database: process.env.MYSQLDATABASE || process.env.DB_NAME || fromUrl?.database || 'multilingual_library',
+    host: config.database.host || fromUrl?.host || '127.0.0.1',
+    port: Number(config.database.port || fromUrl?.port || 3306),
+    user: config.database.user || fromUrl?.user || 'root',
+    password: config.database.password || fromUrl?.password || '',
+    database: config.database.name || fromUrl?.database || 'multilingual_library',
     waitForConnections: true,
     connectionLimit: Number(process.env.DB_CONNECTION_LIMIT || 10),
     queueLimit: 0,
     charset: 'utf8mb4',
+    ssl: config.database.ssl ? { rejectUnauthorized: config.database.sslRejectUnauthorized } : undefined,
   };
 };
 
@@ -59,6 +60,16 @@ export const getPool = () => {
 export const getDatabaseState = () => ({ ...databaseState });
 
 export const initializeDatabase = async () => {
+  if ((config.isProduction || process.env.VERCEL) && !config.database.configured) {
+    pool = new MockPool();
+    databaseState = {
+      mode: 'demo',
+      error: 'Database environment variables are not configured',
+    };
+    schemaPromise = Promise.resolve(pool);
+    return pool;
+  }
+
   const currentPool = getPool();
 
   if (!schemaPromise) {
