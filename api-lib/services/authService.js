@@ -21,6 +21,10 @@ export default class AuthService {
     return !config.isProduction;
   }
 
+  normalizeEmail(email) {
+    return String(email || '').trim().toLowerCase();
+  }
+
   normalizePhone(phone) {
     const trimmed = String(phone || '').trim();
     const digits = trimmed.replace(/\D+/g, '');
@@ -146,11 +150,12 @@ export default class AuthService {
   }
 
   async register(name, email, password, phone = null) {
+    const normalizedEmail = this.normalizeEmail(email);
     if (!name || !email || !password) {
       return { success: false, message: 'Name, email, and password are required', code: 'MISSING_FIELDS' };
     }
 
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
+    if (!/^\S+@\S+\.\S+$/.test(normalizedEmail)) {
       return { success: false, message: 'Invalid email format', code: 'INVALID_EMAIL' };
     }
 
@@ -158,14 +163,14 @@ export default class AuthService {
       return { success: false, message: 'Password must be at least 6 characters', code: 'WEAK_PASSWORD' };
     }
 
-    if (await this.userRepository.emailExists(email)) {
+    if (await this.userRepository.emailExists(normalizedEmail)) {
       return { success: false, message: 'Email already registered', code: 'EMAIL_EXISTS' };
     }
 
-    const createResult = await this.userRepository.createUser(name, email, password, phone);
+    const createResult = await this.userRepository.createUser(name, normalizedEmail, password, phone);
     const userId = createResult.user_id;
-    const verificationResult = await this.issueVerificationCode(userId, email, name);
-    await this.userRepository.logActivity(userId, 'registration', { email });
+    const verificationResult = await this.issueVerificationCode(userId, normalizedEmail, name);
+    await this.userRepository.logActivity(userId, 'registration', { email: normalizedEmail });
 
     return {
       success: true,
@@ -174,7 +179,7 @@ export default class AuthService {
         : 'Registration successful. Email delivery failed, but the verification code is available for development testing.',
       data: {
         user_id: userId,
-        email,
+        email: normalizedEmail,
         ...verificationResult.payload,
       },
     };
@@ -267,11 +272,12 @@ export default class AuthService {
   }
 
   async verifyEmail(email, code, response) {
+    const normalizedEmail = this.normalizeEmail(email);
     if (!email || !code) {
       return { success: false, message: 'Email and verification code required', code: 'MISSING_FIELDS' };
     }
 
-    const user = await this.userRepository.getUserByEmail(email);
+    const user = await this.userRepository.getUserByEmail(normalizedEmail);
     if (!user) {
       return { success: false, message: 'User not found', code: 'USER_NOT_FOUND' };
     }
@@ -286,8 +292,8 @@ export default class AuthService {
     }
 
     await this.userRepository.createNotificationPreferences(user.id);
-    await this.emailService.sendWelcomeEmail(user.id, email, user.full_name);
-    const token = this.tokenService.generateToken(user.id, email, user.role || 'client');
+    await this.emailService.sendWelcomeEmail(user.id, normalizedEmail, user.full_name);
+    const token = this.tokenService.generateToken(user.id, normalizedEmail, user.role || 'client');
     this.setAuthCookie(response, token);
     await this.userRepository.logActivity(user.id, 'email_verified');
     const freshUser = await this.userRepository.getUserById(user.id);
@@ -303,11 +309,12 @@ export default class AuthService {
   }
 
   async login(email, password, rememberMe, response) {
+    const normalizedEmail = this.normalizeEmail(email);
     if (!email || !password) {
       return { success: false, message: 'Email and password required', code: 'MISSING_FIELDS' };
     }
 
-    const user = await this.userRepository.getUserByEmail(email);
+    const user = await this.userRepository.getUserByEmail(normalizedEmail);
     if (!user) {
       return { success: false, message: 'Invalid email or password', code: 'INVALID_CREDENTIALS' };
     }
@@ -322,7 +329,7 @@ export default class AuthService {
     }
 
     await this.userRepository.updateLastLogin(user.id);
-    const token = this.tokenService.generateToken(user.id, email, user.role || 'client');
+    const token = this.tokenService.generateToken(user.id, normalizedEmail, user.role || 'client');
     this.setAuthCookie(response, token, rememberMe ? 30 : 7);
     await this.userRepository.logActivity(user.id, 'login');
 
@@ -355,11 +362,12 @@ export default class AuthService {
   }
 
   async resendVerification(email) {
+    const normalizedEmail = this.normalizeEmail(email);
     if (!email) {
       return { success: false, message: 'Email is required', code: 'MISSING_EMAIL' };
     }
 
-    const user = await this.userRepository.getUserByEmail(email);
+    const user = await this.userRepository.getUserByEmail(normalizedEmail);
     if (!user) {
       return { success: false, message: 'User not found', code: 'USER_NOT_FOUND' };
     }
@@ -368,29 +376,30 @@ export default class AuthService {
       return { success: false, message: 'Email already verified', code: 'ALREADY_VERIFIED' };
     }
 
-    const verificationResult = await this.issueVerificationCode(user.id, email, user.full_name);
+    const verificationResult = await this.issueVerificationCode(user.id, normalizedEmail, user.full_name);
     return {
       success: true,
       message: verificationResult.email_sent
         ? 'Verification email sent'
         : 'Verification code regenerated. Email delivery failed, but the code is available for development testing.',
       data: {
-        email,
+        email: normalizedEmail,
         ...verificationResult.payload,
       },
     };
   }
 
   async requestPasswordReset(email) {
+    const normalizedEmail = this.normalizeEmail(email);
     if (!email) {
       return { success: false, message: 'Email is required', code: 'MISSING_EMAIL' };
     }
 
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
+    if (!/^\S+@\S+\.\S+$/.test(normalizedEmail)) {
       return { success: false, message: 'Invalid email format', code: 'INVALID_EMAIL' };
     }
 
-    const user = await this.userRepository.getUserByEmail(email);
+    const user = await this.userRepository.getUserByEmail(normalizedEmail);
     if (!user) {
       return {
         success: true,
@@ -402,11 +411,11 @@ export default class AuthService {
     const resetCode = this.tokenService.generateVerificationCode();
     const resetCodeExpiry = this.tokenService.getVerificationCodeExpiry(3600);
     await this.userRepository.setPasswordResetToken(user.id, resetCode, resetCodeExpiry);
-    const emailResult = await this.emailService.sendPasswordResetEmail(user.id, email, user.full_name, resetCode);
+    const emailResult = await this.emailService.sendPasswordResetEmail(user.id, normalizedEmail, user.full_name, resetCode);
     await this.userRepository.logActivity(user.id, 'password_reset_requested');
 
     const data = {
-      email,
+      email: normalizedEmail,
       email_sent: emailResult.success,
     };
 
@@ -424,6 +433,7 @@ export default class AuthService {
   }
 
   async resetPassword(email, resetCode, newPassword) {
+    const normalizedEmail = this.normalizeEmail(email);
     if (!email || !resetCode || !newPassword) {
       return { success: false, message: 'Email, reset code, and new password are required', code: 'MISSING_FIELDS' };
     }
@@ -432,7 +442,7 @@ export default class AuthService {
       return { success: false, message: 'Password must be at least 6 characters', code: 'WEAK_PASSWORD' };
     }
 
-    const user = await this.userRepository.getUserByEmail(email);
+    const user = await this.userRepository.getUserByEmail(normalizedEmail);
     if (!user) {
       return { success: false, message: 'User not found', code: 'USER_NOT_FOUND' };
     }

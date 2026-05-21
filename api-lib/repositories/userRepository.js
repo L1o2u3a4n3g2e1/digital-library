@@ -7,6 +7,7 @@ const toMysqlDateTime = (value = new Date()) =>
     .replace('T', ' ');
 
 const nowMysql = () => toMysqlDateTime();
+const normalizeEmail = (email) => String(email || '').trim().toLowerCase();
 
 export default class UserRepository {
   constructor(pool) {
@@ -14,11 +15,12 @@ export default class UserRepository {
   }
 
   async createUser(name, email, password, phone = null) {
+    const normalizedEmail = normalizeEmail(email);
     const hashedPassword = await bcrypt.hash(password, 10);
     const [result] = await this.pool.execute(
       `INSERT INTO users (full_name, email, password, phone_number, is_verified, is_guest, created_at)
        VALUES (?, ?, ?, ?, 0, 0, NOW())`,
-      [name, email, hashedPassword, phone]
+      [name, normalizedEmail, hashedPassword, phone]
     );
 
     return { success: true, user_id: result.insertId, message: 'User created successfully' };
@@ -35,12 +37,12 @@ export default class UserRepository {
   }
 
   async emailExists(email) {
-    const [rows] = await this.pool.execute('SELECT id FROM users WHERE email = ? LIMIT 1', [email]);
+    const [rows] = await this.pool.execute('SELECT id FROM users WHERE lower(email) = lower(?) LIMIT 1', [normalizeEmail(email)]);
     return rows.length > 0;
   }
 
   async getUserByEmail(email) {
-    const [rows] = await this.pool.execute('SELECT * FROM users WHERE email = ? LIMIT 1', [email]);
+    const [rows] = await this.pool.execute('SELECT * FROM users WHERE lower(email) = lower(?) LIMIT 1', [normalizeEmail(email)]);
     return rows[0] || null;
   }
 
