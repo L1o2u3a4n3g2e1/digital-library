@@ -74,22 +74,30 @@ export default function Navbar() {
             <Logo to={user ? '/dashboard' : '/'} iconSize={34} textSize="text-lg" />
           </div>
 
-          {/* Center: search */}
-          <div className="flex-1 max-w-md mx-4 hidden md:block">
-            <form onSubmit={handleSearch} className="relative">
-              <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-500" size={16} />
-              <input
-                ref={searchRef}
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder={t('search')}
-                className="input-field pl-10 pr-10 py-2.5 text-sm h-10"
-              />
-              <button type="button" onClick={startVoiceSearch}
-                className={`absolute right-3 top-1/2 -translate-y-1/2 text-brand-500 hover:text-brand-600 transition-colors ${listening ? 'animate-mic' : ''}`}>
-                <FiMic size={15} />
-              </button>
-            </form>
+          {/* Center: nav links + search */}
+          <div className="flex-1 flex items-center justify-center gap-2 mx-4">
+            {!user && (
+              <div className="hidden lg:flex gap-1">
+                <Link to="/about" className="text-sm font-medium text-brand-700 hover:text-brand-900 px-3 py-2 rounded-lg transition-colors">About</Link>
+                <Link to="/services" className="text-sm font-medium text-brand-700 hover:text-brand-900 px-3 py-2 rounded-lg transition-colors">Services</Link>
+              </div>
+            )}
+            <div className="max-w-md hidden md:block flex-1">
+              <form onSubmit={handleSearch} className="relative">
+                <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-500" size={16} />
+                <input
+                  ref={searchRef}
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder={t('search')}
+                  className="input-field pl-10 pr-10 py-2.5 text-sm h-10"
+                />
+                <button type="button" onClick={startVoiceSearch}
+                  className={`absolute right-3 top-1/2 -translate-y-1/2 text-brand-500 hover:text-brand-600 transition-colors ${listening ? 'animate-mic' : ''}`}>
+                  <FiMic size={15} />
+                </button>
+              </form>
+            </div>
           </div>
 
           {/* Right: actions */}
