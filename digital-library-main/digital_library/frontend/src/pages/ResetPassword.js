@@ -10,7 +10,7 @@ import { useTranslation } from '../utils/translations';
 export default function ResetPassword() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { language } = useApp();
+  const { language, logout } = useApp();
   const { t } = useTranslation(language);
   const initialEmail = searchParams.get('email') || localStorage.getItem('ml_reset_email') || '';
   const resetCode = searchParams.get('code') || '';
@@ -49,7 +49,8 @@ export default function ResetPassword() {
       if (response.success) {
         setSuccess(response.message || (language === 'rw' ? 'Ijambo ry\'ibanga ryahinduwe neza.' : 'Password reset successfully.'));
         localStorage.removeItem('ml_reset_email');
-        setTimeout(() => navigate('/login'), 1500);
+        await Promise.resolve(logout());
+        setTimeout(() => navigate('/login', { replace: true }), 1500);
       }
     } catch (err) {
       setError(err.message || (language === 'rw' ? 'Byanze guhindura ijambo ry\'ibanga.' : 'Failed to reset password.'));
