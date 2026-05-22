@@ -13,6 +13,7 @@ execSync('npm run build', {
   env: {
     ...process.env,
     CI: process.env.CI || 'false',
+    REACT_APP_API_URL: '',
   },
 });
 
