@@ -139,16 +139,6 @@ export const getPool = () => {
 export const getDatabaseState = () => ({ ...databaseState });
 
 export const initializeDatabase = async () => {
-  if ((config.isProduction || process.env.VERCEL) && !config.database.configured) {
-    pool = new MockPool();
-    databaseState = {
-      mode: 'demo',
-      error: 'Database environment variables are not configured',
-    };
-    schemaPromise = Promise.resolve(pool);
-    return pool;
-  }
-
   const currentPool = getPool();
 
   if (!schemaPromise) {
@@ -158,7 +148,7 @@ export const initializeDatabase = async () => {
         return currentPool;
       })
       .catch((error) => {
-        console.warn('Database connection failed, using demo mode:', error.message);
+        console.warn('Database connection failed, attempting demo mode as fallback:', error.message);
         pool = new MockPool();
         databaseState = { mode: 'demo', error: error.message };
         return pool;
