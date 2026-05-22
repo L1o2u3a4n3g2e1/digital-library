@@ -22,13 +22,22 @@ import './styles/globals.css';
 
 const ProtectedRoute = ({ children }) => {
   const { user, authReady } = useApp();
-  if (!authReady) return null;
+  if (!authReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-brand-50 px-6 text-center">
+        <div className="space-y-3">
+          <div className="mx-auto h-10 w-10 rounded-full border-4 border-brand-200 border-t-brand-600 animate-spin" />
+          <p className="text-sm text-brand-800">Loading your library...</p>
+        </div>
+      </div>
+    );
+  }
   return user ? children : <Navigate to="/login" replace />;
 };
 
 const PublicRoute = ({ children }) => {
   const { user, authReady } = useApp();
-  if (!authReady) return null;
+  if (!authReady) return children;
   return user ? <Navigate to="/dashboard" replace /> : children;
 };
 
