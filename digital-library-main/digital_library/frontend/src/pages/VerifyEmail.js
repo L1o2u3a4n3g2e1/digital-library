@@ -7,21 +7,56 @@ import { useApp } from '../context/AppContext';
 import { useTranslation } from '../utils/translations';
 import { authService } from '../services/api';
 
+const getStoredValue = (key, fallback = '') => {
+  try {
+    return localStorage.getItem(key) || fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+const setStoredValue = (key, value) => {
+  try {
+    if (value === undefined || value === null || value === '') {
+      localStorage.removeItem(key);
+    } else {
+      localStorage.setItem(key, value);
+    }
+  } catch {}
+};
+
+const formatExpiryLabel = (seconds, language) => {
+  const totalSeconds = Number(seconds || 0);
+  const minutes = Math.max(1, Math.round(totalSeconds / 60));
+
+  if (minutes % 60 === 0) {
+    const hours = minutes / 60;
+    return language === 'rw'
+      ? `Kode irarangira mu masaha ${hours}`
+      : `Code expires in ${hours} hour${hours === 1 ? '' : 's'}`;
+  }
+
+  return language === 'rw'
+    ? `Kode irarangira mu minota ${minutes}`
+    : `Code expires in ${minutes} minutes`;
+};
+
 export default function VerifyEmail() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, language } = useApp();
   const { t } = useTranslation(language);
 
-  const email = location.state?.email || localStorage.getItem('ml_pending_email') || '';
+  const email = location.state?.email || getStoredValue('ml_pending_email') || '';
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [success, setSuccess] = useState(false);
   const [resending, setResending] = useState(false);
-  const [devCode, setDevCode] = useState(() => localStorage.getItem('ml_pending_verification_code') || '');
-  const [deliveryStatus, setDeliveryStatus] = useState(() => localStorage.getItem('ml_pending_delivery') || '');
+  const [devCode, setDevCode] = useState(() => getStoredValue('ml_pending_verification_code'));
+  const [deliveryStatus, setDeliveryStatus] = useState(() => getStoredValue('ml_pending_delivery'));
+  const [expirySeconds, setExpirySeconds] = useState(() => Number(getStoredValue('ml_pending_verification_expiry_seconds', '3600')) || 3600);
 
   useEffect(() => {
     if (!email) {
@@ -30,12 +65,14 @@ export default function VerifyEmail() {
   }, [email, navigate]);
 
   const clearPendingVerificationState = () => {
-    localStorage.removeItem('ml_pending_email');
-    localStorage.removeItem('ml_pending_user');
-    localStorage.removeItem('ml_pending_verification_code');
-    localStorage.removeItem('ml_pending_delivery');
+    setStoredValue('ml_pending_email', '');
+    setStoredValue('ml_pending_user', '');
+    setStoredValue('ml_pending_verification_code', '');
+    setStoredValue('ml_pending_delivery', '');
+    setStoredValue('ml_pending_verification_expiry_seconds', '');
     setDevCode('');
     setDeliveryStatus('');
+    setExpirySeconds(3600);
   };
 
   const handleVerify = async (e) => {
@@ -75,21 +112,15 @@ export default function VerifyEmail() {
       if (response.success) {
         const nextCode = response.data?.verification_code || '';
         const nextDelivery = response.data?.email_delivery || '';
+        const nextExpirySeconds = Number(response.data?.verification_expires_in_seconds || 3600) || 3600;
 
-        if (nextCode) {
-          localStorage.setItem('ml_pending_verification_code', nextCode);
-        } else {
-          localStorage.removeItem('ml_pending_verification_code');
-        }
-
-        if (nextDelivery) {
-          localStorage.setItem('ml_pending_delivery', nextDelivery);
-        } else {
-          localStorage.removeItem('ml_pending_delivery');
-        }
+        setStoredValue('ml_pending_verification_code', nextCode);
+        setStoredValue('ml_pending_delivery', nextDelivery);
+        setStoredValue('ml_pending_verification_expiry_seconds', String(nextExpirySeconds));
 
         setDevCode(nextCode);
         setDeliveryStatus(nextDelivery);
+        setExpirySeconds(nextExpirySeconds);
         setNotice(response.message || (language === 'rw' ? 'Kode nshya yateguwe.' : 'A new verification code is ready.'));
       }
     } catch (err) {
@@ -173,7 +204,7 @@ export default function VerifyEmail() {
             />
           </div>
           <p className="text-xs text-gray-500 mt-1.5">
-            {t('codeExpiry') || (language === 'rw' ? 'Kode irarangira mu minota 15' : 'Code expires in 15 minutes')}
+            {formatExpiryLabel(expirySeconds, language)}
           </p>
         </div>
 

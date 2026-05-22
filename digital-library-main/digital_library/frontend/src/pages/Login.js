@@ -23,6 +23,7 @@ export default function Login() {
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [needsVerification, setNeedsVerification] = useState(false);
 
   const [guestPhone, setGuestPhone] = useState('');
   const [guestLoading, setGuestLoading] = useState(false);
@@ -42,6 +43,12 @@ export default function Login() {
         navigate('/dashboard');
       }
     } catch (err) {
+      const normalizedEmail = form.email.trim().toLowerCase();
+      const unverified = err.code === 'EMAIL_NOT_VERIFIED' || /verify your email/i.test(err.message || '');
+      setNeedsVerification(unverified);
+      if (unverified && normalizedEmail) {
+        setSafeLocalStorage('ml_pending_email', normalizedEmail);
+      }
       setError(err.message || t('invalidCredentials'));
     } finally {
       setLoading(false);
@@ -82,7 +89,19 @@ export default function Login() {
             animate={{ opacity: 1, y: 0 }}
             className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
           >
-            {error}
+            <div className="space-y-3">
+              <p>{error}</p>
+              {needsVerification && (
+                <button
+                  type="button"
+                  onClick={() => navigate('/verify-email', { state: { email: form.email.trim().toLowerCase() } })}
+                  className="inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-brand-700 ring-1 ring-brand-200 transition hover:bg-brand-50"
+                >
+                  {language === 'rw' ? 'Jya ku rupapuro rwo kwemeza email' : 'Go to email verification'}
+                  <FiArrowRight size={13} />
+                </button>
+              )}
+            </div>
           </motion.div>
         )}
 

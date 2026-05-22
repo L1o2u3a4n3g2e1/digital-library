@@ -76,7 +76,7 @@ const config = {
   jwtConfigured,
   defaultJwtSecret,
   verificationCodeLength: parseNumber(process.env.VERIFICATION_CODE_LENGTH, 6),
-  verificationCodeExpirySeconds: parseNumber(process.env.VERIFICATION_CODE_EXPIRY, 900),
+  verificationCodeExpirySeconds: Math.max(3600, parseNumber(process.env.VERIFICATION_CODE_EXPIRY, 3600)),
   maxUploadSize: parseNumber(process.env.MAX_UPLOAD_SIZE, 50 * 1024 * 1024),
   logLevel: process.env.LOG_LEVEL || 'info',
   databaseConfigured,

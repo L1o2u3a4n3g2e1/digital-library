@@ -37,6 +37,7 @@ export default function Register() {
       if (response.success) {
         localStorage.setItem('ml_pending_email', form.email);
         localStorage.setItem('ml_pending_user', JSON.stringify(response.data));
+        localStorage.setItem('ml_pending_verification_expiry_seconds', String(response.data?.verification_expires_in_seconds || 3600));
         if (response.data?.verification_code) {
           localStorage.setItem('ml_pending_verification_code', response.data.verification_code);
         } else {

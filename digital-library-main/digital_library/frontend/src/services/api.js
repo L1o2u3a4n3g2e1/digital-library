@@ -69,7 +69,10 @@ http.interceptors.response.use(
   (response) => response.data,
   (error) => {
     const message = error.response?.data?.message || error.message || 'Network error';
-    return Promise.reject(new Error(message));
+    const wrapped = new Error(message);
+    wrapped.code = error.response?.data?.errors?.code || error.response?.data?.code || null;
+    wrapped.status = error.response?.status || null;
+    return Promise.reject(wrapped);
   }
 );
 

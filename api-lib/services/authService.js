@@ -60,11 +60,12 @@ export default class AuthService {
     const payload = {
       next_step: 'verify_email',
       email_delivery: emailResult.success ? 'sent' : 'failed',
+      verification_expires_at: codeExpiry,
+      verification_expires_in_seconds: config.verificationCodeExpirySeconds,
     };
 
     if (this.isDevelopment()) {
       payload.verification_code = code;
-      payload.verification_expires_at = codeExpiry;
     }
 
     if (!emailResult.success) {
@@ -79,11 +80,12 @@ export default class AuthService {
       next_step: 'verify_phone',
       phone,
       sms_delivery: smsResult.delivery || (smsResult.success ? 'sent' : 'failed'),
+      verification_expires_at: codeExpiry,
+      verification_expires_in_seconds: config.verificationCodeExpirySeconds,
     };
 
     if (this.isDevelopment()) {
       payload.verification_code = code;
-      payload.verification_expires_at = codeExpiry;
     }
 
     if (!smsResult.success) {
