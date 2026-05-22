@@ -1,5 +1,18 @@
 import axios from 'axios';
 
+const getSafeLocalStorage = (key, fallback = null) => {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return fallback;
+    }
+
+    const value = window.localStorage.getItem(key);
+    return value ?? fallback;
+  } catch {
+    return fallback;
+  }
+};
+
 const resolveApiBaseUrl = () => {
   const configured = (process.env.REACT_APP_API_URL || '').trim();
 
@@ -40,8 +53,8 @@ const http = axios.create({
 const unwrap = (request) => request.then((response) => response?.data ?? response);
 
 http.interceptors.request.use((config) => {
-  const token = localStorage.getItem('ml_token');
-  const language = localStorage.getItem('ml_lang') || 'en';
+  const token = getSafeLocalStorage('ml_token');
+  const language = getSafeLocalStorage('ml_lang', 'en');
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
