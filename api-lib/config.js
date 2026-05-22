@@ -20,6 +20,16 @@ const parseNumber = (value, fallback) => {
 };
 
 const configuredAppUrl = process.env.APP_URL || '';
+const normalizeUrl = (value) => {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) return '';
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+};
+const vercelProductionUrl = normalizeUrl(process.env.VERCEL_PROJECT_PRODUCTION_URL);
+const publicAppUrl = normalizeUrl(process.env.PUBLIC_APP_URL);
+const deploymentUrl = normalizeUrl(process.env.VERCEL_URL);
+const configuredFrontendUrl = normalizeUrl(process.env.FRONTEND_URL);
+const configuredAppUrlNormalized = normalizeUrl(configuredAppUrl);
 const configuredDatabaseUrl =
   process.env.DATABASE_URL ||
   process.env.POSTGRES_URL ||
@@ -65,11 +75,13 @@ const config = {
   appEnv,
   isProduction,
   allowDemoMode,
-  appUrl: configuredAppUrl,
+  appUrl: configuredAppUrlNormalized || configuredAppUrl,
   frontendUrl:
-    process.env.FRONTEND_URL ||
-    configuredAppUrl ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${defaultPort}`),
+    (isProduction && (publicAppUrl || vercelProductionUrl)) ||
+    configuredFrontendUrl ||
+    configuredAppUrlNormalized ||
+    deploymentUrl ||
+    `http://localhost:${defaultPort}`,
   port: defaultPort,
   jwtSecret: process.env.JWT_SECRET || defaultJwtSecret,
   jwtExpiry: process.env.JWT_EXPIRY || '7d',
@@ -99,6 +111,8 @@ const config = {
         'http://localhost:3001',
         'http://127.0.0.1:3001',
         ...parseCsv(process.env.ALLOWED_ORIGINS),
+        publicAppUrl,
+        vercelProductionUrl,
         process.env.FRONTEND_URL,
         process.env.APP_URL,
       ].filter(Boolean)
