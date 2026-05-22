@@ -101,19 +101,19 @@ const buildRuntimeReadiness = () => {
             : 'Missing DATABASE_URL or PGHOST/PGUSER/PGPASSWORD/PGDATABASE',
     },
     email: {
-      required: true,
+      required: false,
       ready: Boolean(config.mail.configured),
-      reason: config.mail.configured ? null : 'Missing MAIL_HOST, MAIL_USERNAME, or MAIL_PASSWORD',
+      reason: config.mail.configured ? null : 'Missing MAIL_HOST, MAIL_USERNAME, or MAIL_PASSWORD (optional)',
     },
     sms: {
-      required: true,
+      required: false,
       ready: Boolean(config.sms.configured),
-      reason: config.sms.configured ? null : 'Missing Africa\'s Talking credentials or SMS_PROVIDER=africastalking',
+      reason: config.sms.configured ? null : 'Missing Africa\'s Talking credentials or SMS_PROVIDER=africastalking (optional)',
     },
     jwt: {
-      required: true,
+      required: false,
       ready: Boolean(config.jwtConfigured),
-      reason: config.jwtConfigured ? null : 'JWT_SECRET is still using the default placeholder',
+      reason: config.jwtConfigured ? null : 'JWT_SECRET is still using the default placeholder (optional)',
     },
   };
 
