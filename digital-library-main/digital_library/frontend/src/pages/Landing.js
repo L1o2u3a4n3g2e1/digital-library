@@ -128,6 +128,22 @@ export default function Landing() {
                 </Link>
               </div>
 
+              {/* About Us and Services buttons */}
+              <div className="flex flex-wrap gap-3 mb-5">
+                <Link to="/about">
+                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                    className="text-sm font-semibold text-brand-600 px-5 py-2.5 rounded-xl border border-brand-200 bg-white/80 hover:bg-brand-50 transition-all">
+                    ℹ️ {t('about')}
+                  </motion.button>
+                </Link>
+                <Link to="/services">
+                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                    className="text-sm font-semibold text-brand-600 px-5 py-2.5 rounded-xl border border-brand-200 bg-white/80 hover:bg-brand-50 transition-all">
+                    🎯 {t('services')}
+                  </motion.button>
+                </Link>
+              </div>
+
               {/* Guest access with phone */}
               <div className="flex items-center gap-3 flex-wrap">
                 <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-brand-200 rounded-2xl px-3 py-2 shadow-sm">
