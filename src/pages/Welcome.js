@@ -29,6 +29,21 @@ const Welcome = () => {
           <LanguageSelector />
         </div>
 
+        <div className="welcome-info-links">
+          <button
+            className="btn btn-ghost"
+            onClick={() => navigate('/about')}
+          >
+            ℹ️ {t.about}
+          </button>
+          <button
+            className="btn btn-ghost"
+            onClick={() => navigate('/services')}
+          >
+            🎯 {t.services}
+          </button>
+        </div>
+
         <div className="welcome-actions">
           <button
             className="btn btn-primary btn-lg"

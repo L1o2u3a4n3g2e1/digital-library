@@ -28,8 +28,6 @@ const Header = () => {
         </div>
 
         <nav className="header-nav">
-          <Link to="/services" className="nav-item">{t.services}</Link>
-          <Link to="/about" className="nav-item">{t.about}</Link>
         </nav>
 
         <div className="header-actions">

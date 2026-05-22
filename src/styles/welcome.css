@@ -52,6 +52,19 @@
   letter-spacing: 0.05em;
 }
 
+.welcome-info-links {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: slideInUp var(--transition-base) ease-out 0.2s backwards;
+}
+
+.welcome-info-links .btn {
+  font-size: 0.95rem;
+}
+
 .welcome-actions {
   display: flex;
   gap: 1rem;
