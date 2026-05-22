@@ -17,6 +17,8 @@ import ReadBook from './pages/Reader';
 import Profile from './pages/Profile';
 import Bookmarks from './pages/Bookmarks';
 import AdminDashboard from './pages/AdminDashboard';
+import About from './pages/About';
+import Services from './pages/Services';
 
 import './styles/globals.css';
 
@@ -37,6 +39,8 @@ function AppRoutes() {
     <Routes>
       {/* Public */}
       <Route path="/" element={<Landing />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/services" element={<Services />} />
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
       <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
       <Route path="/verify-email" element={<PublicRoute><VerifyEmail /></PublicRoute>} />
