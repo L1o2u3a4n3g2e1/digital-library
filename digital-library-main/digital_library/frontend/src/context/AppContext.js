@@ -3,23 +3,54 @@ import { authService } from '../services/api';
 
 const AppContext = createContext();
 
-const getLS = (k, fallback) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; } catch { return fallback; } };
-const setLS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const hasStorage = () => typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+const getRawLS = (k, fallback = null) => {
+  try {
+    if (!hasStorage()) return fallback;
+    const v = window.localStorage.getItem(k);
+    return v ?? fallback;
+  } catch {
+    return fallback;
+  }
+};
+const setRawLS = (k, v) => {
+  try {
+    if (hasStorage()) window.localStorage.setItem(k, v);
+  } catch {}
+};
+const removeRawLS = (k) => {
+  try {
+    if (hasStorage()) window.localStorage.removeItem(k);
+  } catch {}
+};
+const getLS = (k, fallback) => {
+  try {
+    const v = getRawLS(k, null);
+    return v ? JSON.parse(v) : fallback;
+  } catch {
+    return fallback;
+  }
+};
+const setLS = (k, v) => {
+  try {
+    setRawLS(k, JSON.stringify(v));
+  } catch {}
+};
 
 export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(() => getLS('ml_user', null));
-  const [token, setToken] = useState(() => localStorage.getItem('ml_token') || null);
+  const [token, setToken] = useState(() => getRawLS('ml_token', null));
   const [authReady, setAuthReady] = useState(false);
-  const [language, setLanguage] = useState(() => localStorage.getItem('ml_lang') || 'en');
-  const [theme, setTheme] = useState(() => localStorage.getItem('ml_theme') || 'light');
+  const [language, setLanguage] = useState(() => getRawLS('ml_lang', 'en'));
+  const [theme, setTheme] = useState(() => getRawLS('ml_theme', 'light'));
   const [lowLiteracy, setLowLiteracy] = useState(() => getLS('ml_low_literacy', false));
   const [highContrast, setHighContrast] = useState(() => getLS('ml_high_contrast', false));
   const [bookmarks, setBookmarks] = useState(() => getLS('ml_bookmarks', []));
   const [notifications, setNotifications] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useEffect(() => { localStorage.setItem('ml_lang', language); }, [language]);
-  useEffect(() => { localStorage.setItem('ml_theme', theme); document.documentElement.classList.toggle('dark', theme === 'dark'); }, [theme]);
+  useEffect(() => { setRawLS('ml_lang', language); }, [language]);
+  useEffect(() => { setRawLS('ml_theme', theme); document.documentElement.classList.toggle('dark', theme === 'dark'); }, [theme]);
   useEffect(() => { setLS('ml_low_literacy', lowLiteracy); document.body.classList.toggle('low-literacy', lowLiteracy); }, [lowLiteracy]);
   useEffect(() => { setLS('ml_high_contrast', highContrast); document.body.classList.toggle('high-contrast', highContrast); }, [highContrast]);
   useEffect(() => { setLS('ml_bookmarks', bookmarks); }, [bookmarks]);
@@ -30,8 +61,8 @@ export const AppProvider = ({ children }) => {
     const clearAuthState = () => {
       setUser(null);
       setToken(null);
-      localStorage.removeItem('ml_user');
-      localStorage.removeItem('ml_token');
+      removeRawLS('ml_user');
+      removeRawLS('ml_token');
     };
 
     const bootstrapAuth = async () => {
@@ -71,7 +102,7 @@ export const AppProvider = ({ children }) => {
 
   const login = useCallback((userData, authToken) => {
     setUser(userData); setToken(authToken);
-    setLS('ml_user', userData); localStorage.setItem('ml_token', authToken);
+    setLS('ml_user', userData); setRawLS('ml_token', authToken);
     setAuthReady(true);
   }, []);
 
@@ -79,8 +110,8 @@ export const AppProvider = ({ children }) => {
     authService.logout().catch(() => {}).finally(() => {
       setUser(null);
       setToken(null);
-      localStorage.removeItem('ml_user');
-      localStorage.removeItem('ml_token');
+      removeRawLS('ml_user');
+      removeRawLS('ml_token');
       setAuthReady(true);
     });
   }, []);
