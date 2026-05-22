@@ -7,6 +7,9 @@ import { useApp } from '../context/AppContext';
 import { useTranslation } from '../utils/translations';
 import { authService } from '../services/api';
 
+const isLocalDevelopment = () =>
+  typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
+
 export default function ForgotPassword() {
   const { language } = useApp();
   const { t } = useTranslation(language);
@@ -33,7 +36,11 @@ export default function ForgotPassword() {
               : 'Password reset instructions have been sent to your email.')
         );
         localStorage.setItem('ml_reset_email', email);
-        localStorage.setItem('ml_reset_link', nextResetLink);
+        if (nextResetLink && isLocalDevelopment()) {
+          localStorage.setItem('ml_reset_link', nextResetLink);
+        } else {
+          localStorage.removeItem('ml_reset_link');
+        }
         setResetLink(nextResetLink);
       }
     } catch (err) {
@@ -64,12 +71,12 @@ export default function ForgotPassword() {
                 <p className="mt-2 text-xs text-green-700/80">
                   {language === 'rw' ? 'Reba inbox cyangwa spam, hanyuma ukande ku murongo wo guhindura ijambo ry\'ibanga.' : 'Check your inbox or spam folder, then open the reset link from the email.'}
                 </p>
-                {resetLink && (
+                {resetLink && isLocalDevelopment() && (
                   <a
                     href={resetLink}
                     className="mt-3 inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-brand-700 shadow-sm ring-1 ring-brand-200 transition hover:bg-brand-50"
                   >
-                    {language === 'rw' ? 'Komeza ukoresheje demo reset link' : 'Continue with demo reset link'}
+                    {language === 'rw' ? 'Komeza ukoresheje reset link yo mu mashini yawe' : 'Continue with local reset link'}
                     <FiArrowRight size={13} />
                   </a>
                 )}

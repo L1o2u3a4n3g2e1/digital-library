@@ -30,6 +30,9 @@ const configuredDatabaseUrl =
   '';
 const defaultPort = parseNumber(process.env.PORT, 3001);
 const defaultJwtSecret = 'change-this-secret-before-production';
+const appEnv = process.env.APP_ENV || 'development';
+const isProduction = appEnv === 'production';
+const allowDemoMode = parseBoolean(process.env.ALLOW_DEMO_MODE, !isProduction);
 
 const databaseConfigured = Boolean(
   configuredDatabaseUrl ||
@@ -59,8 +62,9 @@ const jwtConfigured = Boolean(process.env.JWT_SECRET && process.env.JWT_SECRET !
 
 const config = {
   appName: process.env.APP_NAME || 'Digital Library',
-  appEnv: process.env.APP_ENV || 'development',
-  isProduction: (process.env.APP_ENV || 'development') === 'production',
+  appEnv,
+  isProduction,
+  allowDemoMode,
   appUrl: configuredAppUrl,
   frontendUrl:
     process.env.FRONTEND_URL ||

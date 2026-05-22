@@ -16,13 +16,15 @@ const CHECK_META = {
 const text = {
   en: {
     title: 'Deployment Status',
-    subtitle: 'This page shows whether the live app is running in full production mode or demo mode.',
+    subtitle: 'This page shows whether the live app is running in real mode, degraded mode, or fallback demo mode.',
     loading: 'Checking deployment readiness...',
     failed: 'We could not read the deployment status from the backend.',
-    live: 'Production mode is ready',
-    demo: 'The app is still running in demo mode',
-    liveBody: 'Core production services are configured. Real users, persistent data, and live delivery can work from this deployment.',
-    demoBody: 'The code is production-capable, but one or more required services are still missing from the Vercel project settings.',
+    live: 'Real mode is active',
+    degraded: 'Real mode is active with some missing services',
+    demo: 'Fallback demo mode is active',
+    liveBody: 'The database-backed runtime is active. Real users and persistent data are live on this deployment.',
+    degradedBody: 'The app is using the real database runtime, but one or more optional delivery services are still missing.',
+    demoBody: 'The app fell back to demo services because the real runtime could not start correctly.',
     required: 'Required',
     optional: 'Optional',
     ready: 'Ready',
@@ -31,13 +33,15 @@ const text = {
   },
   rw: {
     title: "Imimerere y'Iyoherezwa",
-    subtitle: 'Uru rupapuro rwerekana niba urubuga ruri gukora nka production nyayo cyangwa nka demo.',
+    subtitle: 'Uru rupapuro rwerekana niba urubuga ruri gukora nka mode nyayo, mode igabanyije, cyangwa fallback demo mode.',
     loading: 'Turimo kugenzura niba deployment yiteguye...',
     failed: 'Ntitwashoboye gusoma uko backend yiteguye.',
-    live: 'Production mode yiteguye',
-    demo: 'Urubuga ruracyakora nka demo',
-    liveBody: "Ibice by'ingenzi bya production byashyizweho. Abakoresha nyabo, amakuru abikwa, no kohereza ubutumwa nyabyo birashoboka.",
-    demoBody: 'Code iriteguye gukora nka production, ariko hari services zimwe zitarashyirwa muri Vercel settings.',
+    live: 'Mode nyayo iri gukora',
+    degraded: 'Mode nyayo iri gukora ariko hari services zibura',
+    demo: 'Fallback demo mode iri gukora',
+    liveBody: "Runtime ikoresha database nyayo iri gukora. Abakoresha nyabo n'amakuru abikwa byamaze kuba live.",
+    degradedBody: "Urubuga rukoresha runtime nyayo ya database, ariko hari services zimwe zo kohereza ubutumwa zitarashyirwaho neza.",
+    demoBody: 'Urubuga rwaguye kuri demo services kuko runtime nyayo itabashije gutangira neza.',
     required: 'Birakenewe',
     optional: 'Ntibikenewe cyane',
     ready: 'Byateguwe',
@@ -76,7 +80,12 @@ export default function DeploymentStatus() {
   }, [copy.failed]);
 
   const checks = status?.checks || {};
-  const isLive = Boolean(status?.production_ready);
+  const runtimeMode = status?.runtime_mode || (status?.mode === 'demo' ? 'demo' : status?.production_ready ? 'real' : 'degraded');
+  const isLive = runtimeMode === 'real';
+  const isDemo = runtimeMode === 'demo';
+  const bannerTone = isDemo ? 'border-amber-200 bg-amber-50 text-amber-900' : isLive ? 'border-green-200 bg-green-50 text-green-800' : 'border-sky-200 bg-sky-50 text-sky-900';
+  const bannerTitle = isDemo ? copy.demo : isLive ? copy.live : copy.degraded;
+  const bannerBody = isDemo ? copy.demoBody : isLive ? copy.liveBody : copy.degradedBody;
 
   return (
     <AuthLayout title={copy.title} subtitle={copy.subtitle}>
@@ -101,12 +110,12 @@ export default function DeploymentStatus() {
 
         {status && !loading && (
           <>
-            <div className={`rounded-3xl border px-5 py-4 ${isLive ? 'border-green-200 bg-green-50 text-green-800' : 'border-amber-200 bg-amber-50 text-amber-900'}`}>
+            <div className={`rounded-3xl border px-5 py-4 ${bannerTone}`}>
               <div className="flex items-start gap-3">
                 {isLive ? <FiCheckCircle className="mt-0.5" size={18} /> : <FiAlertCircle className="mt-0.5" size={18} />}
                 <div>
-                  <h3 className="text-sm font-semibold">{isLive ? copy.live : copy.demo}</h3>
-                  <p className="mt-1 text-sm opacity-90">{isLive ? copy.liveBody : copy.demoBody}</p>
+                  <h3 className="text-sm font-semibold">{bannerTitle}</h3>
+                  <p className="mt-1 text-sm opacity-90">{bannerBody}</p>
                 </div>
               </div>
             </div>

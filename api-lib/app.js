@@ -40,21 +40,21 @@ const buildRuntimeReadiness = () => {
   const checks = {
     database: {
       required: true,
-      ready: databaseState.mode === 'database',
+      ready: databaseState.mode === 'database' && Boolean(databaseState.ready),
       reason:
-        databaseState.mode === 'database'
+        databaseState.mode === 'database' && databaseState.ready
           ? null
           : config.database.configured
             ? databaseState.error || databaseState.lastError?.message || 'Database connection failed'
             : 'Missing DATABASE_URL or PGHOST/PGUSER/PGPASSWORD/PGDATABASE',
     },
     email: {
-      required: true,
+      required: false,
       ready: Boolean(config.mail.configured),
       reason: config.mail.configured ? null : 'Missing MAIL_HOST, MAIL_USERNAME, or MAIL_PASSWORD',
     },
     sms: {
-      required: true,
+      required: false,
       ready: Boolean(config.sms.configured),
       reason: config.sms.configured ? null : 'Missing live SMS provider credentials',
     },
@@ -65,8 +65,17 @@ const buildRuntimeReadiness = () => {
     },
   };
 
+  const runtimeMode =
+    databaseState.mode === 'demo'
+      ? 'demo'
+      : checks.database.ready
+        ? 'real'
+        : 'degraded';
+
   return {
-    ready: Object.values(checks).every((check) => check.ready || !check.required),
+    ready: ['database', 'jwt'].every((key) => checks[key].ready),
+    deliveryReady: ['email', 'sms'].every((key) => checks[key].ready),
+    runtimeMode,
     checks,
   };
 };
@@ -94,7 +103,7 @@ const publicDir = path.join(process.cwd(), 'public');
 const indexHtmlPath = path.join(publicDir, 'index.html');
 const schemaReady = initializeDatabase();
 const services = buildServices();
-const isDemoMode = () => getDatabaseState().mode === 'demo';
+const isDemoMode = () => config.allowDemoMode && getDatabaseState().mode === 'demo';
 
 const resolveAuthService = () => (isDemoMode() ? services.demoAuthService : services.authService);
 
@@ -148,9 +157,10 @@ app.get('/api/health', async (_request, response) => {
       {
         status: 'ok',
         database: 'disconnected',
-        mode: 'demo',
+        mode: readiness.runtimeMode,
         message: databaseState.error || 'Running in demo mode',
         production_ready: readiness.ready,
+        delivery_ready: readiness.deliveryReady,
         readiness: readiness.checks,
       },
       'Digital Library API is running'
@@ -164,8 +174,9 @@ app.get('/api/health', async (_request, response) => {
     {
       status: 'ok',
       database: rows[0]?.ok === 1 ? 'connected' : 'unknown',
-      mode: 'database',
+      mode: readiness.runtimeMode,
       production_ready: readiness.ready,
+      delivery_ready: readiness.deliveryReady,
       readiness: readiness.checks,
     },
     'Digital Library API is running'
@@ -179,6 +190,8 @@ app.get('/api/health/ready', (_request, response) => {
     {
       app_env: config.appEnv,
       production_ready: readiness.ready,
+      delivery_ready: readiness.deliveryReady,
+      runtime_mode: readiness.runtimeMode,
       mode: isDemoMode() ? 'demo' : 'database',
       checks: readiness.checks,
     },
