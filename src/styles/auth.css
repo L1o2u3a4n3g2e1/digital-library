@@ -106,6 +106,16 @@
   border-left: 4px solid #c62828;
 }
 
+.success-message {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  border-left: 4px solid #2e7d32;
+}
+
 .auth-divider {
   height: 1px;
   background: var(--light-gray);
@@ -133,6 +143,18 @@
 .link-primary:hover {
   color: var(--dark-brown);
   text-decoration: underline;
+}
+
+.link-secondary {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 400;
+  font-size: 0.875rem;
+  transition: color var(--transition-fast);
+}
+
+.link-secondary:hover {
+  color: var(--soft-brown);
 }
 
 .accessibility-toggle {

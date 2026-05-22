@@ -10,8 +10,8 @@ export const translations = {
     login: 'Login',
     register: 'Register',
     back: 'Back',
-    about: 'About',
-    service: 'Service',
+    about: 'About Us',
+    services: 'Services',
 
     // Home/Hero
     appTitle: 'Multilingual Digital Library',
@@ -33,6 +33,14 @@ export const translations = {
     alreadyHaveAccount: 'Already have an account?',
     signUp: 'Sign Up',
     signIn: 'Sign In',
+    guestSignIn: 'Sign in with Phone',
+    verificationCode: 'Verification Code',
+    enterVerificationCode: 'Enter the code sent to your phone',
+    resendCode: 'Resend Code',
+    verifyPhone: 'Verify Phone Number',
+    checkPhone: 'Check your phone for the verification code',
+    codeExpired: 'Code expired, please request a new one',
+    invalidCode: 'Invalid code. Please try again',
 
     // Dashboard
     searchBooks: 'Search books...',
@@ -140,8 +148,8 @@ export const translations = {
     login: 'Injira',
     register: 'Iyandikishe',
     back: 'Itzura',
-    about: 'Ibijyanye',
-    service: 'Serivisi',
+    about: 'Ibijyanye Kigezo',
+    services: 'Serivisi',
 
     // Home/Hero
     appTitle: 'Isomero rya digitale',
@@ -163,6 +171,14 @@ export const translations = {
     alreadyHaveAccount: 'Una konti?',
     signUp: 'Iyandikishe',
     signIn: 'Injira',
+    guestSignIn: 'Injira hamwe n\'Nomero ya Telefone',
+    verificationCode: 'Kode y\'Ubwiyunge',
+    enterVerificationCode: 'Andika kode yoherejwe kuri telefone yawe',
+    resendCode: 'Ohereza Kode Nshya',
+    verifyPhone: 'Emeza Nomero ya Telefone',
+    checkPhone: 'Reba kuri telefone yawe kode y\'ubwiyunge',
+    codeExpired: 'Kode yarutse imbaraga, gusaba nshya',
+    invalidCode: 'Kode ntisobwa. Gerageza nshya',
 
     // Dashboard
     searchBooks: 'Shakisha ibitabo...',

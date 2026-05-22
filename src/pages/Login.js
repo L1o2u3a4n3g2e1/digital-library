@@ -19,6 +19,28 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!phoneNumber.trim()) {
+      setError('Email is required');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(phoneNumber)) {
+      setError('Invalid email format');
+      return;
+    }
+
+    if (!password) {
+      setError('Password is required');
+      return;
+    }
+
+    if (password.length > 128) {
+      setError('Invalid password');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -30,7 +52,8 @@ const Login = () => {
         setError(response.message || 'Login failed');
       }
     } catch (err) {
-      setError(t.error);
+      setError('Login failed. Please try again.');
+      console.error('Login error:', err);
     } finally {
       setLoading(false);
     }
@@ -91,6 +114,14 @@ const Login = () => {
             {loading ? t.loading : t.signIn}
           </button>
         </form>
+
+        <div className="auth-divider"></div>
+
+        <div className="auth-link">
+          <Link to="/guest-signin" className="btn btn-secondary btn-full">
+            {t.continueAsGuest}
+          </Link>
+        </div>
 
         <div className="auth-divider"></div>
 

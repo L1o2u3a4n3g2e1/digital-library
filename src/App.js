@@ -5,9 +5,12 @@ import Header from './components/Header';
 import Welcome from './pages/Welcome';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import GuestSignIn from './pages/GuestSignIn';
 import Dashboard from './pages/Dashboard';
 import Reader from './pages/Reader';
 import Profile from './pages/Profile';
+import About from './pages/About';
+import Services from './pages/Services';
 import './App.css';
 
 function App() {
@@ -16,8 +19,11 @@ function App() {
       <AppProvider>
         <Routes>
           <Route path="/" element={<Welcome />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/services" element={<Services />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/guest-signin" element={<GuestSignIn />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/reader/:id" element={<Reader />} />
           <Route path="/profile" element={<Profile />} />

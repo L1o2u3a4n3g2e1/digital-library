@@ -21,12 +21,19 @@ const parseNumber = (value, fallback) => {
 
 const configuredAppUrl = process.env.APP_URL || '';
 const defaultPort = parseNumber(process.env.PORT, 3001);
-const configuredDatabaseUrl = process.env.DATABASE_URL || process.env.MYSQL_URL || process.env.MYSQL_PUBLIC_URL || '';
+const configuredDatabaseUrl =
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.POSTGRES_PRISMA_URL ||
+  process.env.POSTGRES_URL_NON_POOLING ||
+  process.env.MYSQL_URL ||
+  process.env.MYSQL_PUBLIC_URL ||
+  '';
 const databaseConfigured = Boolean(
   configuredDatabaseUrl ||
-    ((process.env.MYSQLHOST || process.env.DB_HOST) &&
-      (process.env.MYSQLUSER || process.env.DB_USER) &&
-      (process.env.MYSQLDATABASE || process.env.DB_NAME))
+    ((process.env.PGHOST || process.env.POSTGRES_HOST || process.env.DB_HOST) &&
+      (process.env.PGUSER || process.env.POSTGRES_USER || process.env.DB_USER) &&
+      (process.env.PGDATABASE || process.env.POSTGRES_DATABASE || process.env.DB_NAME))
 );
 const emailConfigured = Boolean(process.env.MAIL_HOST && process.env.MAIL_USERNAME && process.env.MAIL_PASSWORD);
 const smsConfigured = Boolean(
@@ -57,13 +64,13 @@ const config = {
   logLevel: process.env.LOG_LEVEL || 'info',
   database: {
     url: configuredDatabaseUrl,
-    host: process.env.MYSQLHOST || process.env.DB_HOST || '',
-    port: parseNumber(process.env.MYSQLPORT || process.env.DB_PORT, 3306),
-    user: process.env.MYSQLUSER || process.env.DB_USER || '',
-    password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || '',
-    name: process.env.MYSQLDATABASE || process.env.DB_NAME || '',
+    host: process.env.PGHOST || process.env.POSTGRES_HOST || process.env.DB_HOST || '',
+    port: parseNumber(process.env.PGPORT || process.env.POSTGRES_PORT || process.env.DB_PORT, 5432),
+    user: process.env.PGUSER || process.env.POSTGRES_USER || process.env.DB_USER || '',
+    password: process.env.PGPASSWORD || process.env.POSTGRES_PASSWORD || process.env.DB_PASSWORD || '',
+    name: process.env.PGDATABASE || process.env.POSTGRES_DATABASE || process.env.DB_NAME || '',
     configured: databaseConfigured,
-    ssl: parseBoolean(process.env.DB_SSL || process.env.MYSQL_SSL, false),
+    ssl: parseBoolean(process.env.DB_SSL || process.env.POSTGRES_SSL || process.env.MYSQL_SSL, false),
     sslRejectUnauthorized: parseBoolean(process.env.DB_SSL_REJECT_UNAUTHORIZED, false),
   },
   allowedOrigins: Array.from(

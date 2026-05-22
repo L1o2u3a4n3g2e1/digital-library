@@ -17,9 +17,51 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
 
+  const validatePasswordStrength = (pwd) => {
+    const errors = [];
+    if (pwd.length < 8) errors.push('At least 8 characters');
+    if (!/[A-Z]/.test(pwd)) errors.push('One uppercase letter');
+    if (!/[a-z]/.test(pwd)) errors.push('One lowercase letter');
+    if (!/\d/.test(pwd)) errors.push('One number');
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd)) errors.push('One special character');
+    return errors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!username.trim()) {
+      setError('Username is required');
+      return;
+    }
+
+    if (username.length < 2) {
+      setError('Username must be at least 2 characters');
+      return;
+    }
+
+    if (!email.trim()) {
+      setError('Email is required');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Invalid email format');
+      return;
+    }
+
+    if (!password) {
+      setError('Password is required');
+      return;
+    }
+
+    const pwdErrors = validatePasswordStrength(password);
+    if (pwdErrors.length > 0) {
+      setError(`Password must contain: ${pwdErrors.join(', ')}`);
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
@@ -36,7 +78,8 @@ const Register = () => {
         setError(response.message || 'Registration failed');
       }
     } catch (err) {
-      setError(t.error);
+      setError('Registration failed. Please try again.');
+      console.error('Registration error:', err);
     } finally {
       setLoading(false);
     }
@@ -111,6 +154,14 @@ const Register = () => {
             {loading ? t.loading : t.signUp}
           </button>
         </form>
+
+        <div className="auth-divider"></div>
+
+        <div className="auth-link">
+          <Link to="/guest-signin" className="btn btn-secondary btn-full">
+            {t.continueAsGuest}
+          </Link>
+        </div>
 
         <div className="auth-divider"></div>
 

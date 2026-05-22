@@ -150,12 +150,29 @@ export default class AuthService {
       return { success: false, message: 'Name, email, and password are required', code: 'MISSING_FIELDS' };
     }
 
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
+    if (typeof name !== 'string' || name.trim().length < 2 || name.length > 255) {
+      return { success: false, message: 'Name must be 2-255 characters', code: 'INVALID_NAME' };
+    }
+
+    if (!/^\S+@\S+\.\S+$/.test(email) || email.length > 254) {
       return { success: false, message: 'Invalid email format', code: 'INVALID_EMAIL' };
     }
 
-    if (password.length < 6) {
-      return { success: false, message: 'Password must be at least 6 characters', code: 'WEAK_PASSWORD' };
+    if (password.length < 8 || password.length > 128) {
+      return { success: false, message: 'Password must be 8-128 characters', code: 'WEAK_PASSWORD' };
+    }
+
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+    if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
+      return {
+        success: false,
+        message: 'Password must contain uppercase, lowercase, numbers, and special characters',
+        code: 'WEAK_PASSWORD',
+      };
     }
 
     if (await this.userRepository.emailExists(email)) {

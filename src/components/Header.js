@@ -28,9 +28,8 @@ const Header = () => {
         </div>
 
         <nav className="header-nav">
-          <Link to="/" className="nav-item">{t.service}</Link>
-          <Link to="/" className="nav-item">{t.settings}</Link>
-          <Link to="/" className="nav-item">{t.about}</Link>
+          <Link to="/services" className="nav-item">{t.services}</Link>
+          <Link to="/about" className="nav-item">{t.about}</Link>
         </nav>
 
         <div className="header-actions">

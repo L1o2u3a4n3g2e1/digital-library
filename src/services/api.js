@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const api = {
   // Auth endpoints
@@ -16,6 +16,33 @@ const api = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
+    });
+    return response.json();
+  },
+
+  async registerGuest(phone) {
+    const response = await fetch(`${API_URL}/auth/register-guest`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
+    });
+    return response.json();
+  },
+
+  async verifyGuestPhone(phone, code) {
+    const response = await fetch(`${API_URL}/auth/verify-guest-phone`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, code })
+    });
+    return response.json();
+  },
+
+  async resendGuestVerification(phone) {
+    const response = await fetch(`${API_URL}/auth/resend-guest-verification`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
     });
     return response.json();
   },

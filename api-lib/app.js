@@ -14,6 +14,19 @@ import AuthService from './services/authService.js';
 import LibraryService from './services/libraryService.js';
 import DemoAuthService from './services/demoAuthService.js';
 import DemoLibraryService from './services/demoLibraryService.js';
+import {
+  securityHeaders,
+  createRateLimiter,
+  sanitizeInput,
+  validateEmail,
+  validatePassword,
+  validatePhone,
+  requestLogger,
+  asyncHandler,
+  authenticationMiddleware,
+  errorHandler,
+  notFoundHandler,
+} from './middleware/security.js';
 
 const sendSuccess = (response, data = null, message = 'Success', statusCode = 200) => {
   response.status(statusCode).json({ success: true, message, data });
@@ -85,7 +98,7 @@ const buildRuntimeReadiness = () => {
           ? null
           : config.database.configured
             ? databaseState.error || 'Database connection failed'
-            : 'Missing DATABASE_URL or MYSQLHOST/MYSQLUSER/MYSQLPASSWORD/MYSQLDATABASE',
+            : 'Missing DATABASE_URL or PGHOST/PGUSER/PGPASSWORD/PGDATABASE',
     },
     email: {
       required: true,
@@ -112,6 +125,10 @@ const buildRuntimeReadiness = () => {
 
 const app = express();
 app.disable('x-powered-by');
+app.set('trust proxy', 1);
+
+app.use(securityHeaders);
+app.use(requestLogger);
 
 app.use(
   cors({
@@ -123,12 +140,18 @@ app.use(
       callback(null, false);
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    maxAge: 86400,
   })
 );
+
 app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(publicDir));
+
+app.use(createRateLimiter(100, 15 * 60 * 1000));
 
 app.use(async (request, response, next) => {
   try {
@@ -186,60 +209,145 @@ app.get('/api/health/ready', (_request, response) => {
   );
 });
 
-app.post('/api/auth/register', async (request, response) => {
+app.post('/api/auth/register', asyncHandler(async (request, response) => {
   const { name = '', email = '', password = '', phone = null } = request.body || {};
   const errors = {};
-  if (!String(name).trim()) errors.name = 'Name is required';
-  if (!String(email).trim()) errors.email = 'Email is required';
-  if (!String(password)) errors.password = 'Password is required';
-  if (String(password).length > 0 && String(password).length < 6) errors.password = 'Password must be at least 6 characters';
-  if (Object.keys(errors).length) return sendValidationError(response, errors);
 
-  const result = await resolveAuthService().register(String(name).trim(), String(email).trim(), String(password), phone ? String(phone).trim() : null);
-  return result.success ? sendSuccess(response, result.data, result.message, 201) : sendError(response, result.message, 400, { code: result.code || null });
-});
+  const trimmedName = String(name).trim();
+  const trimmedEmail = String(email).trim();
+  const trimmedPassword = String(password || '');
+  const trimmedPhone = phone ? String(phone).trim() : null;
 
-app.post('/api/auth/register-guest', async (request, response) => {
+  if (!trimmedName) errors.name = 'Name is required';
+  else if (trimmedName.length < 2) errors.name = 'Name must be at least 2 characters';
+  else if (trimmedName.length > 255) errors.name = 'Name must not exceed 255 characters';
+
+  if (!trimmedEmail) errors.email = 'Email is required';
+  else if (!validateEmail(trimmedEmail)) errors.email = 'Invalid email format';
+
+  if (!trimmedPassword) errors.password = 'Password is required';
+  else if (trimmedPassword.length < 8) errors.password = 'Password must be at least 8 characters';
+
+  if (Object.keys(errors).length) {
+    return sendValidationError(response, errors);
+  }
+
+  const result = await resolveAuthService().register(
+    sanitizeInput(trimmedName),
+    trimmedEmail.toLowerCase(),
+    trimmedPassword,
+    trimmedPhone
+  );
+
+  return result.success
+    ? sendSuccess(response, result.data, result.message, 201)
+    : sendError(response, result.message, 400, { code: result.code || null });
+}));
+
+app.post('/api/auth/register-guest', asyncHandler(async (request, response) => {
   const phone = String(request.body?.phone || '').trim();
-  if (!phone) return sendValidationError(response, { phone: 'Phone number is required' });
-  const result = await resolveAuthService().registerGuest(phone);
-  return result.success ? sendSuccess(response, result.data, result.message, 201) : sendError(response, result.message, 400, { code: result.code || null });
-});
 
-app.post('/api/auth/verify-guest-phone', async (request, response) => {
+  if (!phone) {
+    return sendValidationError(response, { phone: 'Phone number is required' });
+  }
+
+  if (!validatePhone(phone)) {
+    return sendValidationError(response, { phone: 'Invalid phone number format' });
+  }
+
+  if (phone.length > 20) {
+    return sendValidationError(response, { phone: 'Phone number too long' });
+  }
+
+  const result = await resolveAuthService().registerGuest(phone);
+  return result.success
+    ? sendSuccess(response, result.data, result.message, 201)
+    : sendError(response, result.message, 400, { code: result.code || null });
+}));
+
+app.post('/api/auth/verify-guest-phone', asyncHandler(async (request, response) => {
   const phone = String(request.body?.phone || '').trim();
   const code = String(request.body?.code || '').trim();
   const errors = {};
-  if (!phone) errors.phone = 'Phone number is required';
-  if (!code) errors.code = 'Verification code is required';
-  if (Object.keys(errors).length) return sendValidationError(response, errors);
-  const result = await resolveAuthService().verifyGuestPhone(phone, code, response);
-  return result.success ? sendSuccess(response, result.data, result.message) : sendError(response, result.message, result.code === 'USER_NOT_FOUND' ? 404 : 400, { code: result.code || null });
-});
 
-app.post('/api/auth/verify-email', async (request, response) => {
+  if (!phone) {
+    errors.phone = 'Phone number is required';
+  } else if (!validatePhone(phone)) {
+    errors.phone = 'Invalid phone number format';
+  }
+
+  if (!code) {
+    errors.code = 'Verification code is required';
+  } else if (!/^\d{6}$/.test(code)) {
+    errors.code = 'Verification code must be 6 digits';
+  }
+
+  if (Object.keys(errors).length) {
+    return sendValidationError(response, errors);
+  }
+
+  const result = await resolveAuthService().verifyGuestPhone(phone, code, response);
+  const statusCode = result.code === 'USER_NOT_FOUND' ? 404 : result.success ? 200 : 400;
+  return result.success
+    ? sendSuccess(response, result.data, result.message, statusCode)
+    : sendError(response, result.message, statusCode, { code: result.code || null });
+}));
+
+app.post('/api/auth/verify-email', asyncHandler(async (request, response) => {
   const email = String(request.body?.email || '').trim();
   const code = String(request.body?.code || '').trim();
   const errors = {};
-  if (!email) errors.email = 'Email is required';
-  if (!code) errors.code = 'Verification code is required';
-  if (Object.keys(errors).length) return sendValidationError(response, errors);
-  const result = await resolveAuthService().verifyEmail(email, code, response);
-  return result.success ? sendSuccess(response, result.data, result.message) : sendError(response, result.message, result.code === 'USER_NOT_FOUND' ? 404 : 400, { code: result.code || null });
-});
 
-app.post('/api/auth/login', async (request, response) => {
+  if (!email) {
+    errors.email = 'Email is required';
+  } else if (!validateEmail(email)) {
+    errors.email = 'Invalid email format';
+  }
+
+  if (!code) {
+    errors.code = 'Verification code is required';
+  } else if (!/^\d{6}$/.test(code)) {
+    errors.code = 'Verification code must be 6 digits';
+  }
+
+  if (Object.keys(errors).length) {
+    return sendValidationError(response, errors);
+  }
+
+  const result = await resolveAuthService().verifyEmail(email.toLowerCase(), code, response);
+  const statusCode = result.code === 'USER_NOT_FOUND' ? 404 : result.success ? 200 : 400;
+  return result.success
+    ? sendSuccess(response, result.data, result.message, statusCode)
+    : sendError(response, result.message, statusCode, { code: result.code || null });
+}));
+
+app.post('/api/auth/login', asyncHandler(async (request, response) => {
   const email = String(request.body?.email || '').trim();
   const password = String(request.body?.password || '');
   const rememberMe = Boolean(request.body?.remember_me);
   const errors = {};
-  if (!email) errors.email = 'Email is required';
-  if (!password) errors.password = 'Password is required';
-  if (Object.keys(errors).length) return sendValidationError(response, errors);
 
-  const result = await resolveAuthService().login(email, password, rememberMe, response);
-  return result.success ? sendSuccess(response, result.data, result.message) : sendError(response, result.message, 401, { code: result.code || null });
-});
+  if (!email) {
+    errors.email = 'Email is required';
+  } else if (!validateEmail(email)) {
+    errors.email = 'Invalid email format';
+  }
+
+  if (!password) {
+    errors.password = 'Password is required';
+  } else if (password.length > 128) {
+    errors.password = 'Invalid password';
+  }
+
+  if (Object.keys(errors).length) {
+    return sendValidationError(response, errors);
+  }
+
+  const result = await resolveAuthService().login(email.toLowerCase(), password, rememberMe, response);
+  return result.success
+    ? sendSuccess(response, result.data, result.message)
+    : sendError(response, result.message, 401, { code: result.code || null });
+}));
 
 app.get('/api/auth/me', async (request, response) => {
   const token = resolveToken(request);
@@ -248,19 +356,45 @@ app.get('/api/auth/me', async (request, response) => {
   return result.success ? sendSuccess(response, result.data, 'User retrieved') : sendError(response, result.message, 401, { code: result.code || null });
 });
 
-app.post('/api/auth/resend-verification', async (request, response) => {
+app.post('/api/auth/resend-verification', asyncHandler(async (request, response) => {
   const email = String(request.body?.email || '').trim();
-  if (!email) return sendValidationError(response, { email: 'Email is required' });
-  const result = await resolveAuthService().resendVerification(email);
-  return result.success ? sendSuccess(response, result.data, result.message) : sendError(response, result.message, result.code === 'USER_NOT_FOUND' ? 404 : 400, { code: result.code || null });
-});
 
-app.post('/api/auth/resend-guest-verification', async (request, response) => {
+  if (!email) {
+    return sendValidationError(response, { email: 'Email is required' });
+  }
+
+  if (!validateEmail(email)) {
+    return sendValidationError(response, { email: 'Invalid email format' });
+  }
+
+  const result = await resolveAuthService().resendVerification(email.toLowerCase());
+  const statusCode = result.code === 'USER_NOT_FOUND' ? 404 : result.success ? 200 : 400;
+  return result.success
+    ? sendSuccess(response, result.data, result.message, statusCode)
+    : sendError(response, result.message, statusCode, { code: result.code || null });
+}));
+
+app.post('/api/auth/resend-guest-verification', asyncHandler(async (request, response) => {
   const phone = String(request.body?.phone || '').trim();
-  if (!phone) return sendValidationError(response, { phone: 'Phone number is required' });
+
+  if (!phone) {
+    return sendValidationError(response, { phone: 'Phone number is required' });
+  }
+
+  if (!validatePhone(phone)) {
+    return sendValidationError(response, { phone: 'Invalid phone number format' });
+  }
+
+  if (phone.length > 20) {
+    return sendValidationError(response, { phone: 'Phone number too long' });
+  }
+
   const result = await resolveAuthService().resendGuestVerification(phone);
-  return result.success ? sendSuccess(response, result.data, result.message) : sendError(response, result.message, result.code === 'USER_NOT_FOUND' ? 404 : 400, { code: result.code || null });
-});
+  const statusCode = result.code === 'USER_NOT_FOUND' ? 404 : result.success ? 200 : 400;
+  return result.success
+    ? sendSuccess(response, result.data, result.message, statusCode)
+    : sendError(response, result.message, statusCode, { code: result.code || null });
+}));
 
 app.post('/api/auth/logout', async (request, response) => {
   const result = await resolveAuthService().logout(resolveToken(request), response);
@@ -459,14 +593,34 @@ app.use((request, response) => {
   return response.status(404).send('Not found');
 });
 
-app.use((error, _request, response, _next) => {
-  console.error(error);
+app.use((error, request, response, next) => {
+  console.error('[ERROR]', {
+    timestamp: new Date().toISOString(),
+    message: error.message,
+    path: request.path,
+    method: request.method,
+    ...(config.appEnv === 'development' && { stack: error.stack }),
+  });
 
   if (error instanceof multer.MulterError) {
-    return sendError(response, error.message, 400);
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return sendError(response, 'File too large', 413);
+    }
+    return sendError(response, 'File upload error', 400);
   }
 
-  return sendError(response, error.message || 'Internal server error', 500);
+  if (error.name === 'ValidationError') {
+    return sendError(response, 'Validation error', 422);
+  }
+
+  if (error.name === 'UnauthorizedError') {
+    return sendError(response, 'Unauthorized', 401);
+  }
+
+  const statusCode = error.status || error.statusCode || 500;
+  const message = config.appEnv === 'development' ? error.message : 'Internal server error';
+
+  return sendError(response, message, statusCode);
 });
 
 export default app;

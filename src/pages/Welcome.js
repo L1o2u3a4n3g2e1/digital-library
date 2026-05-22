@@ -47,7 +47,7 @@ const Welcome = () => {
         <div className="welcome-guest">
           <button
             className="btn btn-ghost"
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/guest-signin')}
           >
             {t.continueAsGuest}
           </button>
